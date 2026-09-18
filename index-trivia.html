@@ -1,0 +1,1861 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snow's Push to Think Trivia</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --studio:#161a52; --studio-2:#232a86; --studio-3:#2f38a8; --edge:#4a55d6;
+  --marquee:#ffc53d; --hot:#ff3d8b; --go:#1fd6a8; --bust:#ff5a4e;
+  --paper:#f6f3ff; --muted:#aab0e8; --ink:#141747;
+  --display:'Bungee','Impact','Arial Black',sans-serif;
+  --body:'Rubik','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#0c0f3c;color:var(--paper);font-family:var(--body)}
+#viewport{position:fixed;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 18%,#2d35a0 0%,#161a52 55%,#0b0d36 100%)}
+#stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform:translate(-50%,-50%);transform-origin:center}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--marquee);outline-offset:3px}
+.screen{position:absolute;inset:0;display:none}
+#stage[data-screen="title"] #title,#stage[data-screen="game"] #game,#stage[data-screen="results"] #results,#stage[data-screen="players"] #players,#stage[data-screen="board"] #boardScreen,#stage[data-screen="podium"] #podium{display:block}
+
+/* ---------- Host ---------- */
+#host{position:absolute;width:330px;transition:left .5s ease,top .5s ease;z-index:5}
+#stage[data-screen="title"] #host{left:48px;top:96px}
+#stage[data-screen="game"] #host{left:28px;top:76px}
+#stage[data-screen="results"] #host,#stage[data-screen="players"] #host,#stage[data-screen="podium"] #host{left:60px;top:110px}
+#stage[data-screen="board"] #host{left:28px;top:76px}
+#telly{display:block;margin:0 auto;height:290px;width:auto;transition:height .5s ease}
+#stage[data-screen="game"] #telly,#stage[data-screen="board"] #telly{height:190px}
+#telly .qm-bob,#telly .qm-pose,#telly .shape-bang,#telly .eyes,#telly .qm-dot{transform-box:view-box}
+#telly .shape-bang,#telly .e-happy,#telly .e-sad,#telly .e-wide,#telly .m-grin,#telly .m-frown,#telly .m-o,#telly .m-talk,#telly .drops{display:none}
+#host.mood-happy .shape-q{display:none}
+#host.mood-happy .shape-bang{display:inline;transform-origin:120px 190px;animation:bang .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bang{from{transform:scale(.6,.4)}to{transform:scale(1)}}
+#host.mood-happy .e-open{display:none} #host.mood-happy .e-happy{display:inline}
+#host.mood-happy .m-smile{display:none} #host.mood-happy .m-grin{display:inline}
+#host.mood-sad .e-open{display:none} #host.mood-sad .e-sad{display:inline}
+#host.mood-sad .m-smile{display:none} #host.mood-sad .m-frown{display:inline}
+#host.mood-sad .qm-pose{transform-origin:120px 230px;transform:rotate(-16deg) translate(-8px,16px) scaleY(.92);transition:transform .45s ease}
+#host.mood-confused .e-open{display:none} #host.mood-confused .e-wide{display:inline}
+#host.mood-confused .m-smile{display:none} #host.mood-confused .m-o{display:inline}
+#host.mood-confused .qm-pose{transform-origin:120px 230px;animation:tilt 1.1s ease-in-out infinite alternate}
+@keyframes tilt{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+#telly .qm-pose{transition:transform .35s ease}
+#host.talking .m-smile,#host.talking .m-grin,#host.talking .m-frown,#host.talking .m-o{display:none}
+#host.talking .m-talk{display:inline;transform-box:fill-box;transform-origin:center;animation:yap .17s ease-in-out infinite alternate}
+#host.talking .qm-bob{animation:bob .34s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes yap{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+#telly .eyes{transform-origin:120px 48px;animation:blink 5.5s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+#telly .qm-dot{transform-origin:120px 276px}
+#host.talking .qm-dot{animation:squish .34s ease-in-out infinite alternate}
+@keyframes squish{from{transform:scale(1,1)}to{transform:scale(1.08,.9)}}
+#host.sweat .drops{display:inline;animation:drip .6s ease-in infinite}
+@keyframes drip{from{transform:translateY(-2px);opacity:1}to{transform:translateY(8px);opacity:.2}}
+#host.sweat .qm-bob{animation:jitter .12s linear infinite}
+@keyframes jitter{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}}
+#bubble{position:relative;margin-top:14px;background:var(--paper);color:var(--ink);border-radius:20px;padding:14px 18px;font-size:19px;line-height:1.35;font-weight:500;min-height:64px;max-height:134px;overflow:hidden;box-shadow:0 10px 30px rgba(5,7,40,.45)}
+#bubble::before{content:"";position:absolute;top:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-top:0;border-bottom-color:var(--paper)}
+#stage[data-screen="game"] #bubble,#stage[data-screen="board"] #bubble{max-height:140px}
+#stage:not([data-screen="game"]):not([data-screen="board"]) #bubble{max-height:230px}
+#bubble.long{font-size:16.5px}
+#bubble .who{display:block;font-size:13px;font-weight:700;color:var(--hot);margin-bottom:2px}
+
+/* ---------- Bulbs ---------- */
+.bulbs{position:absolute;inset:0;pointer-events:none}
+.bulb{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff6d8,var(--marquee) 55%,#b8860b);box-shadow:0 0 8px rgba(255,197,61,.7)}
+.celebrate .bulb:nth-child(odd){animation:chaseA .24s steps(1) infinite}
+.celebrate .bulb:nth-child(even){animation:chaseB .24s steps(1) infinite}
+@keyframes chaseA{0%{opacity:1}50%{opacity:.2}}
+@keyframes chaseB{0%{opacity:.2}50%{opacity:1}}
+
+/* ---------- Title ---------- */
+#title .panel{position:absolute;left:430px;top:48px;width:806px}
+.marquee{position:relative;padding:26px 34px 22px;border-radius:26px;background:linear-gradient(180deg,#2a0f4f,#1b1060);box-shadow:inset 0 0 0 4px var(--hot),0 18px 40px rgba(5,7,40,.5)}
+.marquee h1{margin:0;font-family:var(--display);font-weight:400;font-size:66px;line-height:.98;color:var(--marquee);text-shadow:0 0 18px rgba(255,197,61,.55),0 4px 0 #a3321f}
+.marquee h1 small{display:block;font-size:28px;color:var(--paper);text-shadow:none;margin-bottom:4px}
+.marquee h1 span{display:block;font-size:46px;color:var(--paper);text-shadow:0 0 16px rgba(255,61,139,.7),0 4px 0 var(--hot)}
+.tagline{margin:18px 4px 16px;font-size:21px;line-height:1.4;color:var(--muted);max-width:720px}
+.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.mode{text-align:left;background:var(--studio-2);border:3px solid var(--edge);border-radius:18px;padding:14px 16px;min-height:112px}
+.mode b{display:block;font-size:20px;font-weight:800;margin-bottom:6px}
+.mode small{display:block;font-size:14px;line-height:1.3;color:var(--muted)}
+.mode[aria-pressed="true"]{border-color:var(--marquee);background:#3a2f80;box-shadow:0 0 0 3px rgba(255,197,61,.25)}
+.mode[aria-pressed="true"] small{color:var(--paper)}
+.options{display:flex;gap:16px;margin:18px 0 20px}
+.field{display:flex;flex-direction:column;gap:6px;font-size:15px;color:var(--muted)}
+.field select{font:500 17px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:12px;padding:9px 12px;min-width:170px}
+.field select option{background:var(--studio)}
+.actions{display:flex;gap:14px;align-items:center}
+.btn{border:0;border-radius:999px;padding:14px 26px;font-size:18px;font-weight:700;background:var(--studio-3);box-shadow:inset 0 0 0 2px var(--edge)}
+.btn:hover{background:#3a44c0}
+.btn.primary{background:var(--marquee);color:var(--ink);font-size:22px;padding:16px 34px;box-shadow:0 6px 0 #b8860b}
+.btn.primary:hover{background:#ffd36b}
+.btn.primary:active{transform:translateY(3px);box-shadow:0 3px 0 #b8860b}
+.status{margin-top:16px;font-size:15px;color:var(--muted);min-height:20px}
+.credit{position:absolute;right:28px;bottom:14px;font-size:13px;color:#7c83c9}
+.credit a{color:#9aa1e6}
+
+/* ---------- Game ---------- */
+.hud{position:absolute;left:24px;right:24px;top:14px;height:50px;display:flex;align-items:center;gap:18px}
+.hud .logo{font-family:var(--display);font-size:22px;color:var(--marquee);white-space:nowrap}
+.hud .progress{font-size:19px;font-weight:700;color:var(--paper);background:var(--studio-2);padding:7px 16px;border-radius:999px}
+.hud .spacer{flex:1}
+.hud .streak{font-size:19px;font-weight:800;color:var(--marquee)}
+.hud .lives{font-size:22px;letter-spacing:2px}
+.hud .score{font-family:var(--display);font-size:30px;color:var(--paper);min-width:120px;text-align:right}
+.icon-btn{border:0;background:var(--studio-2);border-radius:12px;width:44px;height:44px;font-size:20px;box-shadow:inset 0 0 0 2px var(--edge)}
+.board{position:absolute;left:392px;top:84px;width:862px;height:300px;transition:height .35s ease;border-radius:28px;padding:26px 34px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 20px 40px rgba(5,7,40,.5)}
+.board .bulbs{inset:-14px}
+.chips{display:flex;gap:10px;padding-right:150px;flex-wrap:wrap}
+.chip{font-size:15px;font-weight:700;padding:6px 14px;border-radius:999px;background:rgba(246,243,255,.1);color:var(--paper)}
+.chip.easy{background:var(--go);color:var(--ink)} .chip.medium{background:var(--marquee);color:var(--ink)} .chip.hard{background:var(--hot);color:#fff}
+.qtext{margin:20px 0 0;font-size:34px;line-height:1.25;font-weight:700;max-width:640px;transition:font-size .3s}
+.qtext.long{font-size:29px} .qtext.xlong{font-size:25px}
+.qtext.pending{color:var(--muted);font-weight:500}
+.timer{position:absolute;right:22px;top:18px;width:124px;height:124px;border-radius:50%;display:grid;place-items:center;background:#12165a;box-shadow:inset 0 0 0 7px var(--marquee);transition:background .3s,box-shadow .3s}
+.timer .num{font-family:var(--display);font-size:60px;line-height:1;color:var(--paper)}
+#game.t-warn .timer{box-shadow:inset 0 0 0 7px #ff9f1c,0 0 22px rgba(255,159,28,.45)}
+#game.t-danger .timer{background:#4a0f2e;box-shadow:inset 0 0 0 7px var(--bust),0 0 40px rgba(255,90,78,.85)}
+#game.t-danger .timer .num{color:#fff;font-size:68px}
+.timer.beat{animation:beat .35s ease-out}
+#game.t-danger .timer.beat{animation:slam .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes beat{from{transform:scale(1.2)}to{transform:scale(1)}}
+@keyframes slam{from{transform:scale(1.55) rotate(-6deg)}to{transform:scale(1) rotate(0)}}
+.board.shake{animation:shake .32s linear}
+@keyframes shake{0%,100%{transform:translate(0)}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,0)}}
+.fuse{position:absolute;left:392px;top:407px;width:862px;height:14px;border-radius:7px;background:rgba(246,243,255,.1);transition:opacity .25s}
+.fuse-fill{position:relative;height:100%;width:100%;border-radius:8px;background:linear-gradient(90deg,#ffc53d,#ffdf7e);transition:width .1s linear}
+.fuse-fill::after{content:"";position:absolute;right:-12px;top:-8px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ffe08a 30%,rgba(255,159,28,.6) 55%,transparent 72%);animation:spark .18s steps(2) infinite}
+@keyframes spark{50%{transform:scale(.75) rotate(40deg)}}
+#game.t-warn .fuse-fill{background:linear-gradient(90deg,#ff9f1c,#ffc53d)}
+#game.t-danger .fuse-fill{background:linear-gradient(90deg,var(--bust),#ff8a5b)}
+#game.t-danger .fuse{box-shadow:0 0 18px rgba(255,90,78,.7)}
+#game.revealed .fuse,#game.lightning-mode.revealed .fuse{opacity:0}
+#game.lightning-mode .fuse{opacity:1}
+#vignette{position:absolute;inset:0;pointer-events:none;z-index:4;opacity:0;transition:opacity .35s;box-shadow:inset 0 0 180px 50px rgba(255,40,60,.95)}
+#stamp{position:absolute;left:392px;top:84px;width:862px;height:300px;display:grid;place-items:center;pointer-events:none;z-index:6;font-family:var(--display);font-size:130px;color:var(--bust);text-shadow:0 6px 0 #5a0d22,0 0 40px rgba(255,90,78,.8);opacity:0}
+#stamp.show{animation:stamp 1.4s ease-out forwards}
+@keyframes stamp{0%{opacity:0;transform:scale(2.2) rotate(-14deg)}15%{opacity:1;transform:scale(1) rotate(-8deg)}75%{opacity:1;transform:scale(1) rotate(-8deg)}100%{opacity:0;transform:scale(1) rotate(-8deg)}}
+.fact{margin-top:14px;max-width:794px;background:rgba(246,243,255,.08);border-left:6px solid var(--go);border-radius:14px;padding:12px 18px}
+.fact-head{font-size:18px;font-weight:800;color:var(--go);margin-bottom:4px}
+.fact p{margin:0;font-size:19px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.fact-src{margin-top:6px;font-size:13px;color:var(--muted)}
+.fact-src a{color:#b9befa}
+#game.revealed .board{height:372px}
+#game.revealed .timer{opacity:0;transform:scale(.6)}
+.timer{transition:background .3s,box-shadow .3s,opacity .3s,transform .3s}
+#game.revealed .qtext{font-size:24px;margin-top:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#game.revealed .answers{top:486px}
+#game.revealed .tile{height:60px;font-size:21px}
+#game.revealed .tile .letter{width:40px;height:40px;font-size:19px}
+.answers{position:absolute;left:40px;top:428px;transition:top .35s ease;width:1200px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tile{position:relative;display:flex;align-items:center;gap:16px;height:86px;transition:height .35s ease,font-size .35s;padding:0 22px 0 14px;border:3px solid var(--edge);border-radius:20px;background:var(--studio-2);font-size:25px;font-weight:700;text-align:left;transition:background .15s,border-color .15s,opacity .3s,transform .15s}
+.tile:hover:not(:disabled){border-color:var(--marquee);transform:translateY(-2px)}
+.tile .letter{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:var(--marquee);color:var(--ink);font-family:var(--display);font-size:24px}
+.tile .txt{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.2}
+.tile.hidden{visibility:hidden}
+.tile.gone{opacity:.14}
+.tile.locked{border-color:var(--marquee);background:#4a3a8c;animation:pulse .5s ease-in-out infinite alternate}
+@keyframes pulse{to{box-shadow:0 0 0 6px rgba(255,197,61,.25)}}
+.tile.right{background:var(--go);border-color:#aff5e3;color:var(--ink);animation:none}
+.tile.right .letter{background:var(--ink);color:var(--go)}
+.tile.wrong{background:var(--bust);border-color:#ffb3ad;color:#fff;animation:none}
+.tile:disabled{cursor:default}
+.float{position:absolute;right:24px;top:-10px;font-family:var(--display);font-size:30px;color:var(--marquee);text-shadow:0 3px 0 var(--ink);animation:rise 1.1s ease-out forwards;pointer-events:none}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}20%{opacity:1}to{opacity:0;transform:translateY(-50px)}}
+.footer{position:absolute;left:40px;right:40px;top:650px;height:52px;display:flex;align-items:center;gap:12px}
+.life{border:0;border-radius:999px;padding:10px 18px;font-size:17px;font-weight:700;background:var(--studio-2);box-shadow:inset 0 0 0 2px var(--edge)}
+.life kbd,.btn kbd{font:700 13px var(--body);background:rgba(246,243,255,.15);border-radius:6px;padding:2px 6px;margin-left:6px}
+.btn.primary kbd{background:rgba(20,23,71,.15)}
+.life:disabled{opacity:.35;cursor:default}
+.life.flagged{background:var(--hot);box-shadow:none}
+.keys{flex:1;text-align:right;font-size:15px;color:var(--muted)}
+#nextBtn{display:none;margin-left:auto}
+#game.revealed #nextBtn,#game.revealed-final #nextBtn{display:inline-block}
+#game.revealed-final .keys{display:none}
+#game.revealed .keys{display:none}
+
+/* ---------- Results ---------- */
+.card{position:absolute;left:430px;top:80px;width:800px;border-radius:28px;padding:34px 44px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 20px 40px rgba(5,7,40,.5)}
+.card .bulbs{inset:-14px}
+.card .label{font-size:19px;color:var(--muted);margin:0}
+.bigscore{font-family:var(--display);font-size:104px;line-height:1.05;color:var(--marquee);text-shadow:0 0 22px rgba(255,197,61,.45)}
+.rating{font-size:34px;font-weight:800;margin:6px 0 20px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.stat{background:rgba(246,243,255,.07);border-radius:16px;padding:14px 18px}
+.stat b{display:block;font-family:var(--display);font-size:32px;font-weight:400}
+.stat span{font-size:15px;color:var(--muted)}
+.badge{display:inline-block;background:var(--hot);color:#fff;font-weight:800;border-radius:999px;padding:6px 16px;margin-bottom:18px}
+
+/* ---------- Modal / toast / confetti ---------- */
+.modal{position:absolute;inset:0;background:rgba(8,10,40,.72);display:none;place-items:center;z-index:20}
+.modal.open{display:grid}
+.sheet{width:660px;max-height:660px;overflow:auto;background:var(--studio);border-radius:24px;padding:28px 34px;box-shadow:inset 0 0 0 3px var(--edge),0 30px 60px rgba(0,0,0,.5)}
+.sheet h2{margin:0 0 18px;font-size:28px;font-weight:800}
+.sheet .row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 0;border-bottom:1px solid rgba(170,176,232,.15);font-size:17px}
+.sheet .row:last-of-type{border-bottom:0}
+.sheet.engine-kokoro .browser-only,.sheet.engine-browser .kokoro-only{display:none}
+.sheet .row label{flex:1}
+.sheet select,.sheet input[type=range]{width:280px}
+.sheet select{font:500 16px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:10px;padding:8px 10px}
+.sheet input[type=checkbox]{width:22px;height:22px;accent-color:var(--marquee)}
+.sheet .note{font-size:14px;color:var(--muted);margin:14px 0 0;line-height:1.4}
+.sheet .actions{margin-top:18px;flex-wrap:wrap}
+.sheet textarea{width:100%;height:80px;margin-top:10px;background:var(--ink);color:var(--paper);border:2px solid var(--edge);border-radius:10px;font:13px ui-monospace,monospace;display:none}
+#toast{position:absolute;left:50%;top:70px;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-weight:700;padding:10px 20px;border-radius:999px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
+#toast.show{opacity:1}
+#confetti{position:absolute;inset:0;pointer-events:none;z-index:25}
+
+/* ---------- Board mode ---------- */
+.pcard{position:absolute;left:430px;top:80px;width:800px;border-radius:28px;padding:32px 40px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 20px 40px rgba(5,7,40,.5)}
+.pcard h2{margin:0 0 6px;font-size:34px;font-weight:800}
+.pcard .sub{margin:0 0 18px;color:var(--muted);font-size:17px}
+.addrow{display:flex;gap:12px}
+.addrow input{flex:1;font:600 22px var(--body);color:var(--paper);background:var(--ink);border:3px solid var(--edge);border-radius:14px;padding:12px 16px}
+.addrow input:focus{outline:none;border-color:var(--marquee)}
+.plist{display:flex;flex-wrap:wrap;gap:10px;min-height:120px;align-content:flex-start;margin:18px 0}
+.pname{display:flex;align-items:center;gap:10px;background:#3a2f80;border:2px solid var(--marquee);border-radius:999px;padding:8px 10px 8px 18px;font-size:20px;font-weight:700}
+.pname small{color:var(--muted);font-weight:600;font-size:14px}
+.pname button{border:0;background:rgba(246,243,255,.15);width:28px;height:28px;border-radius:50%;font-size:16px;line-height:1}
+.pempty{color:var(--muted);font-size:17px;padding:10px 4px}
+.bhud{position:absolute;left:392px;right:24px;top:14px;height:50px;display:flex;align-items:center;gap:14px}
+.bhud .turnpill{font-size:21px;font-weight:800;background:#3a2f80;border:2px solid var(--marquee);padding:6px 18px;border-radius:999px}
+.bhud .spacer{flex:1}
+.bgrid{position:absolute;left:392px;top:76px;width:862px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.bcat{height:66px;display:grid;place-items:center;text-align:center;padding:6px 8px;border-radius:14px;background:#2a0f4f;box-shadow:inset 0 0 0 3px var(--hot);font-weight:800;font-size:16px;line-height:1.15}
+.btile{height:84px;border:3px solid var(--edge);border-radius:16px;background:var(--studio-2);font-family:var(--display);font-size:34px;color:var(--marquee);text-shadow:0 3px 0 rgba(0,0,0,.35);transition:transform .12s,border-color .12s}
+.bgrid.b-quick .btile{height:148px}
+.btile:hover:not(:disabled){transform:translateY(-3px);border-color:var(--marquee)}
+.btile.done{opacity:.12;cursor:default}
+.pstrip{position:absolute;left:40px;right:40px;top:630px;display:flex;gap:12px}
+.pchip{flex:1;min-width:0;background:var(--studio-2);border:3px solid var(--edge);border-radius:16px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pchip .n{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pchip .s{font-family:var(--display);font-size:24px}
+.pchip.turn{border-color:var(--marquee);background:#3a2f80;box-shadow:0 0 18px rgba(255,197,61,.35)}
+.pchip .s.neg{color:var(--bust)}
+.stealbar{display:none;align-items:center;gap:10px;flex-wrap:wrap}
+#game.stealing .stealbar{display:flex}
+#game.stealing .life,#game.stealing .keys{display:none}
+.stealbar b{font-size:19px;margin-right:4px}
+.steal-btn{border:0;border-radius:999px;padding:10px 18px;font-size:17px;font-weight:700;background:var(--hot);color:#fff}
+.steal-btn.no{background:var(--studio-3);box-shadow:inset 0 0 0 2px var(--edge)}
+.wager-in{width:100%;font:400 44px var(--display);color:var(--marquee);background:var(--ink);border:3px solid var(--edge);border-radius:14px;padding:10px 16px;text-align:center;letter-spacing:4px}
+.wager-in:focus{outline:none;border-color:var(--marquee)}
+.quick{display:flex;gap:10px;margin:12px 0 4px}
+.quick .btn{padding:10px 18px;font-size:16px}
+.werr{color:var(--bust);font-weight:700;min-height:22px;margin-top:6px}
+.markrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(170,176,232,.15);font-size:20px;font-weight:700}
+.markrow .tog{display:flex;gap:8px}
+.markrow .tog button{border:0;border-radius:12px;width:54px;height:44px;font-size:22px;background:var(--studio-2);box-shadow:inset 0 0 0 2px var(--edge)}
+.markrow .tog button[aria-pressed="true"].ok{background:var(--go);color:var(--ink)}
+.markrow .tog button[aria-pressed="true"].no{background:var(--bust)}
+.revrow{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(170,176,232,.15);font-size:20px}
+.revrow .d{font-family:var(--display);font-size:22px}
+.revrow .d.up{color:var(--go)} .revrow .d.down{color:var(--bust)}
+.podium-cols{display:grid;grid-template-columns:1.4fr 1fr;gap:28px}
+.rank{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(170,176,232,.15)}
+.rank .m{font-size:26px;text-align:center}
+.rank .n{font-size:21px;font-weight:700}
+.rank .s{font-family:var(--display);font-size:26px}
+.rank.first .n{color:var(--marquee)}
+.hs h3{margin:0 0 8px;font-size:18px;color:var(--muted)}
+.hs ol{margin:0;padding-left:22px;font-size:16px;line-height:1.8}
+.hs li span{color:var(--muted)}
+.hs li.new{color:var(--marquee);font-weight:700}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div id="viewport">
+<div id="stage" data-screen="title">
+
+  <!-- Host (shared across screens) -->
+  <div id="host" class="mood-neutral">
+    <svg id="telly" viewBox="0 0 240 300" role="img" aria-label="Fae N'Lancer, the game host">
+      <ellipse class="shadow" cx="120" cy="288" rx="34" ry="7" fill="#070930" opacity=".5"/>
+      <g class="qm-bob"><g class="qm-pose">
+        <g class="shape-q">
+          <path d="M68 100 C68 38 172 38 172 100 C172 140 120 140 120 185" fill="none" stroke="#c4175e" stroke-width="54" stroke-linecap="round"/>
+          <path d="M68 100 C68 38 172 38 172 100 C172 140 120 140 120 185" fill="none" stroke="#ff3d8b" stroke-width="44" stroke-linecap="round"/>
+          <path d="M80 82 C88 56 116 46 140 50" fill="none" stroke="#ffd1e4" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+        </g>
+        <g class="shape-bang">
+          <rect x="82" y="18" width="76" height="176" rx="38" fill="#c4175e"/>
+          <rect x="87" y="23" width="66" height="166" rx="33" fill="#ff3d8b"/>
+          <path d="M98 40 L98 100" stroke="#ffd1e4" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+        </g>
+        <g class="face" transform="translate(120 56) scale(1.22) translate(-120 -56)">
+          <g class="eyes">
+            <g class="e-open"><ellipse cx="108" cy="48" rx="6.5" ry="8.5" fill="#141747"/><ellipse cx="132" cy="48" rx="6.5" ry="8.5" fill="#141747"/><circle cx="110" cy="45" r="2.2" fill="#fff"/><circle cx="134" cy="45" r="2.2" fill="#fff"/></g>
+            <g class="e-happy"><path d="M101 51 Q108 40 115 51" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M125 51 Q132 40 139 51" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/></g>
+            <g class="e-sad"><path d="M101 46 Q108 54 115 48" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M125 48 Q132 54 139 46" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/></g>
+            <g class="e-wide"><circle cx="107" cy="47" r="9" fill="#fff"/><circle cx="133" cy="47" r="9" fill="#fff"/><circle cx="107" cy="47" r="3.5" fill="#141747"/><circle cx="133" cy="47" r="3.5" fill="#141747"/></g>
+          </g>
+          <path class="m-smile" d="M110 63 Q120 73 130 63" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path class="m-grin" d="M107 61 Q120 80 133 61 Z" fill="#141747"/>
+          <path class="m-frown" d="M110 70 Q120 61 130 70" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <ellipse class="m-o" cx="120" cy="67" rx="5" ry="6.5" fill="#141747"/>
+          <ellipse class="m-talk" cx="120" cy="66" rx="8" ry="6" fill="#141747"/>
+          <g class="drops"><path d="M150 36 q5 8 0 12 q-5 -4 0 -12z" fill="#9fd8ff"/><path d="M88 56 q4 7 0 10 q-4 -3 0 -10z" fill="#9fd8ff"/></g>
+        </g>
+        <g class="bowtie"><path d="M120 178 L100 168 L100 190 Z M120 178 L140 168 L140 190 Z" fill="#ffc53d"/><circle cx="120" cy="179" r="5" fill="#e0a520"/></g>
+      </g></g>
+      <g class="qm-dot"><circle cx="120" cy="252" r="24" fill="#c4175e"/><circle cx="120" cy="252" r="19" fill="#ff3d8b"/><circle cx="113" cy="245" r="5" fill="#ffd1e4" opacity=".7"/></g>
+    </svg>
+    <div id="bubble" aria-live="polite"><span class="who">Fae N'Lancer</span><span id="bubbleText"></span></div>
+  </div>
+
+  <!-- Title -->
+  <section id="title" class="screen">
+    <div class="panel">
+      <div class="marquee" id="marquee"><h1><small>Snow's</small>Push to Think<span>Trivia</span></h1><div class="bulbs"></div></div>
+      <p class="tagline">Hosted by Fae N'Lancer. Share your screen, shout your answers, argue about the results.</p>
+      <div class="modes" role="group" aria-label="Game mode">
+        <button class="mode" data-mode="classic" aria-pressed="true"><b>Classic</b><small id="classicDesc">10 questions, a timer on each</small></button>
+        <button class="mode" data-mode="lightning" aria-pressed="false"><b>Lightning</b><small>60 seconds, answer as many as you can</small></button>
+        <button class="mode" data-mode="survival" aria-pressed="false"><b>Survival</b><small>Three lives, and it gets harder as you go</small></button>
+        <button class="mode" data-mode="daily" aria-pressed="false"><b>Daily</b><small>Today's fixed 10 questions</small></button>
+        <button class="mode" data-mode="board" aria-pressed="false"><b>Board</b><small>Pick categories, wager points, play with friends</small></button>
+      </div>
+      <div class="options">
+        <label class="field">Category<select id="catSel"><option value="all">All categories</option></select></label>
+        <label class="field">Difficulty<select id="diffSel"><option value="any">Mixed (host adapts)</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
+        <label class="field">Round length<select id="roundSel"><option>5</option><option>10</option><option>15</option><option>20</option></select></label>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="startBtn">Start the show <kbd>Enter</kbd></button>
+        <button class="btn" id="settingsBtn">Settings</button>
+        <button class="btn" id="testVoiceBtn">Test host voice</button>
+      </div>
+      <div class="status" id="bankStatus">Loading questions…</div>
+      <div class="status" id="voiceStatus" style="margin-top:4px"></div>
+    </div>
+    <div class="credit">Questions from the <a href="https://opentdb.com" target="_blank" rel="noopener">Open Trivia Database</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>. Voice by <a href="https://huggingface.co/hexgrad/Kokoro-82M" target="_blank" rel="noopener">Kokoro-82M</a>, Apache 2.0.</div>
+  </section>
+
+  <!-- Game -->
+  <section id="game" class="screen">
+    <div class="hud">
+      <div class="logo">Snow's Push to Think Trivia</div>
+      <div class="progress" id="progress">Question 1 of 10</div>
+      <div class="spacer"></div>
+      <div class="streak" id="streak"></div>
+      <div class="lives" id="lives" aria-label="Lives"></div>
+      <div class="score" id="score" aria-label="Score">0</div>
+      <button class="icon-btn" id="muteBtn" aria-label="Mute host">🔊</button>
+    </div>
+    <div class="board" id="board">
+      <div class="chips"><span class="chip" id="chipCat"></span><span class="chip" id="chipDiff"></span><span class="chip" id="chipPts"></span></div>
+      <p class="qtext pending" id="qtext">Get ready…</p>
+      <div class="fact" id="fact" hidden><div class="fact-head" id="factHead"></div><p id="factText"></p><div class="fact-src" id="factSrc"></div></div>
+      <div class="timer" id="timerBox" aria-label="Time left"><span class="num" id="timerNum">20</span></div>
+      <div class="bulbs"></div>
+    </div>
+    <div class="fuse" id="fuse"><div class="fuse-fill" id="fuseFill"></div></div>
+    <div id="stamp" aria-hidden="true">TIME!</div>
+    <div class="answers" id="answers">
+      <button class="tile hidden" data-i="0"><span class="letter">A</span><span class="txt"></span></button>
+      <button class="tile hidden" data-i="1"><span class="letter">B</span><span class="txt"></span></button>
+      <button class="tile hidden" data-i="2"><span class="letter">C</span><span class="txt"></span></button>
+      <button class="tile hidden" data-i="3"><span class="letter">D</span><span class="txt"></span></button>
+    </div>
+    <div class="footer">
+      <button class="life" id="fiftyBtn">50/50<kbd>F</kbd></button>
+      <button class="life" id="skipBtn">Skip<kbd>S</kbd></button>
+      <button class="life" id="timeBtn">+10 sec<kbd>T</kbd></button>
+      <button class="life" id="flagBtn">Flag question<kbd>X</kbd></button>
+      <div class="stealbar" id="stealBar"></div>
+      <div class="keys">Answer with 1–4 or A–D. R repeats, M mutes, Esc pauses.</div>
+      <button class="btn primary" id="nextBtn">Next question <kbd>Space</kbd></button>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="results" class="screen">
+    <div class="card" id="resultCard">
+      <p class="label" id="resMode">Final score</p>
+      <div class="bigscore" id="resScore">0</div>
+      <div class="rating" id="resRating"></div>
+      <div class="badge" id="resBest" hidden>New personal best</div>
+      <div class="stats">
+        <div class="stat"><b id="resCorrect">0/0</b><span>Correct</span></div>
+        <div class="stat"><b id="resAcc">0%</b><span>Accuracy</span></div>
+        <div class="stat"><b id="resStreak">0</b><span>Best streak</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="againBtn">Play again <kbd>Enter</kbd></button>
+        <button class="btn" id="menuBtn">Back to menu <kbd>Esc</kbd></button>
+        <button class="btn" id="copyResBtn">Copy result</button>
+      </div>
+      <div class="bulbs"></div>
+    </div>
+  </section>
+
+  <!-- Players setup (board mode) -->
+  <section id="players" class="screen">
+    <div class="pcard">
+      <h2>Who's playing?</h2>
+      <p class="sub">Add 2 to 8 players. Turns go in this order.</p>
+      <div class="addrow"><input id="pInput" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"><button class="btn primary" id="pAdd">Add</button></div>
+      <div class="plist" id="pList"></div>
+      <div class="options" style="margin:0 0 20px">
+        <label class="field">Board size<select id="bSize"><option value="full">Full: 25 tiles (200–2,000)</option><option value="quick">Quick: 15 tiles (200, 800, 2,000)</option></select></label>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="pStart">Build the board</button>
+        <button class="btn" id="pBack">Back</button>
+      </div>
+      <div class="werr" id="pErr"></div>
+    </div>
+  </section>
+
+  <!-- Board -->
+  <section id="boardScreen" class="screen">
+    <div class="bhud"><div class="turnpill" id="turnPill"></div><div class="spacer"></div><button class="btn" id="bEnd">Skip to final round</button></div>
+    <div class="bgrid" id="bGrid"></div>
+    <div class="pstrip" id="pStrip"></div>
+  </section>
+
+  <!-- Board podium -->
+  <section id="podium" class="screen">
+    <div class="card" id="podCard">
+      <p class="label" id="podLabel">Final scores</p>
+      <div class="rating" id="podWinner"></div>
+      <div class="podium-cols"><div id="podRanks"></div><div class="hs"><h3>All-time board high scores</h3><ol id="podHigh"></ol></div></div>
+      <div class="actions" style="margin-top:22px">
+        <button class="btn primary" id="podAgain">Rematch <kbd>Enter</kbd></button>
+        <button class="btn" id="podPlayers">Change players</button>
+        <button class="btn" id="podMenu">Back to menu <kbd>Esc</kbd></button>
+      </div>
+      <div class="bulbs"></div>
+    </div>
+  </section>
+
+  <!-- Board dialogs (wagers, final marking, reveals) -->
+  <div class="modal" id="boardModal" role="dialog" aria-modal="true"><div class="sheet" id="boardSheet"></div></div>
+
+  <!-- Settings -->
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="sheet">
+      <h2 id="setTitle">Settings</h2>
+      <div class="row"><label for="engineSel">Voice engine</label><select id="engineSel"><option value="kokoro">Natural (Kokoro, runs in your browser)</option><option value="browser">Browser built-in</option></select></div>
+      <div class="row kokoro-only"><label for="kVoiceSel">Natural voice</label><select id="kVoiceSel"></select></div>
+      <div class="row kokoro-only"><label for="qualSel">Natural voice mode</label><select id="qualSel"><option value="auto">Auto (GPU if available)</option><option value="light">Light (smaller download, CPU)</option></select></div>
+      <div class="row browser-only"><label for="voiceSel">Browser voice</label><select id="voiceSel"></select></div>
+      <div class="row browser-only"><label for="rateIn">Speaking speed</label><input type="range" id="rateIn" min="0.7" max="1.5" step="0.05"></div>
+      <div class="row browser-only"><label for="pitchIn">Voice pitch</label><input type="range" id="pitchIn" min="0.5" max="1.8" step="0.05"></div>
+      <div class="row"><label for="volIn">Voice volume</label><input type="range" id="volIn" min="0" max="1" step="0.05"></div>
+      <div class="row"><label for="sassSel">Host attitude</label><select id="sassSel"><option value="friendly">Friendly</option><option value="spicy">Spicy</option></select></div>
+      <div class="row"><label for="timerSel">Answer timer</label><select id="timerSel"><option value="10">10 seconds</option><option value="15">15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option></select></div>
+      <div class="row"><label for="readOptIn">Host reads the answer options aloud</label><input type="checkbox" id="readOptIn"></div>
+      <div class="row"><label for="waitReadIn">Start the timer after the host finishes reading</label><input type="checkbox" id="waitReadIn"></div>
+      <div class="row"><label for="readFactsIn">Host reads the answer explanation aloud</label><input type="checkbox" id="readFactsIn"></div>
+      <div class="row"><label for="sfxIn">Sound effects</label><input type="checkbox" id="sfxIn"></div>
+      <p class="note" id="statsNote"></p>
+      <div class="actions">
+        <button class="btn" id="copyFlagBtn">Copy flagged list</button>
+        <button class="btn" id="clearSeenBtn">Reset question history</button>
+        <button class="btn primary" id="closeSetBtn">Done</button>
+      </div>
+      <textarea id="flagOut" readonly aria-label="Flagged question IDs"></textarea>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div class="modal" id="pauseModal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="sheet" style="width:480px;text-align:center">
+      <h2 id="pauseTitle">Paused</h2>
+      <div class="actions" style="justify-content:center">
+        <button class="btn primary" id="resumeBtn">Resume <kbd>Esc</kbd></button>
+        <button class="btn" id="quitBtn">End the game</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="vignette"></div>
+  <div id="toast" role="status"></div>
+  <canvas id="confetti" width="1280" height="720"></canvas>
+</div>
+</div>
+
+<script>
+"use strict";
+/* ================= Starter questions (used when questions.json can't be loaded) ================= */
+const STARTER = [{"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "What is the chemical symbol for gold?", "correct": "Au", "incorrect": ["Ag", "Gd", "Go"], "id": "46afd1634236", "explain": "Au comes from aurum, the Latin word for gold."}, {"category": "Science & Nature", "difficulty": "medium", "type": "multiple", "question": "How many bones are in the typical adult human body?", "correct": "206", "incorrect": ["186", "212", "256"], "id": "02d9b269317b", "explain": "Babies are born with roughly 270 to 300 bones. Many fuse together as they grow, leaving 206 in a typical adult."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "Which planet is known as the Red Planet?", "correct": "Mars", "incorrect": ["Venus", "Jupiter", "Mercury"], "id": "8e3f92f10fdb", "explain": "Iron oxide, basically rust, in Martian dust and rocks gives Mars its reddish color."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "What is the largest planet in our solar system?", "correct": "Jupiter", "incorrect": ["Saturn", "Neptune", "Earth"], "id": "269b9604f7c0", "explain": "Jupiter is more than twice as massive as all the other planets in the solar system combined."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "Which gas do plants absorb from the air for photosynthesis?", "correct": "Carbon dioxide", "incorrect": ["Oxygen", "Nitrogen", "Hydrogen"], "id": "68d4e0b1abd0", "explain": "Plants take in carbon dioxide and water and use sunlight to turn them into sugar, releasing oxygen as a by-product."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "Which element has the atomic number 1?", "correct": "Hydrogen", "incorrect": ["Helium", "Oxygen", "Carbon"], "id": "5c0b942ceed6", "explain": "An element's atomic number is its count of protons. Hydrogen has just one, and it's the most abundant element in the universe."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "Which part of the cell is known as its powerhouse?", "correct": "Mitochondria", "incorrect": ["Nucleus", "Ribosome", "Golgi apparatus"], "id": "4d51e615641f", "explain": "Mitochondria produce most of a cell's ATP, the molecule cells use as their energy currency."}, {"category": "Science & Nature", "difficulty": "easy", "type": "multiple", "question": "At sea level, water boils at how many degrees Fahrenheit?", "correct": "212", "incorrect": ["100", "180", "200"], "id": "bd66182ab33c", "explain": "212°F is the same as 100°C, the boiling point of water at standard sea-level pressure."}, {"category": "Science & Nature", "difficulty": "medium", "type": "multiple", "question": "Roughly how fast does light travel in a vacuum?", "correct": "300,000 km per second", "incorrect": ["150,000 km per second", "30,000 km per second", "3,000,000 km per second"], "id": "44b0558fb7fd", "explain": "The speed of light is defined as exactly 299,792,458 meters per second, just under 300,000 km per second."}, {"category": "Science & Nature", "difficulty": "medium", "type": "multiple", "question": "Which mineral scores a 10, the maximum, on the Mohs hardness scale?", "correct": "Diamond", "incorrect": ["Quartz", "Topaz", "Corundum"], "id": "cb05beac432e", "explain": "The Mohs scale ranks scratch resistance from talc at 1 to diamond at 10. Corundum, the mineral in rubies and sapphires, is a 9."}, {"category": "Science & Nature", "difficulty": "medium", "type": "multiple", "question": "Which spice comes from the stigmas of a crocus flower?", "correct": "Saffron", "incorrect": ["Turmeric", "Paprika", "Cumin"], "id": "15409fef4423", "explain": "Saffron threads are the hand-picked stigmas of the saffron crocus, which is why it's one of the most expensive spices by weight."}, {"category": "Geography", "difficulty": "medium", "type": "multiple", "question": "What is the capital of Australia?", "correct": "Canberra", "incorrect": ["Sydney", "Melbourne", "Perth"], "id": "44a74e74a6e5", "explain": "Canberra was purpose-built as the capital, partly as a compromise in the rivalry between Sydney and Melbourne."}, {"category": "Geography", "difficulty": "easy", "type": "multiple", "question": "Which is the largest ocean on Earth?", "correct": "Pacific Ocean", "incorrect": ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"], "id": "9e37e13e26a8", "explain": "The Pacific is both the largest and the deepest ocean, covering roughly a third of Earth's surface."}, {"category": "Geography", "difficulty": "easy", "type": "multiple", "question": "What is the capital of Canada?", "correct": "Ottawa", "incorrect": ["Toronto", "Vancouver", "Montreal"], "id": "900a300033f0", "explain": "Queen Victoria chose Ottawa as the capital in 1857."}, {"category": "Geography", "difficulty": "easy", "type": "multiple", "question": "Which country has the largest land area?", "correct": "Russia", "incorrect": ["Canada", "China", "United States"], "id": "f07bba47b192", "explain": "Russia covers over 17 million square kilometers and spans 11 time zones."}, {"category": "Geography", "difficulty": "medium", "type": "multiple", "question": "Mount Everest sits on the border between Nepal and which other country?", "correct": "China", "incorrect": ["India", "Bhutan", "Pakistan"], "id": "7eecff863593", "explain": "Everest straddles the border between Nepal and China's Tibet Autonomous Region."}, {"category": "Geography", "difficulty": "easy", "type": "multiple", "question": "What is the smallest country in the world by area?", "correct": "Vatican City", "incorrect": ["Monaco", "San Marino", "Liechtenstein"], "id": "10af3ae778f6", "explain": "Vatican City covers about 0.44 square kilometers and sits entirely inside the city of Rome."}, {"category": "Geography", "difficulty": "medium", "type": "multiple", "question": "What is the capital of New Zealand?", "correct": "Wellington", "incorrect": ["Auckland", "Christchurch", "Hamilton"], "id": "b0c25cd87379", "explain": "Wellington replaced Auckland as New Zealand's capital in 1865."}, {"category": "Geography", "difficulty": "medium", "type": "multiple", "question": "What is the largest hot desert in the world?", "correct": "Sahara", "incorrect": ["Arabian Desert", "Gobi", "Kalahari"], "id": "384b3a14d531", "explain": "The Sahara covers about 9 million square kilometers. Only the cold polar deserts of Antarctica and the Arctic are bigger."}, {"category": "Geography", "difficulty": "hard", "type": "multiple", "question": "Which river flows through Baghdad?", "correct": "Tigris", "incorrect": ["Euphrates", "Jordan", "Nile"], "id": "9e4721bf9be0", "explain": "Baghdad sits on the Tigris. The Euphrates, its twin river, flows further to the west."}, {"category": "History", "difficulty": "easy", "type": "multiple", "question": "In which year did World War II end?", "correct": "1945", "incorrect": ["1944", "1946", "1939"], "id": "369346343c0a", "explain": "Germany surrendered in May 1945, and Japan formally surrendered on September 2, 1945."}, {"category": "History", "difficulty": "easy", "type": "multiple", "question": "Who was the first President of the United States?", "correct": "George Washington", "incorrect": ["John Adams", "Thomas Jefferson", "Benjamin Franklin"], "id": "f22c1f869a01", "explain": "George Washington served two terms, from 1789 to 1797."}, {"category": "History", "difficulty": "easy", "type": "multiple", "question": "In which year did humans first land on the Moon?", "correct": "1969", "incorrect": ["1967", "1971", "1965"], "id": "e316d5c163ad", "explain": "Apollo 11 landed on July 20, 1969, and Neil Armstrong and Buzz Aldrin walked on the surface."}, {"category": "History", "difficulty": "easy", "type": "multiple", "question": "Which ship sank on its maiden voyage in 1912?", "correct": "RMS Titanic", "incorrect": ["RMS Lusitania", "HMHS Britannic", "RMS Olympic"], "id": "a50d6208df8c", "explain": "The Titanic struck an iceberg on the night of April 14, 1912 and sank early the next morning. More than 1,500 people died."}, {"category": "History", "difficulty": "medium", "type": "multiple", "question": "In which year did the Berlin Wall fall?", "correct": "1989", "incorrect": ["1991", "1987", "1985"], "id": "1d22f28d7204", "explain": "The wall opened on November 9, 1989. Germany reunified less than a year later, in October 1990."}, {"category": "History", "difficulty": "medium", "type": "multiple", "question": "Which civilization built Machu Picchu?", "correct": "The Inca", "incorrect": ["The Aztecs", "The Maya", "The Olmecs"], "id": "cfd779254932", "explain": "The Inca built Machu Picchu in the 15th century, high in the Andes of Peru."}, {"category": "History", "difficulty": "medium", "type": "multiple", "question": "Who was the first person to travel into outer space?", "correct": "Yuri Gagarin", "incorrect": ["Alan Shepard", "John Glenn", "Neil Armstrong"], "id": "55c0c3420473", "explain": "Yuri Gagarin orbited Earth aboard Vostok 1 on April 12, 1961."}, {"category": "History", "difficulty": "hard", "type": "multiple", "question": "In which year was the Magna Carta sealed?", "correct": "1215", "incorrect": ["1066", "1415", "1314"], "id": "a625596192eb", "explain": "King John sealed the Magna Carta at Runnymede in 1215, limiting the power of the English crown."}, {"category": "Entertainment: Music", "difficulty": "easy", "type": "multiple", "question": "How many strings does a standard guitar have?", "correct": "6", "incorrect": ["4", "7", "12"], "id": "d49338fb3066", "explain": "A standard guitar has six strings, usually tuned E A D G B E from lowest to highest."}, {"category": "Entertainment: Music", "difficulty": "easy", "type": "multiple", "question": "Which band released the album Abbey Road?", "correct": "The Beatles", "incorrect": ["The Rolling Stones", "Pink Floyd", "The Who"], "id": "17b513fc56fb", "explain": "The Beatles released Abbey Road in 1969. It's named after the London street where they recorded, and the cover shows them on its zebra crossing."}, {"category": "Entertainment: Board Games", "difficulty": "easy", "type": "multiple", "question": "In chess, which piece can only ever move diagonally?", "correct": "Bishop", "incorrect": ["Rook", "Knight", "Queen"], "id": "036cdf0640b4", "explain": "A bishop moves any number of squares diagonally, so it stays on the same color for the whole game. The queen can move diagonally too, but not only diagonally."}, {"category": "Entertainment: Board Games", "difficulty": "easy", "type": "multiple", "question": "How many squares are on a standard chessboard?", "correct": "64", "incorrect": ["49", "81", "100"], "id": "64f2acbeeb53", "explain": "A chessboard is an 8 by 8 grid, which makes 64 squares."}, {"category": "Entertainment: Video Games", "difficulty": "medium", "type": "multiple", "question": "Which company created the arcade game Pac-Man?", "correct": "Namco", "incorrect": ["Atari", "Nintendo", "Sega"], "id": "a8959978199b", "explain": "Namco released Pac-Man in 1980. It was designed by Toru Iwatani."}, {"category": "Entertainment: Video Games", "difficulty": "hard", "type": "multiple", "question": "In which year was the original PlayStation released in Japan?", "correct": "1994", "incorrect": ["1995", "1996", "1993"], "id": "2de29e5feaea", "explain": "The PlayStation launched in Japan on December 3, 1994, and reached North America in September 1995."}, {"category": "Art", "difficulty": "easy", "type": "multiple", "question": "Who painted the Mona Lisa?", "correct": "Leonardo da Vinci", "incorrect": ["Michelangelo", "Raphael", "Donatello"], "id": "6a9c6f0432c7", "explain": "Leonardo da Vinci began the Mona Lisa in the early 1500s. It hangs in the Louvre in Paris."}, {"category": "Entertainment: Books", "difficulty": "easy", "type": "multiple", "question": "Who wrote Pride and Prejudice?", "correct": "Jane Austen", "incorrect": ["Charlotte Brontë", "Emily Brontë", "Mary Shelley"], "id": "81956d6a801a", "explain": "Jane Austen published Pride and Prejudice in 1813."}, {"category": "Entertainment: Books", "difficulty": "easy", "type": "multiple", "question": "Who wrote the novel Nineteen Eighty-Four?", "correct": "George Orwell", "incorrect": ["Aldous Huxley", "Ray Bradbury", "H. G. Wells"], "id": "99e24758930b", "explain": "George Orwell published Nineteen Eighty-Four in 1949."}, {"category": "Sports", "difficulty": "easy", "type": "multiple", "question": "How many players does each soccer team have on the field at once?", "correct": "11", "incorrect": ["9", "10", "12"], "id": "baf10bbda711", "explain": "Each side fields 11 players, including the goalkeeper."}, {"category": "Sports", "difficulty": "easy", "type": "multiple", "question": "In golf, what is the term for finishing a hole one stroke under par?", "correct": "Birdie", "incorrect": ["Eagle", "Bogey", "Albatross"], "id": "0dae8d929f3a", "explain": "One under par is a birdie, two under is an eagle, and one over is a bogey."}, {"category": "Sports", "difficulty": "easy", "type": "multiple", "question": "How many points is a touchdown worth in American football, before the extra point?", "correct": "6", "incorrect": ["7", "3", "5"], "id": "84f352c8883c", "explain": "A touchdown is 6 points. The team can then kick for 1 more point or try a two-point conversion."}, {"category": "Sports", "difficulty": "easy", "type": "multiple", "question": "Which country hosted the 2016 Summer Olympics?", "correct": "Brazil", "incorrect": ["China", "United Kingdom", "Japan"], "id": "e13778e210b3", "explain": "Rio de Janeiro hosted in 2016, the first Olympics held in South America."}, {"category": "Sports", "difficulty": "easy", "type": "multiple", "question": "In basketball, how many points is a made shot from beyond the arc worth?", "correct": "3", "incorrect": ["2", "4", "1"], "id": "8728dd51668d", "explain": "Shots from beyond the three-point line are worth 3. The NBA adopted the line in the 1979–80 season."}, {"category": "Sports", "difficulty": "medium", "type": "multiple", "question": "What is the official distance of a marathon?", "correct": "42.195 km", "incorrect": ["40 km", "45 km", "38.5 km"], "id": "0a461a3d87e7", "explain": "A marathon is 42.195 km, or 26.2 miles. The distance traces back to the course of the 1908 London Olympics."}, {"category": "Science: Mathematics", "difficulty": "easy", "type": "multiple", "question": "What is pi rounded to two decimal places?", "correct": "3.14", "incorrect": ["3.16", "3.12", "3.41"], "id": "ea584fd231e7", "explain": "Pi is 3.14159…, the ratio of a circle's circumference to its diameter. Its digits never end or repeat."}, {"category": "Science: Mathematics", "difficulty": "easy", "type": "multiple", "question": "What is the square root of 144?", "correct": "12", "incorrect": ["14", "11", "16"], "id": "313a744b3f21", "explain": "12 × 12 = 144."}, {"category": "Science: Mathematics", "difficulty": "easy", "type": "multiple", "question": "What is the only even prime number?", "correct": "2", "incorrect": ["4", "0", "6"], "id": "26d5d9c42af0", "explain": "Every other even number can be divided by 2, so 2 is the only even number with no divisors besides 1 and itself."}, {"category": "Science: Mathematics", "difficulty": "medium", "type": "multiple", "question": "How is the decimal number 10 written in binary?", "correct": "1010", "incorrect": ["1001", "1100", "0110"], "id": "ebf52df62b80", "explain": "1010 in binary means 8 + 0 + 2 + 0, which adds up to 10."}, {"category": "Science: Computers", "difficulty": "easy", "type": "multiple", "question": "How many bits are in a byte?", "correct": "8", "incorrect": ["4", "16", "32"], "id": "e82e993d2bd2", "explain": "A byte is 8 bits, enough to represent 256 different values."}, {"category": "Science: Computers", "difficulty": "easy", "type": "multiple", "question": "What does HTTP stand for?", "correct": "HyperText Transfer Protocol", "incorrect": ["High Transfer Text Protocol", "HyperText Transmission Program", "Host Transfer Text Protocol"], "id": "f4a4de448021", "explain": "HyperText Transfer Protocol. Tim Berners-Lee developed it at CERN starting in 1989."}, {"category": "Science: Computers", "difficulty": "medium", "type": "multiple", "question": "Which TCP port does HTTPS use by default?", "correct": "443", "incorrect": ["80", "22", "8080"], "id": "e03a053189af", "explain": "HTTPS is HTTP over TLS and uses port 443 by default. Plain HTTP uses port 80."}, {"category": "Science: Computers", "difficulty": "medium", "type": "multiple", "question": "Who is often credited as the first computer programmer?", "correct": "Ada Lovelace", "incorrect": ["Alan Turing", "Charles Babbage", "Grace Hopper"], "id": "39c0172dd02d", "explain": "Ada Lovelace published an algorithm for Charles Babbage's Analytical Engine in 1843."}, {"category": "Animals", "difficulty": "easy", "type": "multiple", "question": "What is the largest mammal on Earth?", "correct": "Blue whale", "incorrect": ["African elephant", "Sperm whale", "Giraffe"], "id": "c17ebfa1a700", "explain": "The blue whale is the largest animal known to have ever lived, reaching about 30 meters long."}, {"category": "Animals", "difficulty": "medium", "type": "multiple", "question": "How many hearts does an octopus have?", "correct": "3", "incorrect": ["1", "2", "4"], "id": "22e72aa89004", "explain": "Two hearts pump blood through the gills and a third pumps it around the rest of the body."}, {"category": "Animals", "difficulty": "easy", "type": "multiple", "question": "What is a group of lions called?", "correct": "A pride", "incorrect": ["A pack", "A herd", "A flock"], "id": "812b1a94e389", "explain": "A pride is usually a group of related females, their cubs, and a few males."}, {"category": "Animals", "difficulty": "easy", "type": "multiple", "question": "What is the fastest land animal?", "correct": "Cheetah", "incorrect": ["Pronghorn", "Lion", "Greyhound"], "id": "2e94bcd16f5e", "explain": "Cheetahs can top 100 km/h, over 60 mph, in short sprints."}, {"category": "Animals", "difficulty": "easy", "type": "multiple", "question": "What is the largest living bird?", "correct": "Ostrich", "incorrect": ["Emu", "Cassowary", "Albatross"], "id": "eefb101ad54b", "explain": "The ostrich is the largest and heaviest living bird. It can't fly, but it can run at around 70 km/h."}, {"category": "Mythology", "difficulty": "easy", "type": "multiple", "question": "In Greek mythology, who is the king of the gods?", "correct": "Zeus", "incorrect": ["Poseidon", "Hades", "Apollo"], "id": "f7d22e3dea15", "explain": "Zeus rules the gods from Mount Olympus as the god of the sky and thunder."}, {"category": "Mythology", "difficulty": "medium", "type": "multiple", "question": "In Norse mythology, what is the name of Thor's hammer?", "correct": "Mjölnir", "incorrect": ["Gungnir", "Gram", "Draupnir"], "id": "21499e70794c", "explain": "Thor's hammer is Mjölnir. Gungnir is Odin's spear, and Draupnir is Odin's ring."}, {"category": "Mythology", "difficulty": "medium", "type": "multiple", "question": "What is the Roman name for the Greek god Ares?", "correct": "Mars", "incorrect": ["Mercury", "Jupiter", "Vulcan"], "id": "8523bb64bb49", "explain": "Mars is the Roman god of war. The other options are Roman gods too: Mercury is Hermes, Jupiter is Zeus, and Vulcan is Hephaestus."}, {"category": "General Knowledge", "difficulty": "easy", "type": "multiple", "question": "What is the main ingredient in guacamole?", "correct": "Avocado", "incorrect": ["Lime", "Tomato", "Green pepper"], "id": "25b2759d5bcc", "explain": "Guacamole is mashed avocado, a Mexican dish with roots in Aztec cuisine."}, {"category": "Science & Nature", "difficulty": "medium", "type": "boolean", "question": "Sound travels faster in water than in air.", "correct": "True", "incorrect": ["False"], "id": "b5d4991bce7c", "explain": "Sound moves at about 1,480 meters per second in water, compared with about 343 in air at room temperature."}, {"category": "Science & Nature", "difficulty": "medium", "type": "boolean", "question": "The Great Wall of China is visible from the Moon with the naked eye.", "correct": "False", "incorrect": ["True"], "id": "6f6045c416c6", "explain": "The wall is far too narrow to see from that distance. Apollo astronauts reported they couldn't make out any human-made structures from the Moon."}, {"category": "Science & Nature", "difficulty": "medium", "type": "boolean", "question": "Venus is the hottest planet in our solar system.", "correct": "True", "incorrect": ["False"], "id": "a36379d83d7c", "explain": "Venus's thick carbon dioxide atmosphere traps heat, keeping the surface around 465°C, hotter than Mercury even though Mercury is closer to the Sun."}, {"category": "Animals", "difficulty": "easy", "type": "boolean", "question": "Bats are blind.", "correct": "False", "incorrect": ["True"], "id": "6a1b9fe5b635", "explain": "All bats can see. Many species also use echolocation to hunt in the dark."}, {"category": "Science & Nature", "difficulty": "easy", "type": "boolean", "question": "Lightning never strikes the same place twice.", "correct": "False", "incorrect": ["True"], "id": "4eb9ec0f99e9", "explain": "Tall structures get hit over and over. The Empire State Building is struck about 20 to 25 times a year."}, {"category": "Science & Nature", "difficulty": "easy", "type": "boolean", "question": "Botanically, a tomato is a fruit.", "correct": "True", "incorrect": ["False"], "id": "8444ebb355c0", "explain": "Tomatoes develop from the flower's ovary and contain seeds, which makes them fruits. The U.S. Supreme Court still ruled them vegetables for tariff purposes in 1893."}];
+
+/* ================= Utilities ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rand = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const norm = t => t.toLowerCase().split(/\s+/).filter(Boolean).join(' ');
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('ptt.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('ptt.' + k, JSON.stringify(v)); } catch {} }
+};
+function todayKey() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function strHash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+/* ================= Settings & persistent data ================= */
+const DEFAULTS = { engine: 'kokoro', kVoice: 'af_sky', voiceQuality: 'auto', voiceURI: '', rate: 1.05, pitch: 1, volume: 1, sass: 'spicy', timer: 20, readOptions: true, waitRead: true, readFacts: true, sfx: true, muted: false, rounds: 10, mode: 'classic', category: 'all', difficulty: 'any' };
+const settings = Object.assign({}, DEFAULTS, store.get('settings', {}));
+const saveSettings = () => store.set('settings', settings);
+const seen = new Set(store.get('seen', []));
+const flagged = new Set(store.get('flagged', []));
+let recent = store.get('recent', []); // last 30 answers, true/false
+const saveSeen = () => store.set('seen', [...seen].slice(-20000));
+
+/* ================= Stage scaling (fixed 1280x720 canvas, ideal for 720p streams) ================= */
+const stage = $('#stage');
+function fit() { const s = Math.min(innerWidth / 1280, innerHeight / 720); stage.style.transform = `translate(-50%,-50%) scale(${s})`; }
+addEventListener('resize', fit); fit();
+function setScreen(name) { stage.dataset.screen = name; }
+
+/* ================= Marquee bulbs ================= */
+function bulbify(container, w, h, gap) {
+  const box = container.querySelector(':scope > .bulbs'); if (!box) return;
+  box.textContent = '';
+  const add = (x, y) => { const b = document.createElement('span'); b.className = 'bulb'; b.style.left = x + 'px'; b.style.top = y + 'px'; box.appendChild(b); };
+  const nx = Math.round(w / gap), ny = Math.round(h / gap);
+  for (let i = 0; i <= nx; i++) add(i * w / nx, 0);
+  for (let i = 1; i <= ny; i++) add(w, i * h / ny);
+  for (let i = nx - 1; i >= 0; i--) add(i * w / nx, h);
+  for (let i = ny - 1; i >= 1; i--) add(0, i * h / ny);
+}
+function celebrate(el, ms = 1600) { if (RM) return; el.classList.add('celebrate'); setTimeout(() => el.classList.remove('celebrate'), ms); }
+
+/* ================= Sound effects (synthesized, no files) ================= */
+let actx = null;
+function ac() {
+  if (!actx) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; actx = new C(); }
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function tone(f, t0, dur, type = 'sine', vol = .15) {
+  if (!settings.sfx) return; const c = ac(); if (!c) return;
+  const o = c.createOscillator(), g = c.createGain(), s = c.currentTime + t0;
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(.0001, s); g.gain.exponentialRampToValueAtTime(vol, s + .012); g.gain.exponentialRampToValueAtTime(.0001, s + dur);
+  o.connect(g).connect(c.destination); o.start(s); o.stop(s + dur + .03);
+}
+const sfx = {
+  start() { [392, 523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * .1, .3, 'triangle', .16)); },
+  correct() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * .08, .28, 'triangle', .18)); },
+  wrong() { tone(146, 0, .55, 'sawtooth', .11); tone(110, .04, .55, 'sawtooth', .11); },
+  tick() { tone(1250, 0, .05, 'square', .05); },
+  heartbeat() { tone(70, 0, .13, 'sine', .3); tone(62, .16, .13, 'sine', .24); },
+  tickHard(s) { tone(900 + (5 - s) * 190, 0, .08, 'square', .09); tone(450 + (5 - s) * 95, 0, .08, 'triangle', .07); },
+  buzzer() { tone(92, 0, .75, 'sawtooth', .14); tone(97, 0, .75, 'square', .07); },
+  lock() { tone(440, 0, .12, 'square', .07); tone(660, .12, .2, 'square', .07); },
+  drum() { for (let i = 0; i < 14; i++) tone(i % 2 ? 118 : 96, i * .07, .06, 'square', .05); },
+  pop() { tone(880, 0, .08, 'triangle', .1); tone(1320, .06, .1, 'triangle', .08); },
+  over() { [783.99, 659.25, 523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * .12, .3, 'triangle', .15)); }
+};
+
+/* ================= Host speech ================= */
+// The host's name is a pun on "final answer", so TTS says it that way.
+const SPOKEN_NAME = 'Final Answer';
+const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+let voices = [];
+const hostEl = $('#host');
+function setMood(m) { hostEl.classList.remove('mood-neutral', 'mood-happy', 'mood-sad', 'mood-confused'); hostEl.classList.add('mood-' + m); }
+function restartMood() { const b = hostEl.querySelector('.shape-bang'); if (b) { b.style.animation = 'none'; void b.getBoundingClientRect(); b.style.animation = ''; } }
+function setTalking(on) { hostEl.classList.toggle('talking', on); }
+function showBubble(t) { $('#bubbleText').textContent = t; $('#bubble').classList.toggle('long', t.length > 115); }
+function pickVoice() {
+  return voices.find(v => v.voiceURI === settings.voiceURI)
+    || voices.find(v => /^en[-_]US/i.test(v.lang) && v.localService === false)
+    || voices.find(v => /^en[-_]US/i.test(v.lang))
+    || voices.find(v => /^en/i.test(v.lang)) || null;
+}
+function readingTime(t) { return Math.max(1200, 500 + t.length * 62) / settings.rate; }
+function splitSentences(t) {
+  const parts = t.match(/[^.!?]+[.!?]*["')\]]*\s*/g) || [t], out = [];
+  for (const p of parts) { if (out.length && (out[out.length - 1] + p).length < 170) out[out.length - 1] += p; else out.push(p); }
+  return out.map(s => s.trim()).filter(Boolean);
+}
+/* ---------- Kokoro natural voice (runs in a Web Worker, audio plays through Web Audio) ---------- */
+const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
+const KOKORO_MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+const KOKORO_VOICES = [
+  ['af_sky', 'Sky (US)'], ['af_heart', 'Heart (US)'], ['af_bella', 'Bella (US)'], ['af_nicole', 'Nicole (US)'],
+  ['af_aoede', 'Aoede (US)'], ['af_kore', 'Kore (US)'], ['af_sarah', 'Sarah (US)'], ['af_nova', 'Nova (US)'], ['af_alloy', 'Alloy (US)'],
+  ['am_michael', 'Michael (US)'], ['am_fenrir', 'Fenrir (US)'], ['am_puck', 'Puck (US)'], ['am_echo', 'Echo (US)'], ['am_eric', 'Eric (US)'], ['am_liam', 'Liam (US)'], ['am_onyx', 'Onyx (US)'],
+  ['bf_emma', 'Emma (UK)'], ['bf_isabella', 'Isabella (UK)'], ['bm_george', 'George (UK)'], ['bm_fable', 'Fable (UK)'], ['bm_lewis', 'Lewis (UK)']
+];
+const WORKER_SRC = `
+import { KokoroTTS } from '${KOKORO_URL}';
+let tts = null, busy = false; const queue = [];
+self.onmessage = async (e) => {
+  const m = e.data;
+  if (m.type === 'init') {
+    try {
+      tts = await KokoroTTS.from_pretrained('${KOKORO_MODEL}', { dtype: m.dtype, device: m.device,
+        progress_callback: (p) => { if (p && p.status === 'progress' && typeof p.progress === 'number') self.postMessage({ type: 'progress', file: p.file, progress: p.progress }); } });
+      self.postMessage({ type: 'ready' });
+    } catch (err) { self.postMessage({ type: 'initError', error: String((err && err.message) || err) }); }
+    return;
+  }
+  if (m.type === 'gen') { if (m.prio) queue.unshift(m); else queue.push(m); pump(); }
+};
+async function pump() {
+  if (busy || !tts || !queue.length) return;
+  busy = true; const m = queue.shift();
+  try {
+    const out = await tts.generate(m.text, { voice: m.voice });
+    const data = new Float32Array(out.audio);
+    self.postMessage({ type: 'audio', id: m.id, audio: data, sr: out.sampling_rate }, [data.buffer]);
+  } catch (err) { self.postMessage({ type: 'genError', id: m.id, error: String((err && err.message) || err) }); }
+  busy = false; pump();
+}
+`;
+const kokoro = { state: 'off', worker: null, pending: new Map(), cache: new Map(), seq: 0, files: {}, device: '', dtype: '', warned: false };
+function setVoiceStatus(t) { const el = document.getElementById('voiceStatus'); if (el) el.textContent = t; }
+function kokoroInit(forceLight = false) {
+  if (settings.engine !== 'kokoro' || kokoro.state === 'loading' || kokoro.state === 'ready') return;
+  const gpu = !forceLight && settings.voiceQuality !== 'light' && !!navigator.gpu;
+  kokoro.device = gpu ? 'webgpu' : 'wasm'; kokoro.dtype = gpu ? 'fp32' : 'q8'; // kokoro-js recommends fp32 on WebGPU
+  kokoro.files = {};
+  try {
+    const url = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }));
+    kokoro.worker = new Worker(url, { type: 'module' });
+  } catch (e) { kokoroFail(e && e.message); return; }
+  kokoro.state = 'loading';
+  setVoiceStatus(`Loading Fae N'Lancer's natural voice (${gpu ? 'GPU' : 'CPU'})… first load downloads the voice model, later loads use the browser cache.`);
+  kokoro.worker.onmessage = onKokoroMessage;
+  kokoro.worker.onerror = e => kokoroFail((e && e.message) || 'worker failed to start');
+  kokoro.worker.postMessage({ type: 'init', device: kokoro.device, dtype: kokoro.dtype });
+}
+function kokoroReset() {
+  if (kokoro.worker) kokoro.worker.terminate();
+  kokoro.pending.forEach(p => p.rej(new Error('reset'))); kokoro.pending.clear(); kokoro.cache.clear();
+  kokoro.worker = null; kokoro.state = 'off';
+}
+function kokoroFail(msg) {
+  const wasGpu = kokoro.device === 'webgpu';
+  kokoroReset();
+  if (wasGpu) { kokoroInit(true); return; } // retry on CPU before giving up
+  kokoro.state = 'failed';
+  setVoiceStatus('Natural voice unavailable here, using the browser voice.' + (msg ? ` (${String(msg).slice(0, 80)})` : ''));
+}
+function onKokoroMessage(e) {
+  const m = e.data;
+  if (m.type === 'progress') {
+    kokoro.files[m.file] = m.progress;
+    const pct = Math.max(...Object.values(kokoro.files));
+    setVoiceStatus(`Loading Fae N'Lancer's natural voice… ${Math.round(pct)}%`);
+  } else if (m.type === 'ready') {
+    kokoro.state = 'ready';
+    setVoiceStatus(`Natural voice ready (${kokoro.device === 'webgpu' ? 'GPU' : 'CPU'}).`);
+  } else if (m.type === 'initError') {
+    kokoroFail(m.error);
+  } else if (m.type === 'audio' || m.type === 'genError') {
+    const p = kokoro.pending.get(m.id); if (!p) return;
+    kokoro.pending.delete(m.id);
+    if (m.type === 'audio') p.res({ audio: m.audio, sr: m.sr }); else p.rej(new Error(m.error));
+  }
+}
+function speechText(t) { return t.replace(/Fae N'Lancer/g, SPOKEN_NAME); }
+function synthesize(text, prio) {
+  const key = settings.kVoice + '|' + text;
+  if (kokoro.cache.has(key)) return kokoro.cache.get(key);
+  const p = new Promise((res, rej) => {
+    const id = ++kokoro.seq; kokoro.pending.set(id, { res, rej });
+    kokoro.worker.postMessage({ type: 'gen', id, text: speechText(text), voice: settings.kVoice, prio: !!prio });
+  });
+  p.catch(() => kokoro.cache.delete(key));
+  kokoro.cache.set(key, p);
+  if (kokoro.cache.size > 80) kokoro.cache.delete(kokoro.cache.keys().next().value);
+  return p;
+}
+function kokoroActive() { return settings.engine === 'kokoro' && kokoro.state === 'ready' && !settings.muted; }
+function prefetch(...texts) { if (!kokoroActive()) return; texts.filter(Boolean).forEach(t => synthesize(t, false).catch(() => {})); }
+let currentSrc = null;
+function playClip(clip, finish) {
+  const c = ac(); if (!c) return false;
+  const buf = c.createBuffer(1, clip.audio.length, clip.sr);
+  buf.copyToChannel(clip.audio, 0);
+  const src = c.createBufferSource(), g = c.createGain();
+  src.buffer = buf; g.gain.value = settings.volume;
+  src.connect(g).connect(c.destination);
+  src.onended = () => { if (currentSrc === src) currentSrc = null; finish(); };
+  currentSrc = src; setTalking(true); src.start();
+  return true;
+}
+
+let pendingFinish = null;
+function hostStop() {
+  if (synth) synth.cancel();
+  if (currentSrc) { try { currentSrc.onended = null; currentSrc.stop(); } catch {} currentSrc = null; }
+  setTalking(false);
+  if (pendingFinish) { const f = pendingFinish; pendingFinish = null; f(); }
+}
+function say(text, opts = {}) {
+  if (opts.bubble !== false) showBubble(opts.bubbleText || text);
+  hostStop();
+  return new Promise(resolve => {
+    let done = false, safety;
+    const est = readingTime(text);
+    const finish = () => { if (done) return; done = true; clearTimeout(safety); if (pendingFinish === finish) pendingFinish = null; setTalking(false); resolve(); };
+    pendingFinish = finish;
+    if (settings.muted) { safety = setTimeout(finish, opts.bubble === false ? 300 : est); return; }
+    const browserSpeak = () => {
+      clearTimeout(safety);
+      if (!synth) { safety = setTimeout(finish, est); return; }
+      safety = setTimeout(finish, est * 2.5 + 4000);
+      const parts = splitSentences(text), v = pickVoice();
+      setTimeout(() => {
+        if (done) return;
+        try { synth.resume(); } catch {}
+        parts.forEach((p, i) => {
+          const u = new SpeechSynthesisUtterance(speechText(p));
+          if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+          u.rate = settings.rate; u.pitch = settings.pitch; u.volume = settings.volume;
+          u.onstart = () => { if (!done) setTalking(true); };
+          if (i === parts.length - 1) u.onend = finish;
+          u.onerror = e => { if (done || e.error === 'interrupted' || e.error === 'canceled') return; clearTimeout(safety); safety = setTimeout(finish, est); };
+          synth.speak(u);
+        });
+      }, 60);
+    };
+    if (kokoroActive()) {
+      safety = setTimeout(finish, est * 3 + 12000);
+      Promise.race([synthesize(text, true), wait(7000).then(() => null)]).then(clip => {
+        if (done) return;
+        if (!clip || !playClip(clip, finish)) browserSpeak();
+      }).catch(() => { if (!done) browserSpeak(); });
+      return;
+    }
+    browserSpeak();
+  });
+}
+function loadVoices() {
+  if (!synth) return;
+  voices = synth.getVoices();
+  const sel = $('#voiceSel'); sel.textContent = '';
+  const auto = new Option('Automatic (best English voice)', ''); sel.add(auto);
+  const sorted = voices.slice().sort((a, b) => (/^en/i.test(b.lang) - /^en/i.test(a.lang)) || a.name.localeCompare(b.name));
+  for (const v of sorted) sel.add(new Option(`${v.name} (${v.lang})`, v.voiceURI));
+  sel.value = voices.some(v => v.voiceURI === settings.voiceURI) ? settings.voiceURI : '';
+}
+if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+
+/* ================= Host script ================= */
+const LINES = {
+  welcome: { friendly: ["Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer. Pick a mode and let's get thinking."], spicy: ["Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer, and around here every answer is final. Pick a mode."] },
+  intro_classic: { friendly: ["Welcome, contestants! {n} questions tonight, {t} seconds each. Let's have some fun."], spicy: ["{n} questions. {t} seconds each. No refunds, no do-overs, no crying on air.", "Welcome back to the only show where being a know-it-all pays off. {n} questions, let's go."] },
+  intro_lightning: { friendly: ["Lightning round! Sixty seconds on the clock. Answer as many as you can."], spicy: ["Lightning round! Sixty seconds. Answer fast, think later."] },
+  intro_survival: { friendly: ["Survival mode! You get three lives, and the questions get tougher as you go. Good luck!"], spicy: ["Survival mode. Three lives. Every wrong answer costs one. Let's see how long you last."] },
+  intro_daily: { friendly: ["It's the daily challenge! Everyone playing today gets these same ten questions."], spicy: ["Daily challenge time. Same ten questions for everyone today, so there's no hiding from the group chat."] },
+  q_intro: { friendly: ["Question {n}. {cat}, for {pts} points.", "Here's number {n}, from {cat}.", "Question {n}! This one's {cat}."], spicy: ["Question {n}. {cat}, worth {pts} points.", "Number {n}. {cat}. Try to look confident.", "Question {n}, from {cat}. Everybody act natural."] },
+  q_final: { friendly: ["Here comes the final question! {cat}."], spicy: ["Final question. {cat}. Make it count."] },
+  q_hard: { friendly: [], spicy: ["Oh, this one's a hard one.", "Brace yourselves, this one's hard."] },
+  lock: { friendly: ["Locked in. Let's see…", "Is that your Fae N'Lancer? Here we go…", "Alright, let's check it."], spicy: ["Is that your Fae N'Lancer? Too late, it is.", "Bold. Let's check.", "Locked in. No take-backs."] },
+  correct: { friendly: ["That's right!", "Correct! Nicely done.", "Yes! That's it.", "You got it!"], spicy: ["Correct! The crowd goes mild.", "That's right. Show-off.", "Nailed it.", "Correct, and I'm only a little surprised."] },
+  streak3: { friendly: ["Three in a row! Your multiplier just went up."], spicy: ["Three in a row. Multiplier's up, egos too."] },
+  streak5: { friendly: ["Five straight! Double points now."], spicy: ["Five straight? Somebody's been reading encyclopedias. Double points."] },
+  streak8: { friendly: ["Eight in a row! Triple points!"], spicy: ["Eight in a row! Triple points. I'm calling the network."] },
+  wrong: { friendly: ["Not quite. The answer was {a}.", "Oh, so close! It was {a}.", "Nope, it was {a}. You'll get the next one."], spicy: ["Oof. The answer was {a}.", "Wrong. It was {a}. I'm contractually obligated to keep smiling.", "Nope! It was {a}. We'll fix it in the edit."] },
+  timeout: { friendly: ["Time's up! The answer was {a}."], spicy: ["Silence? Bold strategy. It was {a}.", "Time! It was {a}. Dead air is expensive, people."] },
+  streak_broken: { friendly: ["And that ends a streak of {s}."], spicy: ["And there goes that streak of {s}. Pour one out."] },
+  life_lost: { friendly: ["That's a life gone. {l} left."], spicy: ["That'll cost you a life. {l} left."] },
+  last_life: { friendly: ["One life left. You can do this!"], spicy: ["One life left. No pressure. Well, a lot of pressure."] },
+  fifty: { friendly: ["Fifty-fifty! Two wrong answers, gone."], spicy: ["Fifty-fifty. I've removed two wrong answers. The rest is on you."] },
+  skip: { friendly: ["Skipping that one! Let's try another."], spicy: ["Skip! We'll pretend that question never existed."] },
+  time: { friendly: ["Ten more seconds on the clock."], spicy: ["Ten more seconds. Use them wisely. Or at all."] },
+  lightning_end: { friendly: ["Time's up! Pencils down."], spicy: ["And that's the buzzer! Pencils down."] },
+  over_great: { friendly: ["Outstanding! {c} out of {t} and {p} points. Take a bow."], spicy: ["{c} out of {t}, {p} points. You're making me look good."] },
+  over_ok: { friendly: ["Solid show! {c} out of {t} and {p} points."], spicy: ["{c} out of {t} and {p} points. Respectable. Not legendary, but respectable."] },
+  over_bad: { friendly: ["{c} out of {t} and {p} points. Every champion starts somewhere!"], spicy: ["{c} out of {t}. {p} points. We'll fix it in the edit."] },
+  survival_over: { friendly: ["That's all your lives! You survived {c} questions for {p} points."], spicy: ["And you're out! {c} correct, {p} points. Survival is hard."] },
+  new_best: { friendly: ["And that's a new personal best!"], spicy: ["New personal best! Somebody screenshot this."] },
+  board_intro: { friendly: ["Welcome to the board! {names}, let's play. {p} picks first."], spicy: ["Welcome to the board, where every wrong answer costs you. {names}. {p}, you're up first."] },
+  your_pick: { friendly: ["{p}, pick a tile.", "{p}, you're up. Choose a category."], spicy: ["{p}, pick your poison.", "{p}, choose wisely. Or don't, it's funnier."] },
+  pick: { friendly: ["{p} picks {cat} for {v}."], spicy: ["{p} goes for {cat}, {v} points. Bold.", "{cat} for {v}. Let's see what you've got, {p}."] },
+  dd_found: { friendly: ["It's a Double Down! {p}, how much do you want to wager?"], spicy: ["Double Down! {p}, how much of your dignity are you betting?"] },
+  dd_go: { friendly: ["{p} wagers {w}. Here's the question."], spicy: ["{p} puts {w} on the line. Here we go."] },
+  board_right: { friendly: ["{p} got it! Plus {v}."], spicy: ["{p} is right. Plus {v}. Don't let it go to your head."] },
+  board_wrong: { friendly: ["Not quite, {p}. That's minus {v}."], spicy: ["Wrong, {p}. That's minus {v}. Ouch."] },
+  board_timeout: { friendly: ["Time's up, {p}. That's minus {v}."], spicy: ["Time, {p}. Minus {v} for the silence."] },
+  steal_ask: { friendly: ["Anyone want to steal?", "It's up for grabs. Who wants to steal?"], spicy: ["Anyone brave enough to steal?", "Up for grabs. Who's feeling lucky?"] },
+  steal_go: { friendly: ["{p} is going for the steal!"], spicy: ["{p} smells blood. Going for the steal!"] },
+  steal_right: { friendly: ["{p} steals it! Plus {v}."], spicy: ["Stolen! {p} takes {v}. Cold."] },
+  steal_none: { friendly: ["No takers. The answer was {a}."], spicy: ["Nobody? Cowards. It was {a}."] },
+  answer_was: { friendly: ["The answer was {a}."], spicy: ["It was {a}, by the way."] },
+  final_intro: { friendly: ["It's time for Fae N'Lancer's Final Answer! The category is {cat}. Make your wagers."], spicy: ["Final round! The category is {cat}. Time to find out who's brave and who's broke. Make your wagers."] },
+  final_q: { friendly: ["Here's the final question. Send your answers to the host now."], spicy: ["Final question. Send your answers to the host, and no peeking at each other."] },
+  final_mark: { friendly: ["Pencils down! The answer was {a}. Let's see who got it."], spicy: ["Pencils down. It was {a}. Let's see who gambled well."] },
+  final_right: { friendly: ["{p} wagered {w}, and got it right!"], spicy: ["{p} bet {w}, and nailed it!"] },
+  final_wrong: { friendly: ["{p} wagered {w}, and missed."], spicy: ["{p} bet {w}, and it's gone."] },
+  winner: { friendly: ["{p} wins with {s} points! Congratulations!"], spicy: ["{p} wins with {s} points. Everyone else, there's always the rematch."] },
+  tie: { friendly: ["It's a tie at the top with {s} points! {names}, settle it in the rematch."], spicy: ["A tie at {s} points between {names}. Nobody wins, everybody loses. Rematch!"] },
+  pause: { friendly: ["We'll be right back after these messages."], spicy: ["We'll be right back after these messages."] },
+  voice_test: { friendly: ["Testing, testing! I'm Fae N'Lancer. If your friends on the call can hear me, the host's voice is working."], spicy: ["Testing, testing. Fae N'Lancer here. If your friends can hear me on the call, congratulations, your stream has a host."] }
+};
+const lastPick = {};
+function line(key, vars = {}) {
+  const set = LINES[key]; if (!set) return '';
+  let pool = set[settings.sass]; if (!pool || !pool.length) pool = set.friendly || [];
+  if (!pool.length) return '';
+  let s = rand(pool);
+  if (pool.length > 1) { let tries = 0; while (s === lastPick[key] && tries++ < 5) s = rand(pool); }
+  lastPick[key] = s;
+  return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+
+/* ================= Question bank ================= */
+let BANK = [];
+function normalizeQ(q) {
+  if (!q || typeof q.question !== 'string' || typeof q.correct !== 'string' || !Array.isArray(q.incorrect)) return null;
+  const type = q.type === 'boolean' ? 'boolean' : 'multiple';
+  if (type === 'multiple' && q.incorrect.length < 3) return null;
+  return { id: String(q.id || strHash(norm(q.question)).toString(16)), category: q.category || 'General Knowledge',
+    difficulty: ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium', type,
+    question: q.question, correct: q.correct, incorrect: q.incorrect.slice(0, 3).map(String),
+    explain: typeof q.explain === 'string' ? q.explain.trim() : '' };
+}
+async function loadBank() {
+  let loaded = [], fromFile = false;
+  try {
+    const r = await fetch('questions.json', { cache: 'no-cache' });
+    if (r.ok) { const d = await r.json(); loaded = Array.isArray(d) ? d : (d.questions || []); fromFile = true; }
+  } catch {}
+  const byText = new Map();
+  for (const raw of [...loaded, ...STARTER]) { const q = normalizeQ(raw); if (q && !byText.has(norm(q.question))) byText.set(norm(q.question), q); }
+  BANK = [...byText.values()];
+  const live = BANK.filter(q => !flagged.has(q.id)).length;
+  $('#bankStatus').textContent = fromFile
+    ? `${fmt(live)} questions ready.`
+    : `${fmt(live)} built-in questions ready. Run fetch_questions.py to add thousands more.`;
+  const cats = {}; BANK.forEach(q => { if (!flagged.has(q.id)) cats[q.category] = (cats[q.category] || 0) + 1; });
+  const sel = $('#catSel'); sel.length = 1;
+  Object.keys(cats).sort().forEach(c => sel.add(new Option(`${c} (${cats[c]})`, c)));
+  sel.value = cats[settings.category] ? settings.category : 'all';
+}
+function basePool(filter) {
+  return BANK.filter(q => !flagged.has(q.id)
+    && (filter.category === 'all' || q.category === filter.category)
+    && (filter.difficulty === 'any' || q.difficulty === filter.difficulty));
+}
+function draw(pool, used) {
+  let cand = pool.filter(q => !seen.has(q.id) && !used.has(q.id));
+  if (!cand.length) { pool.forEach(q => seen.delete(q.id)); cand = pool.filter(q => !used.has(q.id)); }
+  return cand.length ? rand(cand) : null;
+}
+function recentAccuracy() { return recent.length ? recent.filter(Boolean).length / recent.length : null; }
+function adaptiveDifficulty() {
+  const acc = recentAccuracy();
+  const w = acc == null ? [1, 2, 1] : acc >= .75 ? [1, 2, 3] : acc <= .45 ? [3, 2, 1] : [1, 2, 1];
+  let r = Math.random() * (w[0] + w[1] + w[2]);
+  return r < w[0] ? 'easy' : r < w[0] + w[1] ? 'medium' : 'hard';
+}
+function dailyList() {
+  const pool = BANK.filter(q => !flagged.has(q.id)).sort((a, b) => a.id < b.id ? -1 : 1);
+  const r = mulberry32(strHash('ptt-daily-' + todayKey()));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  return pool.slice(0, 10);
+}
+
+/* ================= Game state ================= */
+const POINTS = { easy: 100, medium: 200, hard: 300 };
+const L = ['A', 'B', 'C', 'D'];
+let G = null, run = 0, timerId = null, lastTick = 0;
+
+function multiplier(s) { return s >= 8 ? 3 : s >= 5 ? 2 : s >= 3 ? 1.5 : 1; }
+function newGame(mode) {
+  const filter = mode === 'daily' ? { category: 'all', difficulty: 'any' } : { category: settings.category, difficulty: settings.difficulty };
+  G = {
+    mode, filter, pool: basePool(filter), score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, index: 0,
+    total: mode === 'classic' ? settings.rounds : mode === 'daily' ? 10 : Infinity,
+    lives: mode === 'survival' ? 3 : null, clock: mode === 'lightning' ? 60 : null,
+    life: mode === 'lightning' ? { fifty: 0, skip: 0, time: 0 } : mode === 'daily' ? { fifty: 1, skip: 0, time: 1 } : { fifty: 1, skip: 1, time: 1 },
+    used: new Set(), q: null, options: [], correctIdx: -1, removed: new Set(), phase: 'idle', paused: false,
+    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, daily: mode === 'daily' ? dailyList() : null
+  };
+  if (mode === 'daily') G.total = G.daily.length;
+}
+function isOver() {
+  if (G.mode === 'survival') return G.lives <= 0;
+  if (G.mode === 'lightning') return G.clock <= 0;
+  return G.index >= G.total;
+}
+function pickNext() {
+  if (G.mode === 'daily') return G.daily[G.index] || null;
+  let pool = G.pool, want = null;
+  if (G.filter.difficulty === 'any') {
+    if (G.mode === 'survival') want = G.index < 5 ? 'easy' : G.index < 12 ? 'medium' : 'hard';
+    else if (G.mode === 'classic') want = adaptiveDifficulty();
+  }
+  if (want) { const p = pool.filter(q => q.difficulty === want && !G.used.has(q.id)); if (p.length) pool = p; }
+  const q = draw(pool, G.used);
+  if (q) G.used.add(q.id);
+  return q;
+}
+
+/* ================= Rendering ================= */
+const tiles = $$('.tile');
+function timingLive() { return G && !G.paused && (G.mode === 'lightning' ? G.phase !== 'over' : G.phase === 'answering'); }
+function restartAnim(el, cls) { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+function renderTimer(left, max) {
+  const frac = Math.max(0, Math.min(1, left / max));
+  $('#fuseFill').style.width = (frac * 100) + '%';
+  const secs = Math.ceil(Math.max(0, left)), num = $('#timerNum'), live = timingLive();
+  if (num.textContent !== String(secs)) { num.textContent = secs; if (live) onSecond(secs); }
+  const g = $('#game');
+  g.classList.toggle('t-warn', live && left <= 10 && left > 5);
+  g.classList.toggle('t-danger', live && left <= 5 && left > 0);
+  $('#vignette').style.opacity = live && left <= 5 && left > 0 ? String(Math.min(.8, .2 + (5 - left) / 5 * .6)) : '0';
+  hostEl.classList.toggle('sweat', live && left <= 5 && left > 0);
+}
+function onSecond(s) {
+  if (s > 10 || s <= 0) return;
+  if (!RM) restartAnim($('#timerBox'), 'beat');
+  if (s <= 5) { sfx.tickHard(s); if (s <= 3 && !RM) restartAnim($('#board'), 'shake'); }
+  else sfx.heartbeat();
+}
+function clearIntensity() {
+  const g = $('#game'); g.classList.remove('t-warn', 't-danger');
+  $('#vignette').style.opacity = '0'; hostEl.classList.remove('sweat');
+}
+function stampTime() { const st = $('#stamp'); if (RM) return; restartAnim(st, 'show'); }
+function renderHud() {
+  if (G.mode === 'board') { renderBoardHud(); renderLifelines(); return; }
+  const p = $('#progress');
+  if (G.mode === 'lightning') p.textContent = `Lightning, question ${G.index}`;
+  else if (G.mode === 'survival') p.textContent = `Survival, question ${G.index}`;
+  else p.textContent = `Question ${G.index} of ${G.total}`;
+  $('#score').textContent = fmt(G.score);
+  const m = multiplier(G.streak);
+  $('#streak').textContent = G.streak >= 2 ? `🔥 ${G.streak}${m > 1 ? `  ×${m}` : ''}` : '';
+  $('#lives').textContent = G.lives == null ? '' : '❤️'.repeat(Math.max(0, G.lives)) + '🖤'.repeat(Math.max(0, 3 - G.lives));
+  $('#muteBtn').textContent = settings.muted ? '🔇' : '🔊';
+  $('#muteBtn').setAttribute('aria-label', settings.muted ? 'Unmute host' : 'Mute host');
+  renderLifelines();
+}
+function renderLifelines() {
+  const active = G && ['reading', 'answering'].includes(G.phase) && G.optionsShown && !G.paused;
+  $('#fiftyBtn').disabled = !active || !G.life.fifty || G.q?.type === 'boolean';
+  $('#skipBtn').disabled = !active || !G.life.skip;
+  $('#timeBtn').disabled = !active || !G.life.time || G.mode === 'lightning';
+  const noLife = G.mode === 'lightning' || G.mode === 'board';
+  $('#fiftyBtn').hidden = $('#timeBtn').hidden = noLife;
+  $('#skipBtn').hidden = noLife || G.mode === 'daily';
+  const f = $('#flagBtn'), isF = G.q && flagged.has(G.q.id);
+  f.disabled = !G.q; f.classList.toggle('flagged', !!isF);
+  f.firstChild.textContent = isF ? 'Flagged' : 'Flag question';
+}
+function renderQuestionShell() {
+  const q = G.q, qt = $('#qtext');
+  $('#chipCat').textContent = q.category;
+  const d = $('#chipDiff'); d.textContent = q.difficulty[0].toUpperCase() + q.difficulty.slice(1); d.className = 'chip ' + q.difficulty;
+  $('#chipPts').textContent = `${POINTS[q.difficulty]} points`;
+  qt.textContent = 'Get ready…'; qt.className = 'qtext pending';
+  tiles.forEach(t => { t.className = 'tile hidden'; t.disabled = true; t.querySelector('.float')?.remove(); });
+  $('#game').classList.remove('revealed', 'revealed-final');
+  G.removed = new Set(); G.optionsShown = false;
+  $('#fact').hidden = true; bulbify($('#board'), 890, 328, 34);
+  if (G.mode !== 'lightning') renderTimer(settings.timer, settings.timer);
+}
+function showQuestionText() {
+  const qt = $('#qtext'), t = G.q.question;
+  qt.textContent = G.q.type === 'boolean' ? `True or false: ${t}` : t;
+  qt.className = 'qtext' + (t.length > 170 ? ' xlong' : t.length > 110 ? ' long' : '');
+}
+function showOptions() {
+  tiles.forEach((t, i) => {
+    if (i >= G.options.length) { t.className = 'tile hidden'; return; }
+    t.querySelector('.txt').textContent = G.options[i];
+    t.className = 'tile'; t.disabled = false;
+  });
+  G.optionsShown = true; renderLifelines();
+}
+
+/* ================= Timer ================= */
+function startTicker() { stopTicker(); lastTick = performance.now(); timerId = setInterval(onTick, 100); }
+function stopTicker() { clearInterval(timerId); timerId = null; }
+function onTick() {
+  const now = performance.now(), dt = (now - lastTick) / 1000; lastTick = now;
+  if (!G || G.paused) return;
+  if (G.mode === 'lightning') {
+    if (G.phase === 'over') return;
+    G.clock -= dt;
+    renderTimer(G.clock, 60);
+    if (G.clock <= 0) { G.clock = 0; clearIntensity(); sfx.buzzer(); stampTime(); endGame(); }
+    return;
+  }
+  if (G.phase !== 'answering') return;
+  G.timeLeft -= dt;
+  renderTimer(G.timeLeft, G.timeMax);
+  if (G.timeLeft <= 0) { G.timeLeft = 0; timeUp(); }
+}
+function beginAnswering() {
+  if (G.phase !== 'reading') return;
+  G.phase = 'answering'; G.timeLeft = settings.timer; G.timeMax = settings.timer; renderLifelines();
+}
+
+/* ================= Game flow ================= */
+async function startGame(mode = settings.mode) {
+  if (!BANK.length) return;
+  if (mode === 'board') { showPlayers(); return; }
+  ac();
+  newGame(mode);
+  if (G.mode !== 'daily' && !G.pool.length) { toast('No questions match that category and difficulty.'); return; }
+  setScreen('game'); setMood('happy'); clearIntensity();
+  $('#game').classList.toggle('lightning-mode', mode === 'lightning');
+  bulbify($('#board'), 890, 328, 34);
+  renderHud(); $('#qtext').textContent = 'Get ready…'; $('#qtext').className = 'qtext pending';
+  tiles.forEach(t => { t.className = 'tile hidden'; });
+  $('#fact').hidden = true; $('#game').classList.remove('revealed');
+  $('#chipCat').textContent = $('#chipDiff').textContent = $('#chipPts').textContent = '';
+  $('#chipDiff').className = 'chip';
+  const my = ++run;
+  sfx.start();
+  const introVars = { n: G.total, t: settings.timer };
+  await say(line('intro_' + mode, introVars));
+  if (my !== run) return;
+  setMood('neutral');
+  if (mode === 'lightning') renderTimer(60, 60);
+  startTicker();
+  nextQuestion();
+}
+
+function makeIntro(q, n) {
+  let intro = n === G.total ? line('q_final', { cat: q.category }) : line('q_intro', { n, cat: q.category, pts: POINTS[q.difficulty] });
+  if (q.difficulty === 'hard' && settings.sass === 'spicy' && Math.random() < .4) intro += ' ' + line('q_hard');
+  return intro;
+}
+function makeOptions(q) { return q.type === 'boolean' ? ['True', 'False'] : shuffle([q.correct, ...q.incorrect]); }
+function questionSpeech(q, options, removed = new Set()) {
+  let s = q.type === 'boolean' ? `True or false: ${q.question}` : q.question;
+  if (settings.readOptions && q.type !== 'boolean') s += ' ' + options.map((o, i) => removed.has(i) ? '' : `${L[i]}: ${o}.`).filter(Boolean).join(' ');
+  return s;
+}
+// Pick the next question while the current reveal is on screen, so its audio can be generated ahead of time.
+function prepareNext() {
+  if (!G || G.mode === 'lightning' || G.queued || isOver()) return;
+  const q = pickNext(); if (!q) return;
+  const options = makeOptions(q);
+  G.queued = { q, options, intro: makeIntro(q, G.index + 1) };
+  prefetch(G.queued.intro, questionSpeech(q, options));
+}
+async function nextQuestion() {
+  const my = ++run;
+  hostStop();
+  if (isOver()) return endGame();
+  let q, options = null, intro = null;
+  if (G.queued) { ({ q, options, intro } = G.queued); G.queued = null; }
+  else { q = pickNext(); if (!q) return endGame(); }
+  G.q = q; G.index++; G.phase = 'intro'; G.timeLeft = settings.timer; G.timeMax = settings.timer;
+  seen.add(q.id);
+  G.options = options || makeOptions(q);
+  G.correctIdx = G.options.indexOf(q.correct);
+  G.pre = { lock: line('lock'), correct: line('correct'), wrong: line('wrong', { a: q.correct }), timeout: line('timeout', { a: q.correct }) };
+  setMood('neutral'); renderQuestionShell(); renderHud();
+
+  if (G.mode === 'lightning') {
+    showQuestionText(); G.phase = 'answering'; showOptions();
+    say(q.type === 'boolean' ? `True or false: ${q.question}` : q.question, { bubble: false });
+    return;
+  }
+  if (!intro) intro = makeIntro(q, G.index);
+  const spoken = questionSpeech(q, G.options);
+  const introDone = say(intro); // request the intro first so it isn't stuck behind prefetches
+  prefetch(spoken, G.pre.lock, G.pre.correct, G.pre.wrong, G.pre.timeout, q.explain);
+  await introDone;
+  if (my !== run) return;
+
+  G.factPromise = q.explain ? null : wikiLookup(q);
+  showQuestionText(); G.phase = 'reading'; showOptions();
+  if (!settings.waitRead) beginAnswering();
+  await say(spoken, { bubble: false });
+  if (my !== run) return;
+  beginAnswering();
+}
+
+function answer(i) {
+  if (G && G.final) return; // final round answers are sent to the host, not clicked
+  if (!G || G.paused || !G.optionsShown || !['reading', 'answering'].includes(G.phase)) return;
+  if (i >= G.options.length || G.removed.has(i)) return;
+  const my = ++run;
+  hostStop();
+  G.phase = 'locked';
+  if (G.mode !== 'lightning') clearIntensity();
+  tiles.forEach(t => t.disabled = true);
+  tiles[i].classList.add('locked');
+  renderLifelines();
+  (G.mode === 'board' ? boardResolve : reveal)(i, my);
+}
+function timeUp() {
+  if (G.phase !== 'answering') return;
+  if (G.final) { finalCollect(); return; }
+  const my = ++run; hostStop();
+  G.phase = 'locked'; tiles.forEach(t => t.disabled = true);
+  clearIntensity(); sfx.buzzer(); stampTime();
+  (G.mode === 'board' ? boardResolve : reveal)(-1, my);
+}
+
+async function reveal(i, my) {
+  const q = G.q, lightning = G.mode === 'lightning';
+  if (!lightning && i >= 0) {
+    sfx.lock();
+    await say(G.pre ? G.pre.lock : line('lock'));
+    if (my !== run) return;
+    sfx.drum(); await wait(1000);
+    if (my !== run) return;
+  }
+  const right = i === G.correctIdx, extra = [];
+  G.answered++;
+  recent.push(right); recent = recent.slice(-30); store.set('recent', recent); saveSeen();
+  tiles.forEach(t => t.classList.remove('locked'));
+  tiles[G.correctIdx].classList.add('right');
+  let msg;
+  if (right) {
+    G.streak++; G.correct++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const bonus = lightning ? 0 : Math.round(50 * Math.max(0, G.timeLeft) / G.timeMax);
+    const pts = Math.round((POINTS[q.difficulty] + bonus) * multiplier(G.streak) / 10) * 10;
+    G.score += pts;
+    const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + fmt(pts); tiles[i].appendChild(f);
+    sfx.correct(); setMood('happy'); restartMood(); celebrate($('#board'), 1200);
+    msg = lightning || !G.pre ? line('correct') : G.pre.correct;
+    if (G.streak === 3) extra.push(line('streak3')); else if (G.streak === 5) extra.push(line('streak5')); else if (G.streak === 8) extra.push(line('streak8'));
+  } else {
+    const broken = G.streak; G.streak = 0;
+    if (i >= 0) tiles[i].classList.add('wrong');
+    if (i >= 0) sfx.wrong(); setMood(i < 0 ? 'confused' : 'sad');
+    msg = lightning || !G.pre ? line(i < 0 ? 'timeout' : 'wrong', { a: q.correct }) : (i < 0 ? G.pre.timeout : G.pre.wrong);
+    if (broken >= 3) extra.push(line('streak_broken', { s: broken }));
+    if (G.mode === 'survival') {
+      G.lives--;
+      if (G.lives === 1) extra.push(line('last_life')); else if (G.lives > 1) extra.push(line('life_lost', { l: G.lives }));
+    }
+  }
+  G.phase = 'revealed'; renderHud();
+  if (lightning) {
+    showBubble([msg, ...extra].join(' '));
+    await wait(right ? 550 : 1100);
+    if (my !== run || G.phase === 'over') return;
+    return nextQuestion();
+  }
+  $('#nextBtn').firstChild.textContent = isOver() ? 'See results' : 'Next question';
+  $('#game').classList.add('revealed'); bulbify($('#board'), 890, 400, 34);
+  if (!isOver()) prepareNext();
+  const factP = showFact(q, my);
+  const fullMsg = [msg, ...extra].join(' ');
+  await say(msg, { bubbleText: fullMsg });
+  if (my !== run) return;
+  if (extra.length) { await say(extra.join(' '), { bubble: false }); if (my !== run) return; }
+  const info = await factP;
+  if (my !== run || !info || !settings.readFacts) return;
+  await say(info.text, { bubble: false });
+}
+function advance() {
+  if (G && G.mode === 'board' && !G.paused) {
+    if (G.final && G.phase === 'answering') { finalCollect(); return; }
+    if (G.phase === 'revealed') boardAfterQuestion();
+    return;
+  }
+  if (!G || G.phase !== 'revealed' || G.paused) return;
+  if (isOver()) endGame(); else nextQuestion();
+}
+
+/* ================= Answer explanations: curated first, Wikipedia fallback ================= */
+const STOP = new Set('what which who whom whose where when does were with from into than that this these those have has had many much most known called named name first largest smallest only standard typical official roughly each other before after about while there their them they your under over also often considered'.split(' '));
+function keywords(text) { return norm(text).replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(w => w.length >= 4 && !STOP.has(w)); }
+function wikiEligible(q) {
+  if (q.type === 'boolean') return false;
+  const a = q.correct.trim();
+  return a.length >= 3 && !/^[\d\s.,%$€£°:\-\/]+$/.test(a);
+}
+const wikiCache = new Map();
+function wikiLookup(q) {
+  if (!wikiEligible(q)) return null;
+  if (wikiCache.has(q.id)) return wikiCache.get(q.id);
+  const p = (async () => {
+    const kw = keywords(q.question).slice(0, 4);
+    const params = new URLSearchParams({ action: 'query', format: 'json', origin: '*', redirects: '1',
+      generator: 'search', gsrsearch: `${q.correct} ${kw.join(' ')}`, gsrlimit: '5',
+      prop: 'extracts', exintro: '1', explaintext: '1', exsentences: '2', exlimit: '5' });
+    const ctrl = new AbortController(), t = setTimeout(() => ctrl.abort(), 4500);
+    try {
+      const r = await fetch('https://en.wikipedia.org/w/api.php?' + params, { signal: ctrl.signal });
+      if (!r.ok) return null;
+      return pickWikiPage(await r.json(), q, kw);
+    } catch { return null; } finally { clearTimeout(t); }
+  })();
+  wikiCache.set(q.id, p);
+  return p;
+}
+function pickWikiPage(data, q, kw) {
+  const pages = Object.values(data?.query?.pages || {}).sort((a, b) => (a.index ?? 99) - (b.index ?? 99));
+  const ans = norm(q.correct).replace(/^(the|a|an)\s+/, '');
+  for (const pg of pages) {
+    const ex = (pg.extract || '').replace(/\s+/g, ' ').trim();
+    if (!ex || /may refer to/i.test(ex)) continue;
+    const title = norm(pg.title.replace(/\s*\(.*?\)\s*/g, ' '));
+    const titleOk = title === ans || title.includes(ans) || (ans.includes(title) && title.length >= 4);
+    if (!titleOk) continue;
+    const exl = ex.toLowerCase();
+    if (kw.length && !kw.some(w => exl.includes(w))) continue;
+    const text = ex.length > 320 ? ex.slice(0, 317).replace(/\s+\S*$/, '') + '…' : ex;
+    return { text, source: { title: pg.title, url: 'https://en.wikipedia.org/wiki/' + encodeURIComponent(pg.title.replace(/ /g, '_')) } };
+  }
+  return null;
+}
+async function showFact(q, my) {
+  const box = $('#fact'), head = $('#factHead'), txt = $('#factText'), src = $('#factSrc');
+  head.textContent = q.type === 'boolean' ? `Why it's ${q.correct.toLowerCase()}` : `Why it's ${q.correct}`;
+  src.textContent = '';
+  let info = q.explain ? { text: q.explain, source: null } : null;
+  if (!info && G.factPromise) {
+    txt.textContent = 'Looking it up…'; box.hidden = false;
+    info = await Promise.race([G.factPromise, wait(3500).then(() => null)]);
+    if (my !== run) return null;
+  }
+  if (!info) { box.hidden = true; return null; }
+  txt.textContent = info.text;
+  if (info.source) {
+    src.append('From Wikipedia: ');
+    const a = document.createElement('a'); a.href = info.source.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = info.source.title;
+    src.append(a, ' (CC BY-SA)');
+  }
+  box.hidden = false;
+  return info;
+}
+
+/* ---------- Lifelines ---------- */
+function lifelineReady() { return G && !G.paused && G.optionsShown && ['reading', 'answering'].includes(G.phase); }
+function interruptReading() { if (G.phase === 'reading') { run++; hostStop(); beginAnswering(); } }
+function fifty() {
+  if (!lifelineReady() || !G.life.fifty || G.q.type === 'boolean') return;
+  G.life.fifty--; interruptReading();
+  const wrongIdx = shuffle([0, 1, 2, 3].filter(i => i !== G.correctIdx)).slice(0, 2);
+  wrongIdx.forEach(i => { G.removed.add(i); tiles[i].classList.add('gone'); tiles[i].disabled = true; });
+  sfx.pop(); say(line('fifty')); renderLifelines();
+}
+async function skip() {
+  if (!lifelineReady() || !G.life.skip) return;
+  G.life.skip--; const my = ++run; hostStop(); G.phase = 'locked';
+  G.index--; sfx.pop(); renderLifelines();
+  await say(line('skip'));
+  if (my === run) nextQuestion();
+}
+function extraTime() {
+  if (!lifelineReady() || !G.life.time || G.mode === 'lightning') return;
+  G.life.time--; interruptReading();
+  G.timeLeft += 10; G.timeMax = Math.max(G.timeMax, G.timeLeft);
+  renderTimer(G.timeLeft, G.timeMax); sfx.pop(); say(line('time')); renderLifelines();
+}
+function flag() {
+  if (!G || !G.q) return;
+  const id = G.q.id;
+  if (flagged.has(id)) { flagged.delete(id); toast('Flag removed.'); }
+  else { flagged.add(id); toast("Flagged. It won't come up again on this browser."); }
+  store.set('flagged', [...flagged]); renderLifelines();
+}
+function repeatQuestion() {
+  if (!G || !G.q || !G.optionsShown || !['reading', 'answering'].includes(G.phase)) return;
+  const s = questionSpeech(G.q, G.options, G.removed);
+  if (G.phase === 'reading') interruptReading();
+  say(s, { bubble: false });
+}
+function toggleMute() {
+  settings.muted = !settings.muted; saveSettings();
+  if (settings.muted && synth) synth.cancel();
+  if (G) renderHud();
+  toast(settings.muted ? 'Host muted.' : 'Host unmuted.');
+}
+
+/* ---------- Pause ---------- */
+function togglePause() {
+  if (!G || G.phase === 'over' || stage.dataset.screen !== 'game') return;
+  G.paused = !G.paused;
+  $('#pauseModal').classList.toggle('open', G.paused);
+  if (G.paused) { if (synth) synth.cancel(); clearIntensity(); showBubble(line('pause')); $('#resumeBtn').focus(); }
+  renderLifelines();
+}
+
+/* ---------- End ---------- */
+async function endGame() {
+  if (G && G.mode === 'board') { $('#pauseModal').classList.remove('open'); G.paused = false; showPodium(); return; }
+  if (!G || G.phase === 'over') return;
+  const my = ++run; stopTicker(); hostStop();
+  G.phase = 'over'; G.paused = false; $('#pauseModal').classList.remove('open'); clearIntensity();
+  const total = G.answered;
+  const acc = total ? G.correct / total : 0;
+  const bests = store.get('bests', {});
+  const key = G.mode === 'daily' ? 'daily-' + todayKey() : G.mode;
+  const newBest = bests[key] != null && G.score > bests[key];
+  if (bests[key] == null || G.score > bests[key]) { bests[key] = G.score; store.set('bests', bests); }
+  store.set('games', store.get('games', 0) + 1);
+  saveSeen();
+
+  const modeNames = { classic: 'Classic', lightning: 'Lightning round', survival: 'Survival', daily: `Daily challenge, ${todayKey()}` };
+  $('#resMode').textContent = `${modeNames[G.mode]}: final score`;
+  $('#resScore').textContent = fmt(G.score);
+  $('#resCorrect').textContent = `${G.correct}/${total}`;
+  $('#resAcc').textContent = `${Math.round(acc * 100)}%`;
+  $('#resStreak').textContent = G.bestStreak;
+  $('#resRating').textContent = acc >= .9 ? 'Prime-time legend' : acc >= .7 ? 'Syndication material' : acc >= .5 ? 'Solid daytime TV' : acc >= .3 ? 'Late-night rerun' : 'Cancelled after one episode';
+  $('#resBest').hidden = !newBest;
+  $('#copyResBtn').hidden = G.mode !== 'daily';
+  setScreen('results');
+  bulbify($('#resultCard'), 828, $('#resultCard').offsetHeight + 28, 34);
+  setMood(acc >= .5 ? 'happy' : 'sad');
+  sfx.over();
+  if (acc >= .8 || newBest) { confetti(); celebrate($('#resultCard'), 2200); }
+  const vars = { c: G.correct, t: total, p: fmt(G.score) };
+  let msg = '';
+  if (G.mode === 'lightning') msg = line('lightning_end') + ' ';
+  msg += G.mode === 'survival' ? line('survival_over', vars) : line(acc >= .8 ? 'over_great' : acc >= .5 ? 'over_ok' : 'over_bad', vars);
+  if (newBest) msg += ' ' + line('new_best');
+  await say(msg);
+}
+function toMenu() {
+  run++; stopTicker(); hostStop();
+  if (G) { G.phase = 'over'; G.paused = false; }
+  $('#pauseModal').classList.remove('open');
+  clearIntensity(); setScreen('title'); setMood('neutral'); showBubble(line('welcome'));
+  loadBank();
+}
+
+/* ================= Board mode ================= */
+const TIERS = { full: [[200, 'easy'], [400, 'easy'], [800, 'medium'], [1600, 'hard'], [2000, 'hard']], quick: [[200, 'easy'], [800, 'medium'], [2000, 'hard']] };
+const DIFF_FALLBACK = { easy: ['easy', 'medium', 'hard'], medium: ['medium', 'easy', 'hard'], hard: ['hard', 'medium', 'easy'] };
+let roster = store.get('players', []);
+const shortCat = c => c.replace(/^(Entertainment|Science): /, '');
+const joinNames = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+function showPlayers() {
+  setScreen('players'); setMood('neutral'); hostStop();
+  $('#bSize').value = settings.boardSize || 'full';
+  renderRoster(); showBubble("Who's playing tonight? Add everyone's names.");
+  setTimeout(() => $('#pInput').focus(), 50);
+}
+function renderRoster() {
+  const list = $('#pList'); list.textContent = '';
+  if (!roster.length) { const e = document.createElement('div'); e.className = 'pempty'; e.textContent = 'No players yet. Type a name and press Enter.'; list.appendChild(e); }
+  roster.forEach((n, i) => {
+    const chip = document.createElement('span'); chip.className = 'pname';
+    const num = document.createElement('small'); num.textContent = i + 1;
+    const x = document.createElement('button'); x.textContent = '×'; x.setAttribute('aria-label', 'Remove ' + n);
+    x.onclick = () => { roster.splice(i, 1); store.set('players', roster); renderRoster(); };
+    chip.append(num, ' ' + n, x); list.appendChild(chip);
+  });
+}
+function addPlayer() {
+  const inp = $('#pInput'), n = inp.value.trim().replace(/\s+/g, ' ');
+  const err = $('#pErr'); err.textContent = '';
+  if (!n) return;
+  if (roster.length >= 8) { err.textContent = 'Eight players is the maximum.'; return; }
+  if (roster.some(r => r.toLowerCase() === n.toLowerCase())) { err.textContent = `${n} is already playing.`; return; }
+  roster.push(n); store.set('players', roster); inp.value = ''; renderRoster(); inp.focus();
+}
+$('#pAdd').onclick = addPlayer;
+$('#pInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPlayer(); } });
+$('#pBack').onclick = toMenu;
+$('#bSize').onchange = e => { settings.boardSize = e.target.value; saveSettings(); };
+$('#pStart').onclick = () => startBoard();
+
+function buildBoard(size) {
+  const tiers = TIERS[size] || TIERS.full;
+  const byCat = {};
+  BANK.filter(q => !flagged.has(q.id)).forEach(q => (byCat[q.category] ||= []).push(q));
+  const need = { easy: 0, medium: 0, hard: 0 }; tiers.forEach(([, d]) => need[d]++);
+  const cats = Object.keys(byCat).filter(c => byCat[c].length >= tiers.length);
+  const exact = cats.filter(c => Object.keys(need).every(d => byCat[c].filter(q => q.difficulty === d).length >= need[d]));
+  let chosen = shuffle(exact).slice(0, 5), approx = false;
+  if (chosen.length < 5) { approx = true; chosen = chosen.concat(shuffle(cats.filter(c => !chosen.includes(c))).slice(0, 5 - chosen.length)); }
+  if (chosen.length < 5) return null;
+  const used = new Set(), grid = tiers.map(() => []);
+  chosen.forEach((cat, ci) => tiers.forEach(([v, d], ri) => {
+    let q = null;
+    for (const dd of DIFF_FALLBACK[d]) {
+      const pool = byCat[cat].filter(x => x.difficulty === dd && !used.has(x.id));
+      if (pool.length) { const fresh = pool.filter(x => !seen.has(x.id)); q = rand(fresh.length ? fresh : pool); break; }
+    }
+    used.add(q.id);
+    grid[ri][ci] = { value: v, q, done: false, dd: false, r: ri, c: ci };
+  }));
+  const bottom = grid.slice(Math.floor(tiers.length / 2)).flat();
+  shuffle(bottom).slice(0, size === 'quick' ? 1 : 2).forEach(t => t.dd = true);
+  return { cats: chosen, grid, size, approx, used };
+}
+
+async function startBoard() {
+  const err = $('#pErr'); err.textContent = '';
+  if (roster.length < 2) { err.textContent = 'Add at least 2 players.'; return; }
+  const size = $('#bSize').value; settings.boardSize = size; saveSettings();
+  const board = buildBoard(size);
+  if (!board) { err.textContent = "Not enough categories with questions yet. Run fetch_questions.py to grow the bank."; return; }
+  ac();
+  G = {
+    mode: 'board', board, players: roster.map(name => ({ name, score: 0 })), turn: 0,
+    score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, index: 0, total: Infinity, lives: null, clock: null,
+    life: { fifty: 0, skip: 0, time: 0 }, used: new Set(), q: null, options: [], correctIdx: -1, removed: new Set(), phase: 'board', paused: false,
+    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, final: null, stealList: [], tried: new Set()
+  };
+  if (board.approx) toast('Some categories are short on questions, so a few tiles use a different difficulty.');
+  startTicker(); sfx.start();
+  showBoard(true);
+}
+function renderStrip() {
+  const strip = $('#pStrip'); strip.textContent = '';
+  G.players.forEach((p, i) => {
+    const c = document.createElement('div'); c.className = 'pchip' + (i === G.turn ? ' turn' : '');
+    const n = document.createElement('span'); n.className = 'n'; n.textContent = p.name;
+    const sc = document.createElement('span'); sc.className = 's' + (p.score < 0 ? ' neg' : ''); sc.textContent = fmt(p.score);
+    c.append(n, sc); strip.appendChild(c);
+  });
+}
+function showBoard(first = false) {
+  run++; hostStop(); clearIntensity();
+  G.phase = 'board'; G.q = null; G.final = null;
+  $('#game').classList.remove('revealed', 'stealing');
+  setScreen('board'); setMood('neutral');
+  const b = G.board, grid = $('#bGrid');
+  grid.className = 'bgrid' + (b.size === 'quick' ? ' b-quick' : ''); grid.textContent = '';
+  b.cats.forEach(c => { const h = document.createElement('div'); h.className = 'bcat'; h.textContent = shortCat(c); grid.appendChild(h); });
+  b.grid.forEach(row => row.forEach(t => {
+    const btn = document.createElement('button'); btn.className = 'btile' + (t.done ? ' done' : '');
+    btn.textContent = t.done ? '' : t.value; btn.disabled = t.done;
+    btn.setAttribute('aria-label', `${shortCat(b.cats[t.c])} for ${t.value}`);
+    btn.onclick = () => boardAsk(t);
+    grid.appendChild(btn);
+  }));
+  const p = G.players[G.turn];
+  $('#turnPill').textContent = `${p.name}'s pick`;
+  renderStrip();
+  if (first) say(line('board_intro', { names: joinNames(G.players.map(x => x.name)), p: p.name }));
+  else say(line('your_pick', { p: p.name }));
+}
+function renderBoardHud() {
+  const p = G.players[G.answerer ?? G.turn];
+  $('#progress').textContent = G.final ? "Fae N'Lancer's Final Answer" : `${G.stealing ? 'Steal: ' : ''}${p.name}, for ${fmt(G.value)}`;
+  $('#score').textContent = G.final ? '' : fmt(p.score);
+  $('#streak').textContent = G.dd && !G.final ? 'Double Down' : '';
+  $('#lives').textContent = '';
+  $('#muteBtn').textContent = settings.muted ? '🔇' : '🔊';
+}
+function tilesLeft() { return G.board.grid.flat().filter(t => !t.done).length; }
+
+/* ---------- dialogs ---------- */
+function openSheet(build) {
+  const sh = $('#boardSheet'); sh.textContent = ''; build(sh);
+  $('#boardModal').classList.add('open');
+}
+function closeSheet() { $('#boardModal').classList.remove('open'); }
+function el(tag, props = {}, ...kids) { const e = document.createElement(tag); Object.assign(e, props); e.append(...kids); return e; }
+function askWager(player, max, hidden, title) {
+  return new Promise(resolve => {
+    openSheet(sh => {
+      const inp = el('input', { className: 'wager-in', type: hidden ? 'password' : 'number', inputMode: 'numeric', autocomplete: 'off', min: 0, max, placeholder: '0' });
+      const errEl = el('div', { className: 'werr' });
+      const submit = () => {
+        const v = Number(String(inp.value).trim() || 'NaN');
+        if (!Number.isInteger(v) || v < 0 || v > max) { errEl.textContent = `Enter a whole number from 0 to ${fmt(max)}.`; return; }
+        closeSheet(); resolve(v);
+      };
+      const set = v => { inp.value = v; inp.focus(); };
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submit(); } });
+      sh.append(
+        el('h2', { textContent: title }),
+        el('p', { className: 'note', textContent: `${player.name} can wager 0 to ${fmt(max)}.` + (hidden ? ' The number stays hidden on screen.' : '') }),
+        inp,
+        el('div', { className: 'quick' },
+          el('button', { className: 'btn', textContent: 'All in', onclick: () => set(max) }),
+          el('button', { className: 'btn', textContent: 'Half', onclick: () => set(Math.floor(max / 2)) }),
+          el('button', { className: 'btn', textContent: 'Nothing', onclick: () => set(0) })),
+        errEl,
+        el('div', { className: 'actions' }, el('button', { className: 'btn primary', textContent: 'Lock wager', onclick: submit })));
+      setTimeout(() => inp.focus(), 50);
+    });
+  });
+}
+
+/* ---------- asking a tile ---------- */
+async function boardAsk(t) {
+  if (!G || G.mode !== 'board' || G.phase !== 'board' || t.done) return;
+  const my = ++run; hostStop();
+  t.done = true; G.phase = 'intro';
+  const p = G.players[G.turn], q = t.q;
+  Object.assign(G, { tile: t, value: t.value, dd: t.dd, answerer: G.turn, tried: new Set([G.turn]), stealing: false, stealList: [] });
+  if (t.dd) {
+    setMood('happy'); sfx.start();
+    say(line('dd_found', { p: p.name }));
+    const top = Math.max(...G.board.grid.flat().map(x => x.value));
+    const w = await askWager(p, Math.max(p.score, top), false, 'Double Down!');
+    if (my !== run) return;
+    G.value = w;
+  }
+  G.q = q; G.index++; seen.add(q.id); saveSeen();
+  G.options = makeOptions(q); G.correctIdx = G.options.indexOf(q.correct);
+  G.timeLeft = G.timeMax = settings.timer;
+  G.pre = { lock: line('lock') };
+  G.factPromise = q.explain ? null : wikiLookup(q);
+  setScreen('game'); setMood('neutral'); renderQuestionShell();
+  $('#chipPts').textContent = `${fmt(G.value)} points`;
+  renderHud();
+  const spoken = questionSpeech(q, G.options);
+  const intro = t.dd ? line('dd_go', { p: p.name, w: fmt(G.value) }) : line('pick', { p: p.name, cat: shortCat(q.category), v: t.value });
+  const introDone = say(intro);
+  prefetch(spoken, G.pre.lock, q.explain);
+  await introDone; if (my !== run) return;
+  showQuestionText(); G.phase = 'reading'; showOptions();
+  if (!settings.waitRead) beginAnswering();
+  await say(spoken, { bubble: false }); if (my !== run) return;
+  beginAnswering();
+}
+
+async function boardResolve(i, my) {
+  const q = G.q, p = G.players[G.answerer], right = i === G.correctIdx;
+  if (i >= 0) {
+    sfx.lock(); await say(G.pre.lock); if (my !== run) return;
+    sfx.drum(); await wait(1000); if (my !== run) return;
+  }
+  tiles.forEach(t => t.classList.remove('locked'));
+  if (right) {
+    p.score += G.value;
+    tiles[i].classList.add('right');
+    const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + fmt(G.value); tiles[i].appendChild(f);
+    sfx.correct(); setMood('happy'); restartMood(); celebrate($('#board'), 1200);
+    renderHud();
+    return boardReveal(line(G.stealing ? 'steal_right' : 'board_right', { p: p.name, v: fmt(G.value) }), my);
+  }
+  p.score -= G.value;
+  if (i >= 0) { tiles[i].classList.add('wrong'); G.removed.add(i); sfx.wrong(); }
+  setMood(i < 0 ? 'confused' : 'sad'); renderHud();
+  const lost = line(i < 0 ? 'board_timeout' : 'board_wrong', { p: p.name, v: fmt(G.value) });
+  const eligible = G.players.map((_, k) => k).filter(k => !G.tried.has(k));
+  const optionsLeft = G.options.length - G.removed.size;
+  if (!G.dd && eligible.length && optionsLeft > 1) {
+    G.phase = 'steal'; G.stealList = eligible;
+    showStealBar(eligible);
+    say(lost + ' ' + line('steal_ask'));
+    return;
+  }
+  tiles[G.correctIdx].classList.add('right');
+  boardReveal(lost + ' ' + line('answer_was', { a: q.correct }), my);
+}
+function showStealBar(eligible) {
+  const bar = $('#stealBar'); bar.textContent = '';
+  bar.append(el('b', { textContent: 'Steal?' }));
+  eligible.forEach((k, n) => bar.append(el('button', { className: 'steal-btn', textContent: `${G.players[k].name} (${n + 1})`, onclick: () => stealPick(k) })));
+  bar.append(el('button', { className: 'steal-btn no', textContent: 'No steal (N)', onclick: noSteal }));
+  $('#game').classList.add('stealing');
+}
+function stealPick(k) {
+  if (!G || G.phase !== 'steal') return;
+  const my = ++run;
+  $('#game').classList.remove('stealing');
+  G.answerer = k; G.tried.add(k); G.stealing = true;
+  tiles.forEach((t, j) => { t.classList.remove('locked'); t.disabled = j >= G.options.length || G.removed.has(j); });
+  G.phase = 'reading'; setMood('neutral'); renderHud();
+  say(line('steal_go', { p: G.players[k].name })).then(() => {
+    if (my !== run || G.phase !== 'reading') return;
+    G.phase = 'answering'; G.timeLeft = G.timeMax = Math.min(settings.timer, 15); renderLifelines();
+  });
+}
+function noSteal() {
+  if (!G || G.phase !== 'steal') return;
+  const my = ++run;
+  $('#game').classList.remove('stealing');
+  tiles[G.correctIdx].classList.add('right');
+  boardReveal(line('steal_none', { a: G.q.correct }), my);
+}
+async function boardReveal(msg, my) {
+  const q = G.q;
+  G.phase = 'revealed'; $('#game').classList.remove('stealing');
+  $('#nextBtn').firstChild.textContent = tilesLeft() ? 'Back to the board' : 'Final round';
+  $('#game').classList.add('revealed'); bulbify($('#board'), 890, 400, 34);
+  const factP = showFact(q, my);
+  await say(msg); if (my !== run) return;
+  const info = await factP;
+  if (my !== run || !info || !settings.readFacts) return;
+  await say(info.text, { bubble: false });
+}
+function boardAfterQuestion() {
+  G.turn = (G.turn + 1) % G.players.length;
+  G.answerer = null; G.dd = false; G.stealing = false;
+  if (tilesLeft()) showBoard(); else startFinal();
+}
+$('#bEnd').onclick = () => { if (G && G.mode === 'board' && G.phase === 'board') startFinal(); };
+
+/* ---------- final round ---------- */
+function pickFinalQuestion() {
+  const avail = BANK.filter(q => !flagged.has(q.id) && !G.board.used.has(q.id) && q.type === 'multiple');
+  for (const d of ['hard', 'medium', 'easy']) {
+    const pool = avail.filter(q => q.difficulty === d); const fresh = pool.filter(q => !seen.has(q.id));
+    if (pool.length) return rand(fresh.length ? fresh : pool);
+  }
+  return avail.length ? rand(avail) : null;
+}
+async function startFinal() {
+  const my = ++run; hostStop();
+  const q = pickFinalQuestion();
+  if (!q) { showPodium(); return; }
+  G.final = { q, wagers: [], right: [] }; G.phase = 'final-wagers'; G.answerer = null;
+  $('#game').classList.remove('revealed', 'stealing');
+  setScreen('board'); renderStrip(); $('#turnPill').textContent = "Fae N'Lancer's Final Answer";
+  $$('#bGrid .btile').forEach(b => { b.disabled = true; });
+  setMood('happy'); sfx.start(); celebrate($('#bGrid').parentElement, 1600);
+  say(line('final_intro', { cat: shortCat(q.category) }));
+  for (const p of G.players) {
+    const w = await askWager(p, Math.max(p.score, 0), true, `${p.name}, your final wager`);
+    if (my !== run) return;
+    G.final.wagers.push(w);
+  }
+  G.q = q; G.index++; seen.add(q.id); saveSeen();
+  G.options = makeOptions(q); G.correctIdx = G.options.indexOf(q.correct);
+  G.timeLeft = G.timeMax = 30; G.dd = false; G.value = 0;
+  G.factPromise = q.explain ? null : wikiLookup(q);
+  setScreen('game'); renderQuestionShell();
+  $('#chipPts').textContent = 'Final round'; renderHud(); renderTimer(30, 30);
+  const spoken = questionSpeech(q, G.options);
+  prefetch(spoken, q.explain);
+  await say(line('final_q')); if (my !== run) return;
+  showQuestionText(); showOptions(); tiles.forEach(t => t.disabled = true);
+  $('#nextBtn').firstChild.textContent = 'Lock answers';
+  $('#game').classList.add('revealed-final');
+  G.phase = 'reading';
+  await say(spoken, { bubble: false }); if (my !== run) return;
+  G.phase = 'answering'; showBubble('Send your answers to the host! Press Space to lock answers early.');
+}
+async function finalCollect() {
+  if (!G.final || G.phase !== 'answering') return;
+  const my = ++run; hostStop(); clearIntensity();
+  G.phase = 'final-mark';
+  tiles[G.correctIdx].classList.add('right');
+  sfx.buzzer();
+  $('#game').classList.add('revealed'); bulbify($('#board'), 890, 400, 34);
+  showFact(G.q, my);
+  say(line('final_mark', { a: G.q.correct }));
+  const marks = G.players.map(() => null);
+  openSheet(sh => {
+    sh.append(el('h2', { textContent: 'Who got it right?' }),
+      el('p', { className: 'note', textContent: `The answer was ${G.q.correct}. Mark each player based on the answer they sent you.` }));
+    const go = el('button', { className: 'btn primary', textContent: 'Reveal the wagers', disabled: true });
+    G.players.forEach((p, i) => {
+      const ok = el('button', { className: 'ok', textContent: '✓', ariaLabel: `${p.name} right` });
+      const no = el('button', { className: 'no', textContent: '✗', ariaLabel: `${p.name} wrong` });
+      const setM = v => { marks[i] = v; ok.setAttribute('aria-pressed', String(v === true)); no.setAttribute('aria-pressed', String(v === false)); go.disabled = marks.some(m => m === null); };
+      ok.onclick = () => setM(true); no.onclick = () => setM(false);
+      sh.append(el('div', { className: 'markrow' }, el('span', { textContent: p.name }), el('div', { className: 'tog' }, ok, no)));
+    });
+    go.onclick = () => { closeSheet(); finalReveal(marks, my); };
+    sh.append(el('div', { className: 'actions', style: 'margin-top:16px' }, go));
+  });
+}
+async function finalReveal(marks, my) {
+  G.phase = 'final-reveal';
+  openSheet(sh => { sh.append(el('h2', { textContent: "Fae N'Lancer's Final Answer" }), el('div', { id: 'revList' })); });
+  for (let i = 0; i < G.players.length; i++) {
+    const p = G.players[i], w = G.final.wagers[i], ok = marks[i];
+    p.score += ok ? w : -w;
+    const d = el('span', { className: 'd ' + (ok ? 'up' : 'down'), textContent: (ok ? '+' : '−') + fmt(w) });
+    const tot = el('span', { className: 'd', textContent: fmt(p.score) });
+    $('#revList').append(el('div', { className: 'revrow' }, el('span', { textContent: p.name }), d, tot));
+    ok ? sfx.correct() : sfx.wrong();
+    await say(line(ok ? 'final_right' : 'final_wrong', { p: p.name, w: fmt(w) }));
+    if (my !== run) return;
+    await wait(300);
+  }
+  $('#boardSheet').append(el('div', { className: 'actions', style: 'margin-top:16px' },
+    el('button', { className: 'btn primary', textContent: 'See final scores', onclick: () => { closeSheet(); showPodium(); } })));
+}
+
+/* ---------- podium & high scores ---------- */
+function showPodium() {
+  const my = ++run; hostStop(); stopTicker(); clearIntensity(); closeSheet();
+  G.phase = 'over';
+  $('#game').classList.remove('revealed', 'stealing', 'revealed-final');
+  const ranked = G.players.slice().sort((a, b) => b.score - a.score);
+  const ranks = $('#podRanks'); ranks.textContent = '';
+  const medals = ['🥇', '🥈', '🥉'];
+  let place = 0;
+  ranked.forEach((p, i) => {
+    if (i > 0 && p.score < ranked[i - 1].score) place = i;
+    ranks.append(el('div', { className: 'rank' + (place === 0 ? ' first' : '') },
+      el('span', { className: 'm', textContent: medals[place] || String(place + 1) }),
+      el('span', { className: 'n', textContent: p.name }),
+      el('span', { className: 's', textContent: fmt(p.score) })));
+  });
+  // all-time high scores
+  const date = todayKey();
+  let highs = store.get('boardHighs', []);
+  const added = G.players.map(p => ({ name: p.name, score: p.score, date, id: Math.random() }));
+  highs = highs.concat(added).sort((a, b) => b.score - a.score).slice(0, 10);
+  const newIds = new Set(added.map(a => a.id));
+  store.set('boardHighs', highs.map(({ name, score, date }) => ({ name, score, date })));
+  const ol = $('#podHigh'); ol.textContent = '';
+  highs.slice(0, 5).forEach(h => ol.append(el('li', { className: newIds.has(h.id) ? 'new' : '' }, `${h.name} `, el('span', { textContent: `${fmt(h.score)} (${h.date})` }))));
+  const top = ranked.filter(p => p.score === ranked[0].score);
+  $('#podWinner').textContent = top.length > 1 ? `Tie: ${joinNames(top.map(p => p.name))}` : `${top[0].name} wins!`;
+  setScreen('podium');
+  bulbify($('#podCard'), 828, $('#podCard').offsetHeight + 28, 34);
+  setMood('happy'); sfx.over(); confetti(); celebrate($('#podCard'), 2200);
+  const msg = top.length > 1 ? line('tie', { s: fmt(top[0].score), names: joinNames(top.map(p => p.name)) }) : line('winner', { p: top[0].name, s: fmt(top[0].score) });
+  say(msg);
+}
+function boardRematch() { if (roster.length >= 2) { $('#bSize').value = settings.boardSize || 'full'; startBoard(); } else showPlayers(); }
+$('#podAgain').onclick = boardRematch;
+$('#podPlayers').onclick = showPlayers;
+$('#podMenu').onclick = toMenu;
+
+/* ================= Confetti & toast ================= */
+function confetti() {
+  if (RM) return;
+  const cv = $('#confetti'), cx = cv.getContext('2d');
+  const colors = ['#ffc53d', '#ff3d8b', '#1fd6a8', '#f6f3ff', '#6f7cff'];
+  const ps = Array.from({ length: 160 }, () => ({ x: 640 + (Math.random() - .5) * 300, y: 300, vx: (Math.random() - .5) * 16, vy: -Math.random() * 16 - 4, r: Math.random() * 6 + 4, c: rand(colors), a: Math.random() * 6, va: (Math.random() - .5) * .4 }));
+  const t0 = performance.now();
+  (function frame(t) {
+    cx.clearRect(0, 0, 1280, 720);
+    for (const p of ps) { p.vy += .45; p.x += p.vx; p.y += p.vy; p.a += p.va; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a); cx.fillStyle = p.c; cx.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); cx.restore(); }
+    if (t - t0 < 3000) requestAnimationFrame(frame); else cx.clearRect(0, 0, 1280, 720);
+  })(t0);
+}
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2200); }
+
+/* ================= Settings UI ================= */
+function openSettings() {
+  $('#rateIn').value = settings.rate; $('#pitchIn').value = settings.pitch; $('#volIn').value = settings.volume;
+  $('#sassSel').value = settings.sass; $('#timerSel').value = String(settings.timer);
+  $('#readOptIn').checked = settings.readOptions; $('#waitReadIn').checked = settings.waitRead;
+  $('#readFactsIn').checked = settings.readFacts; $('#sfxIn').checked = settings.sfx;
+  loadVoices();
+  if (!synth) $('#voiceSel').disabled = true;
+  $('#engineSel').value = settings.engine; $('#qualSel').value = settings.voiceQuality;
+  const kv = $('#kVoiceSel'); if (!kv.length) KOKORO_VOICES.forEach(([id, label]) => kv.add(new Option(label, id)));
+  kv.value = settings.kVoice; syncEngineRows();
+  const acc = recentAccuracy();
+  $('#statsNote').textContent = `Speed and pitch apply to the browser voice only. ${!synth && settings.engine !== 'kokoro' ? "This browser doesn't support speech, so the host will talk in text only. " : ''}Games played: ${store.get('games', 0)}. `
+    + (acc == null ? '' : `Recent accuracy: ${Math.round(acc * 100)}% over your last ${recent.length} answers, which the host uses to pick difficulty in Mixed. `)
+    + `Flagged questions: ${flagged.size}. Copy the flagged list into flagged.json and run fetch_questions.py with --flagged to remove them from the bank for everyone.`;
+  $('#flagOut').style.display = 'none';
+  $('#settingsModal').classList.add('open'); $('#closeSetBtn').focus();
+}
+function closeSettings() { $('#settingsModal').classList.remove('open'); $('#settingsBtn').focus(); }
+const bindSetting = (sel, key, parse, ev = 'change') => $(sel).addEventListener(ev, e => { settings[key] = parse(e.target); saveSettings(); });
+bindSetting('#voiceSel', 'voiceURI', t => t.value);
+function syncEngineRows() { const sh = $('#settingsModal .sheet'); sh.classList.toggle('engine-kokoro', settings.engine === 'kokoro'); sh.classList.toggle('engine-browser', settings.engine !== 'kokoro'); }
+$('#engineSel').addEventListener('change', e => { settings.engine = e.target.value; saveSettings(); syncEngineRows(); if (settings.engine === 'kokoro') { if (kokoro.state === 'failed') kokoro.state = 'off'; kokoroInit(); } else setVoiceStatus(''); });
+$('#kVoiceSel').addEventListener('change', e => { settings.kVoice = e.target.value; saveSettings(); });
+$('#qualSel').addEventListener('change', e => { settings.voiceQuality = e.target.value; saveSettings(); if (settings.engine === 'kokoro') { kokoroReset(); kokoroInit(); } });
+bindSetting('#rateIn', 'rate', t => +t.value, 'input');
+bindSetting('#pitchIn', 'pitch', t => +t.value, 'input');
+bindSetting('#volIn', 'volume', t => +t.value, 'input');
+bindSetting('#sassSel', 'sass', t => t.value);
+bindSetting('#timerSel', 'timer', t => +t.value);
+bindSetting('#readOptIn', 'readOptions', t => t.checked);
+bindSetting('#waitReadIn', 'waitRead', t => t.checked);
+bindSetting('#readFactsIn', 'readFacts', t => t.checked);
+bindSetting('#sfxIn', 'sfx', t => t.checked);
+$('#settingsBtn').onclick = openSettings;
+$('#closeSetBtn').onclick = closeSettings;
+$('#copyFlagBtn').onclick = async () => {
+  const txt = JSON.stringify([...flagged], null, 1);
+  try { await navigator.clipboard.writeText(txt); toast('Flagged list copied.'); }
+  catch { const o = $('#flagOut'); o.value = txt; o.style.display = 'block'; o.select(); }
+};
+$('#clearSeenBtn').onclick = () => { seen.clear(); saveSeen(); toast('Question history reset.'); };
+
+/* ================= Title UI ================= */
+function selectMode(m) {
+  settings.mode = m; saveSettings();
+  $$('.mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+  const daily = m === 'daily' || m === 'board';
+  $('#catSel').disabled = $('#diffSel').disabled = daily;
+  $('#roundSel').disabled = m !== 'classic';
+}
+$$('.mode').forEach(b => b.addEventListener('click', () => { selectMode(b.dataset.mode); sfx.pop(); }));
+$('#catSel').onchange = e => { settings.category = e.target.value; saveSettings(); };
+$('#diffSel').onchange = e => { settings.difficulty = e.target.value; saveSettings(); };
+$('#roundSel').onchange = e => { settings.rounds = +e.target.value; saveSettings(); $('#classicDesc').textContent = `${settings.rounds} questions, a timer on each`; };
+$('#startBtn').onclick = () => startGame();
+$('#testVoiceBtn').onclick = () => {
+  ac();
+  if (settings.engine === 'kokoro' && kokoro.state === 'loading') toast('Natural voice is still loading, so this uses the browser voice.');
+  else if (!synth && !kokoroActive()) toast("This browser doesn't support speech.");
+  say(line('voice_test'));
+};
+
+/* ================= Game UI ================= */
+tiles.forEach(t => t.addEventListener('click', () => { t.blur(); answer(+t.dataset.i); }));
+$('#fiftyBtn').onclick = e => { e.currentTarget.blur(); fifty(); };
+$('#skipBtn').onclick = e => { e.currentTarget.blur(); skip(); };
+$('#timeBtn').onclick = e => { e.currentTarget.blur(); extraTime(); };
+$('#flagBtn').onclick = e => { e.currentTarget.blur(); flag(); };
+$('#nextBtn').onclick = e => { e.currentTarget.blur(); advance(); };
+$('#muteBtn').onclick = e => { e.currentTarget.blur(); toggleMute(); };
+$('#resumeBtn').onclick = togglePause;
+$('#quitBtn').onclick = () => { $('#pauseModal').classList.remove('open'); G.paused = false; endGame(); };
+$('#againBtn').onclick = () => startGame(G.mode);
+$('#menuBtn').onclick = toMenu;
+$('#copyResBtn').onclick = async () => {
+  const txt = `Snow's Push to Think Trivia daily ${todayKey()}: ${G.correct}/${G.answered} correct, ${fmt(G.score)} points`;
+  try { await navigator.clipboard.writeText(txt); toast('Result copied.'); } catch { toast(txt); }
+};
+
+/* ================= Keyboard ================= */
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if ($('#settingsModal').classList.contains('open')) { if (k === 'escape') closeSettings(); return; }
+  if ($('#boardModal').classList.contains('open')) return;
+  if (e.target.matches('select, input, textarea')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const scr = stage.dataset.screen;
+  if (k === 'm') { toggleMute(); return; }
+  if (scr === 'title') { if (k === 'enter') { e.preventDefault(); startGame(); } return; }
+  if (scr === 'players' || scr === 'board') return;
+  if (scr === 'podium') {
+    if (k === 'enter') { e.preventDefault(); boardRematch(); } else if (k === 'escape') toMenu();
+    return;
+  }
+  if (scr === 'results') {
+    if (k === 'enter') { e.preventDefault(); startGame(G.mode); }
+    else if (k === 'escape') toMenu();
+    return;
+  }
+  if (k === 'escape') { togglePause(); return; }
+  if (!G || G.paused) return;
+  if (G.phase === 'steal') {
+    const d = parseInt(k, 10);
+    if (d >= 1 && d <= G.stealList.length) stealPick(G.stealList[d - 1]);
+    else if (k === 'n') noSteal();
+    return;
+  }
+  const map = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, b: 1, c: 2, d: 3 };
+  if (k in map) { e.preventDefault(); answer(map[k]); return; }
+  if (k === ' ' || k === 'enter') { e.preventDefault(); advance(); return; }
+  if (k === 'f') fifty(); else if (k === 's') skip(); else if (k === 't') extraTime(); else if (k === 'x') flag(); else if (k === 'r') repeatQuestion();
+});
+
+/* ================= Boot ================= */
+bulbify($('#marquee'), $('#marquee').offsetWidth, $('#marquee').offsetHeight, 34);
+selectMode(settings.mode);
+$('#diffSel').value = settings.difficulty;
+$('#roundSel').value = String(settings.rounds);
+$('#classicDesc').textContent = `${settings.rounds} questions, a timer on each`;
+showBubble(line('welcome'));
+loadBank();
+kokoroInit();
+</script>
+</body>
+</html>

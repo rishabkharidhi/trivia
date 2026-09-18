@@ -1,0 +1,919 @@
+{
+ "source": "Built-in starter set. Grow it with fetch_questions.py (Open Trivia Database, CC BY-SA 4.0).",
+ "generated": null,
+ "count": 66,
+ "questions": [
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the chemical symbol for gold?",
+   "correct": "Au",
+   "incorrect": [
+    "Ag",
+    "Gd",
+    "Go"
+   ],
+   "id": "46afd1634236",
+   "explain": "Au comes from aurum, the Latin word for gold."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "How many bones are in the typical adult human body?",
+   "correct": "206",
+   "incorrect": [
+    "186",
+    "212",
+    "256"
+   ],
+   "id": "02d9b269317b",
+   "explain": "Babies are born with roughly 270 to 300 bones. Many fuse together as they grow, leaving 206 in a typical adult."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which planet is known as the Red Planet?",
+   "correct": "Mars",
+   "incorrect": [
+    "Venus",
+    "Jupiter",
+    "Mercury"
+   ],
+   "id": "8e3f92f10fdb",
+   "explain": "Iron oxide, basically rust, in Martian dust and rocks gives Mars its reddish color."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the largest planet in our solar system?",
+   "correct": "Jupiter",
+   "incorrect": [
+    "Saturn",
+    "Neptune",
+    "Earth"
+   ],
+   "id": "269b9604f7c0",
+   "explain": "Jupiter is more than twice as massive as all the other planets in the solar system combined."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which gas do plants absorb from the air for photosynthesis?",
+   "correct": "Carbon dioxide",
+   "incorrect": [
+    "Oxygen",
+    "Nitrogen",
+    "Hydrogen"
+   ],
+   "id": "68d4e0b1abd0",
+   "explain": "Plants take in carbon dioxide and water and use sunlight to turn them into sugar, releasing oxygen as a by-product."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which element has the atomic number 1?",
+   "correct": "Hydrogen",
+   "incorrect": [
+    "Helium",
+    "Oxygen",
+    "Carbon"
+   ],
+   "id": "5c0b942ceed6",
+   "explain": "An element's atomic number is its count of protons. Hydrogen has just one, and it's the most abundant element in the universe."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which part of the cell is known as its powerhouse?",
+   "correct": "Mitochondria",
+   "incorrect": [
+    "Nucleus",
+    "Ribosome",
+    "Golgi apparatus"
+   ],
+   "id": "4d51e615641f",
+   "explain": "Mitochondria produce most of a cell's ATP, the molecule cells use as their energy currency."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "At sea level, water boils at how many degrees Fahrenheit?",
+   "correct": "212",
+   "incorrect": [
+    "100",
+    "180",
+    "200"
+   ],
+   "id": "bd66182ab33c",
+   "explain": "212°F is the same as 100°C, the boiling point of water at standard sea-level pressure."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Roughly how fast does light travel in a vacuum?",
+   "correct": "300,000 km per second",
+   "incorrect": [
+    "150,000 km per second",
+    "30,000 km per second",
+    "3,000,000 km per second"
+   ],
+   "id": "44b0558fb7fd",
+   "explain": "The speed of light is defined as exactly 299,792,458 meters per second, just under 300,000 km per second."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Which mineral scores a 10, the maximum, on the Mohs hardness scale?",
+   "correct": "Diamond",
+   "incorrect": [
+    "Quartz",
+    "Topaz",
+    "Corundum"
+   ],
+   "id": "cb05beac432e",
+   "explain": "The Mohs scale ranks scratch resistance from talc at 1 to diamond at 10. Corundum, the mineral in rubies and sapphires, is a 9."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Which spice comes from the stigmas of a crocus flower?",
+   "correct": "Saffron",
+   "incorrect": [
+    "Turmeric",
+    "Paprika",
+    "Cumin"
+   ],
+   "id": "15409fef4423",
+   "explain": "Saffron threads are the hand-picked stigmas of the saffron crocus, which is why it's one of the most expensive spices by weight."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "What is the capital of Australia?",
+   "correct": "Canberra",
+   "incorrect": [
+    "Sydney",
+    "Melbourne",
+    "Perth"
+   ],
+   "id": "44a74e74a6e5",
+   "explain": "Canberra was purpose-built as the capital, partly as a compromise in the rivalry between Sydney and Melbourne."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which is the largest ocean on Earth?",
+   "correct": "Pacific Ocean",
+   "incorrect": [
+    "Atlantic Ocean",
+    "Indian Ocean",
+    "Arctic Ocean"
+   ],
+   "id": "9e37e13e26a8",
+   "explain": "The Pacific is both the largest and the deepest ocean, covering roughly a third of Earth's surface."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the capital of Canada?",
+   "correct": "Ottawa",
+   "incorrect": [
+    "Toronto",
+    "Vancouver",
+    "Montreal"
+   ],
+   "id": "900a300033f0",
+   "explain": "Queen Victoria chose Ottawa as the capital in 1857."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which country has the largest land area?",
+   "correct": "Russia",
+   "incorrect": [
+    "Canada",
+    "China",
+    "United States"
+   ],
+   "id": "f07bba47b192",
+   "explain": "Russia covers over 17 million square kilometers and spans 11 time zones."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Mount Everest sits on the border between Nepal and which other country?",
+   "correct": "China",
+   "incorrect": [
+    "India",
+    "Bhutan",
+    "Pakistan"
+   ],
+   "id": "7eecff863593",
+   "explain": "Everest straddles the border between Nepal and China's Tibet Autonomous Region."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the smallest country in the world by area?",
+   "correct": "Vatican City",
+   "incorrect": [
+    "Monaco",
+    "San Marino",
+    "Liechtenstein"
+   ],
+   "id": "10af3ae778f6",
+   "explain": "Vatican City covers about 0.44 square kilometers and sits entirely inside the city of Rome."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "What is the capital of New Zealand?",
+   "correct": "Wellington",
+   "incorrect": [
+    "Auckland",
+    "Christchurch",
+    "Hamilton"
+   ],
+   "id": "b0c25cd87379",
+   "explain": "Wellington replaced Auckland as New Zealand's capital in 1865."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "What is the largest hot desert in the world?",
+   "correct": "Sahara",
+   "incorrect": [
+    "Arabian Desert",
+    "Gobi",
+    "Kalahari"
+   ],
+   "id": "384b3a14d531",
+   "explain": "The Sahara covers about 9 million square kilometers. Only the cold polar deserts of Antarctica and the Arctic are bigger."
+  },
+  {
+   "category": "Geography",
+   "difficulty": "hard",
+   "type": "multiple",
+   "question": "Which river flows through Baghdad?",
+   "correct": "Tigris",
+   "incorrect": [
+    "Euphrates",
+    "Jordan",
+    "Nile"
+   ],
+   "id": "9e4721bf9be0",
+   "explain": "Baghdad sits on the Tigris. The Euphrates, its twin river, flows further to the west."
+  },
+  {
+   "category": "History",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In which year did World War II end?",
+   "correct": "1945",
+   "incorrect": [
+    "1944",
+    "1946",
+    "1939"
+   ],
+   "id": "369346343c0a",
+   "explain": "Germany surrendered in May 1945, and Japan formally surrendered on September 2, 1945."
+  },
+  {
+   "category": "History",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Who was the first President of the United States?",
+   "correct": "George Washington",
+   "incorrect": [
+    "John Adams",
+    "Thomas Jefferson",
+    "Benjamin Franklin"
+   ],
+   "id": "f22c1f869a01",
+   "explain": "George Washington served two terms, from 1789 to 1797."
+  },
+  {
+   "category": "History",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In which year did humans first land on the Moon?",
+   "correct": "1969",
+   "incorrect": [
+    "1967",
+    "1971",
+    "1965"
+   ],
+   "id": "e316d5c163ad",
+   "explain": "Apollo 11 landed on July 20, 1969, and Neil Armstrong and Buzz Aldrin walked on the surface."
+  },
+  {
+   "category": "History",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which ship sank on its maiden voyage in 1912?",
+   "correct": "RMS Titanic",
+   "incorrect": [
+    "RMS Lusitania",
+    "HMHS Britannic",
+    "RMS Olympic"
+   ],
+   "id": "a50d6208df8c",
+   "explain": "The Titanic struck an iceberg on the night of April 14, 1912 and sank early the next morning. More than 1,500 people died."
+  },
+  {
+   "category": "History",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "In which year did the Berlin Wall fall?",
+   "correct": "1989",
+   "incorrect": [
+    "1991",
+    "1987",
+    "1985"
+   ],
+   "id": "1d22f28d7204",
+   "explain": "The wall opened on November 9, 1989. Germany reunified less than a year later, in October 1990."
+  },
+  {
+   "category": "History",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Which civilization built Machu Picchu?",
+   "correct": "The Inca",
+   "incorrect": [
+    "The Aztecs",
+    "The Maya",
+    "The Olmecs"
+   ],
+   "id": "cfd779254932",
+   "explain": "The Inca built Machu Picchu in the 15th century, high in the Andes of Peru."
+  },
+  {
+   "category": "History",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Who was the first person to travel into outer space?",
+   "correct": "Yuri Gagarin",
+   "incorrect": [
+    "Alan Shepard",
+    "John Glenn",
+    "Neil Armstrong"
+   ],
+   "id": "55c0c3420473",
+   "explain": "Yuri Gagarin orbited Earth aboard Vostok 1 on April 12, 1961."
+  },
+  {
+   "category": "History",
+   "difficulty": "hard",
+   "type": "multiple",
+   "question": "In which year was the Magna Carta sealed?",
+   "correct": "1215",
+   "incorrect": [
+    "1066",
+    "1415",
+    "1314"
+   ],
+   "id": "a625596192eb",
+   "explain": "King John sealed the Magna Carta at Runnymede in 1215, limiting the power of the English crown."
+  },
+  {
+   "category": "Entertainment: Music",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "How many strings does a standard guitar have?",
+   "correct": "6",
+   "incorrect": [
+    "4",
+    "7",
+    "12"
+   ],
+   "id": "d49338fb3066",
+   "explain": "A standard guitar has six strings, usually tuned E A D G B E from lowest to highest."
+  },
+  {
+   "category": "Entertainment: Music",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which band released the album Abbey Road?",
+   "correct": "The Beatles",
+   "incorrect": [
+    "The Rolling Stones",
+    "Pink Floyd",
+    "The Who"
+   ],
+   "id": "17b513fc56fb",
+   "explain": "The Beatles released Abbey Road in 1969. It's named after the London street where they recorded, and the cover shows them on its zebra crossing."
+  },
+  {
+   "category": "Entertainment: Board Games",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In chess, which piece can only ever move diagonally?",
+   "correct": "Bishop",
+   "incorrect": [
+    "Rook",
+    "Knight",
+    "Queen"
+   ],
+   "id": "036cdf0640b4",
+   "explain": "A bishop moves any number of squares diagonally, so it stays on the same color for the whole game. The queen can move diagonally too, but not only diagonally."
+  },
+  {
+   "category": "Entertainment: Board Games",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "How many squares are on a standard chessboard?",
+   "correct": "64",
+   "incorrect": [
+    "49",
+    "81",
+    "100"
+   ],
+   "id": "64f2acbeeb53",
+   "explain": "A chessboard is an 8 by 8 grid, which makes 64 squares."
+  },
+  {
+   "category": "Entertainment: Video Games",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Which company created the arcade game Pac-Man?",
+   "correct": "Namco",
+   "incorrect": [
+    "Atari",
+    "Nintendo",
+    "Sega"
+   ],
+   "id": "a8959978199b",
+   "explain": "Namco released Pac-Man in 1980. It was designed by Toru Iwatani."
+  },
+  {
+   "category": "Entertainment: Video Games",
+   "difficulty": "hard",
+   "type": "multiple",
+   "question": "In which year was the original PlayStation released in Japan?",
+   "correct": "1994",
+   "incorrect": [
+    "1995",
+    "1996",
+    "1993"
+   ],
+   "id": "2de29e5feaea",
+   "explain": "The PlayStation launched in Japan on December 3, 1994, and reached North America in September 1995."
+  },
+  {
+   "category": "Art",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Who painted the Mona Lisa?",
+   "correct": "Leonardo da Vinci",
+   "incorrect": [
+    "Michelangelo",
+    "Raphael",
+    "Donatello"
+   ],
+   "id": "6a9c6f0432c7",
+   "explain": "Leonardo da Vinci began the Mona Lisa in the early 1500s. It hangs in the Louvre in Paris."
+  },
+  {
+   "category": "Entertainment: Books",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Who wrote Pride and Prejudice?",
+   "correct": "Jane Austen",
+   "incorrect": [
+    "Charlotte Brontë",
+    "Emily Brontë",
+    "Mary Shelley"
+   ],
+   "id": "81956d6a801a",
+   "explain": "Jane Austen published Pride and Prejudice in 1813."
+  },
+  {
+   "category": "Entertainment: Books",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Who wrote the novel Nineteen Eighty-Four?",
+   "correct": "George Orwell",
+   "incorrect": [
+    "Aldous Huxley",
+    "Ray Bradbury",
+    "H. G. Wells"
+   ],
+   "id": "99e24758930b",
+   "explain": "George Orwell published Nineteen Eighty-Four in 1949."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "How many players does each soccer team have on the field at once?",
+   "correct": "11",
+   "incorrect": [
+    "9",
+    "10",
+    "12"
+   ],
+   "id": "baf10bbda711",
+   "explain": "Each side fields 11 players, including the goalkeeper."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In golf, what is the term for finishing a hole one stroke under par?",
+   "correct": "Birdie",
+   "incorrect": [
+    "Eagle",
+    "Bogey",
+    "Albatross"
+   ],
+   "id": "0dae8d929f3a",
+   "explain": "One under par is a birdie, two under is an eagle, and one over is a bogey."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "How many points is a touchdown worth in American football, before the extra point?",
+   "correct": "6",
+   "incorrect": [
+    "7",
+    "3",
+    "5"
+   ],
+   "id": "84f352c8883c",
+   "explain": "A touchdown is 6 points. The team can then kick for 1 more point or try a two-point conversion."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "Which country hosted the 2016 Summer Olympics?",
+   "correct": "Brazil",
+   "incorrect": [
+    "China",
+    "United Kingdom",
+    "Japan"
+   ],
+   "id": "e13778e210b3",
+   "explain": "Rio de Janeiro hosted in 2016, the first Olympics held in South America."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In basketball, how many points is a made shot from beyond the arc worth?",
+   "correct": "3",
+   "incorrect": [
+    "2",
+    "4",
+    "1"
+   ],
+   "id": "8728dd51668d",
+   "explain": "Shots from beyond the three-point line are worth 3. The NBA adopted the line in the 1979–80 season."
+  },
+  {
+   "category": "Sports",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "What is the official distance of a marathon?",
+   "correct": "42.195 km",
+   "incorrect": [
+    "40 km",
+    "45 km",
+    "38.5 km"
+   ],
+   "id": "0a461a3d87e7",
+   "explain": "A marathon is 42.195 km, or 26.2 miles. The distance traces back to the course of the 1908 London Olympics."
+  },
+  {
+   "category": "Science: Mathematics",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is pi rounded to two decimal places?",
+   "correct": "3.14",
+   "incorrect": [
+    "3.16",
+    "3.12",
+    "3.41"
+   ],
+   "id": "ea584fd231e7",
+   "explain": "Pi is 3.14159…, the ratio of a circle's circumference to its diameter. Its digits never end or repeat."
+  },
+  {
+   "category": "Science: Mathematics",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the square root of 144?",
+   "correct": "12",
+   "incorrect": [
+    "14",
+    "11",
+    "16"
+   ],
+   "id": "313a744b3f21",
+   "explain": "12 × 12 = 144."
+  },
+  {
+   "category": "Science: Mathematics",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the only even prime number?",
+   "correct": "2",
+   "incorrect": [
+    "4",
+    "0",
+    "6"
+   ],
+   "id": "26d5d9c42af0",
+   "explain": "Every other even number can be divided by 2, so 2 is the only even number with no divisors besides 1 and itself."
+  },
+  {
+   "category": "Science: Mathematics",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "How is the decimal number 10 written in binary?",
+   "correct": "1010",
+   "incorrect": [
+    "1001",
+    "1100",
+    "0110"
+   ],
+   "id": "ebf52df62b80",
+   "explain": "1010 in binary means 8 + 0 + 2 + 0, which adds up to 10."
+  },
+  {
+   "category": "Science: Computers",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "How many bits are in a byte?",
+   "correct": "8",
+   "incorrect": [
+    "4",
+    "16",
+    "32"
+   ],
+   "id": "e82e993d2bd2",
+   "explain": "A byte is 8 bits, enough to represent 256 different values."
+  },
+  {
+   "category": "Science: Computers",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What does HTTP stand for?",
+   "correct": "HyperText Transfer Protocol",
+   "incorrect": [
+    "High Transfer Text Protocol",
+    "HyperText Transmission Program",
+    "Host Transfer Text Protocol"
+   ],
+   "id": "f4a4de448021",
+   "explain": "HyperText Transfer Protocol. Tim Berners-Lee developed it at CERN starting in 1989."
+  },
+  {
+   "category": "Science: Computers",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Which TCP port does HTTPS use by default?",
+   "correct": "443",
+   "incorrect": [
+    "80",
+    "22",
+    "8080"
+   ],
+   "id": "e03a053189af",
+   "explain": "HTTPS is HTTP over TLS and uses port 443 by default. Plain HTTP uses port 80."
+  },
+  {
+   "category": "Science: Computers",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "Who is often credited as the first computer programmer?",
+   "correct": "Ada Lovelace",
+   "incorrect": [
+    "Alan Turing",
+    "Charles Babbage",
+    "Grace Hopper"
+   ],
+   "id": "39c0172dd02d",
+   "explain": "Ada Lovelace published an algorithm for Charles Babbage's Analytical Engine in 1843."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the largest mammal on Earth?",
+   "correct": "Blue whale",
+   "incorrect": [
+    "African elephant",
+    "Sperm whale",
+    "Giraffe"
+   ],
+   "id": "c17ebfa1a700",
+   "explain": "The blue whale is the largest animal known to have ever lived, reaching about 30 meters long."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "How many hearts does an octopus have?",
+   "correct": "3",
+   "incorrect": [
+    "1",
+    "2",
+    "4"
+   ],
+   "id": "22e72aa89004",
+   "explain": "Two hearts pump blood through the gills and a third pumps it around the rest of the body."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is a group of lions called?",
+   "correct": "A pride",
+   "incorrect": [
+    "A pack",
+    "A herd",
+    "A flock"
+   ],
+   "id": "812b1a94e389",
+   "explain": "A pride is usually a group of related females, their cubs, and a few males."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the fastest land animal?",
+   "correct": "Cheetah",
+   "incorrect": [
+    "Pronghorn",
+    "Lion",
+    "Greyhound"
+   ],
+   "id": "2e94bcd16f5e",
+   "explain": "Cheetahs can top 100 km/h, over 60 mph, in short sprints."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the largest living bird?",
+   "correct": "Ostrich",
+   "incorrect": [
+    "Emu",
+    "Cassowary",
+    "Albatross"
+   ],
+   "id": "eefb101ad54b",
+   "explain": "The ostrich is the largest and heaviest living bird. It can't fly, but it can run at around 70 km/h."
+  },
+  {
+   "category": "Mythology",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "In Greek mythology, who is the king of the gods?",
+   "correct": "Zeus",
+   "incorrect": [
+    "Poseidon",
+    "Hades",
+    "Apollo"
+   ],
+   "id": "f7d22e3dea15",
+   "explain": "Zeus rules the gods from Mount Olympus as the god of the sky and thunder."
+  },
+  {
+   "category": "Mythology",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "In Norse mythology, what is the name of Thor's hammer?",
+   "correct": "Mjölnir",
+   "incorrect": [
+    "Gungnir",
+    "Gram",
+    "Draupnir"
+   ],
+   "id": "21499e70794c",
+   "explain": "Thor's hammer is Mjölnir. Gungnir is Odin's spear, and Draupnir is Odin's ring."
+  },
+  {
+   "category": "Mythology",
+   "difficulty": "medium",
+   "type": "multiple",
+   "question": "What is the Roman name for the Greek god Ares?",
+   "correct": "Mars",
+   "incorrect": [
+    "Mercury",
+    "Jupiter",
+    "Vulcan"
+   ],
+   "id": "8523bb64bb49",
+   "explain": "Mars is the Roman god of war. The other options are Roman gods too: Mercury is Hermes, Jupiter is Zeus, and Vulcan is Hephaestus."
+  },
+  {
+   "category": "General Knowledge",
+   "difficulty": "easy",
+   "type": "multiple",
+   "question": "What is the main ingredient in guacamole?",
+   "correct": "Avocado",
+   "incorrect": [
+    "Lime",
+    "Tomato",
+    "Green pepper"
+   ],
+   "id": "25b2759d5bcc",
+   "explain": "Guacamole is mashed avocado, a Mexican dish with roots in Aztec cuisine."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "boolean",
+   "question": "Sound travels faster in water than in air.",
+   "correct": "True",
+   "incorrect": [
+    "False"
+   ],
+   "id": "b5d4991bce7c",
+   "explain": "Sound moves at about 1,480 meters per second in water, compared with about 343 in air at room temperature."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "boolean",
+   "question": "The Great Wall of China is visible from the Moon with the naked eye.",
+   "correct": "False",
+   "incorrect": [
+    "True"
+   ],
+   "id": "6f6045c416c6",
+   "explain": "The wall is far too narrow to see from that distance. Apollo astronauts reported they couldn't make out any human-made structures from the Moon."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "medium",
+   "type": "boolean",
+   "question": "Venus is the hottest planet in our solar system.",
+   "correct": "True",
+   "incorrect": [
+    "False"
+   ],
+   "id": "a36379d83d7c",
+   "explain": "Venus's thick carbon dioxide atmosphere traps heat, keeping the surface around 465°C, hotter than Mercury even though Mercury is closer to the Sun."
+  },
+  {
+   "category": "Animals",
+   "difficulty": "easy",
+   "type": "boolean",
+   "question": "Bats are blind.",
+   "correct": "False",
+   "incorrect": [
+    "True"
+   ],
+   "id": "6a1b9fe5b635",
+   "explain": "All bats can see. Many species also use echolocation to hunt in the dark."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "boolean",
+   "question": "Lightning never strikes the same place twice.",
+   "correct": "False",
+   "incorrect": [
+    "True"
+   ],
+   "id": "4eb9ec0f99e9",
+   "explain": "Tall structures get hit over and over. The Empire State Building is struck about 20 to 25 times a year."
+  },
+  {
+   "category": "Science & Nature",
+   "difficulty": "easy",
+   "type": "boolean",
+   "question": "Botanically, a tomato is a fruit.",
+   "correct": "True",
+   "incorrect": [
+    "False"
+   ],
+   "id": "8444ebb355c0",
+   "explain": "Tomatoes develop from the flower's ovary and contain seeds, which makes them fruits. The U.S. Supreme Court still ruled them vegetables for tariff purposes in 1893."
+  }
+ ]
+}
