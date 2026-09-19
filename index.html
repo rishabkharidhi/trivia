@@ -355,6 +355,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
       <div class="lives" id="lives" aria-label="Lives"></div>
       <div class="score" id="score" aria-label="Score">0</div>
       <button class="icon-btn" id="muteBtn" aria-label="Mute host">🔊</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Pause menu" title="Pause (Esc)">⏸</button>
     </div>
     <div class="board" id="board">
       <div class="chips"><span class="chip" id="chipCat"></span><span class="chip" id="chipDiff"></span><span class="chip" id="chipPts"></span></div>
@@ -423,7 +424,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 
   <!-- Board -->
   <section id="boardScreen" class="screen">
-    <div class="bhud"><div class="turnpill" id="turnPill"></div><div class="spacer"></div><button class="btn" id="bEnd">Skip to final round</button></div>
+    <div class="bhud"><div class="turnpill" id="turnPill"></div><div class="spacer"></div><button class="btn" id="bEnd">Skip to final round</button><button class="icon-btn" id="bPauseBtn" aria-label="Pause menu" title="Pause (Esc)">⏸</button></div>
     <div class="bgrid" id="bGrid"></div>
     <div class="pstrip" id="pStrip"></div>
   </section>
@@ -475,11 +476,12 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 
   <!-- Pause -->
   <div class="modal" id="pauseModal" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
-    <div class="sheet" style="width:480px;text-align:center">
+    <div class="sheet" style="width:620px;text-align:center">
       <h2 id="pauseTitle">Paused</h2>
       <div class="actions" style="justify-content:center">
         <button class="btn primary" id="resumeBtn">Resume <kbd>Esc</kbd></button>
-        <button class="btn" id="quitBtn">End the game</button>
+        <button class="btn" id="quitBtn">End game and see results</button>
+        <button class="btn" id="menuQuitBtn">Quit to main menu</button>
       </div>
     </div>
   </div>
@@ -1960,7 +1962,8 @@ function normalizeQ(q) {
   return { id: String(q.id || strHash(norm(q.question)).toString(16)), category: q.category || 'General Knowledge',
     difficulty: ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium', type,
     question: q.question, correct: q.correct, incorrect: q.incorrect.slice(0, 3).map(String),
-    explain: typeof q.explain === 'string' ? q.explain.trim() : '' };
+    explain: typeof q.explain === 'string' ? q.explain.trim() : '',
+    explainSource: q.explainSource && typeof q.explainSource.url === 'string' && /^https:\/\/en\.wikipedia\.org\//.test(q.explainSource.url) ? { title: String(q.explainSource.title || 'Wikipedia'), url: q.explainSource.url } : null };
 }
 async function loadBank() {
   let loaded = [], fromFile = false;
@@ -2379,7 +2382,7 @@ async function showFact(q, my) {
   const box = $('#fact'), head = $('#factHead'), txt = $('#factText'), src = $('#factSrc');
   head.textContent = q.type === 'boolean' ? `Why it's ${q.correct.toLowerCase()}` : `Why it's ${q.correct}`;
   src.textContent = '';
-  let info = q.explain ? { text: q.explain, source: null } : null;
+  let info = q.explain ? { text: q.explain, source: q.explainSource || null } : null;
   if (!info && G.factPromise) {
     txt.textContent = 'Looking it up…'; box.hidden = false;
     info = await Promise.race([G.factPromise, wait(3500).then(() => null)]);
@@ -2441,10 +2444,12 @@ function toggleMute() {
 
 /* ---------- Pause ---------- */
 function togglePause() {
-  if (!G || G.phase === 'over' || stage.dataset.screen !== 'game') return;
+  const scr = stage.dataset.screen;
+  if (!G || G.phase === 'over' || (scr !== 'game' && scr !== 'board')) return;
   G.paused = !G.paused;
   $('#pauseModal').classList.toggle('open', G.paused);
-  if (G.paused) { if (synth) synth.cancel(); clearIntensity(); showBubble(line('pause')); $('#resumeBtn').focus(); }
+  $('#quitBtn').textContent = G.mode === 'board' ? 'End game and see scores' : 'End game and see results';
+  if (G.paused) { hostStop(); clearIntensity(); showBubble(line('pause')); $('#resumeBtn').focus(); }
   renderLifelines();
 }
 
@@ -2654,7 +2659,7 @@ function askWager(player, max, hidden, title) {
 
 /* ---------- asking a tile ---------- */
 async function boardAsk(t) {
-  if (!G || G.mode !== 'board' || G.phase !== 'board' || t.done) return;
+  if (!G || G.mode !== 'board' || G.phase !== 'board' || G.paused || t.done) return;
   const my = ++run; hostStop();
   t.done = true; G.phase = 'intro';
   const p = G.players[G.turn], q = t.q;
@@ -2986,6 +2991,9 @@ $('#nextBtn').onclick = e => { e.currentTarget.blur(); advance(); };
 $('#muteBtn').onclick = e => { e.currentTarget.blur(); toggleMute(); };
 $('#resumeBtn').onclick = togglePause;
 $('#quitBtn').onclick = () => { $('#pauseModal').classList.remove('open'); G.paused = false; endGame(); };
+$('#menuQuitBtn').onclick = () => { $('#pauseModal').classList.remove('open'); if (G) G.paused = false; toMenu(); };
+$('#pauseBtn').onclick = e => { e.currentTarget.blur(); togglePause(); };
+$('#bPauseBtn').onclick = e => { e.currentTarget.blur(); togglePause(); };
 $('#againBtn').onclick = () => startGame(G.mode);
 $('#menuBtn').onclick = toMenu;
 $('#copyResBtn').onclick = async () => {
@@ -3003,7 +3011,8 @@ addEventListener('keydown', e => {
   const scr = stage.dataset.screen;
   if (k === 'm') { toggleMute(); return; }
   if (scr === 'title') { if (k === 'enter') { e.preventDefault(); startGame(); } return; }
-  if (scr === 'players' || scr === 'board') return;
+  if (scr === 'board') { if (k === 'escape') togglePause(); return; }
+  if (scr === 'players') { if (k === 'escape') toMenu(); return; }
   if (scr === 'podium') {
     if (k === 'enter') { e.preventDefault(); boardRematch(); } else if (k === 'escape') toMenu();
     return;

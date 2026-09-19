@@ -6,6 +6,7 @@ A screen-share-friendly trivia game show hosted by Fae N'Lancer, a talking quest
 - `index.html`: the whole game (HTML, CSS, JS in one file). Includes a 66-question starter set as a fallback.
 - `questions.json`: the question bank the game loads. Starts as the starter set.
 - `fetch_questions.py`: grows `questions.json` from the Open Trivia Database. Standard library only.
+- `lookup_evidence.py`: collects Wikipedia evidence for answers (writes `evidence.jsonl`) so explanations can be verified and sourced.
 
 ## Deploy (GitHub Pages)
 Put all three files in a repo and enable Pages.
@@ -49,7 +50,7 @@ Pick Board on the title screen, add 2-8 players (saved for next time), choose Fu
 - Needs 5 categories with enough questions. The starter set can just about fill it; run fetch_questions.py for real variety.
 
 ## Controls
-1-4 or A-D answer. Space/Enter next. F 50/50, S skip, T +10 sec, X flag, R repeat, M mute, Esc pause.
+1-4 or A-D answer. Space/Enter next. Esc or the ⏸ button opens the pause menu (resume, end the game, or quit to the main menu). F 50/50, S skip, T +10 sec, X flag, R repeat, M mute, Esc pause.
 
 ## License
 
@@ -61,6 +62,8 @@ Pick Board on the title screen, add 2-8 players (saved for next time), choose Fu
   If you share or adapt those entries, keep the attribution and the same license.
 - The built-in starter questions and explanations (entries without that tag, also embedded in `index.html`)
   are covered by the MIT License along with the code.
+- Explanations that have an `explainSource` field are quoted from the linked Wikipedia article and are
+  licensed under CC BY-SA 4.0. The game shows each one with a link to its source.
 
 **Loaded at runtime (not stored in this repo):**
 - Host voice: Kokoro-82M (https://huggingface.co/hexgrad/Kokoro-82M), Apache 2.0, via kokoro-js (Apache 2.0),
