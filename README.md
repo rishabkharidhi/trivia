@@ -1,6 +1,6 @@
 # Snow's Push to Think Trivia
 
-A screen-share-friendly trivia game show hosted by Fae N'Lancer, a talking question mark.
+A screen-share-friendly trivia game show hosted by Fae N'Lancer (pun on Final Answer), a talking question mark.
 
 ## Files
 - `index.html`: the whole game (HTML, CSS, JS in one file). Includes a 66-question starter set as a fallback.
