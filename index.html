@@ -608,6 +608,8 @@ self.onmessage = async (e) => {
     try {
       tts = await KokoroTTS.from_pretrained('${KOKORO_MODEL}', { dtype: m.dtype, device: m.device,
         progress_callback: (p) => { if (p && p.status === 'progress' && typeof p.progress === 'number') self.postMessage({ type: 'progress', file: p.file, progress: p.progress }); } });
+      self.postMessage({ type: 'warming' });
+      try { await tts.generate('Ready.', { voice: m.voice }); } catch (e) {} // first run is the slowest; do it before 'ready'
       self.postMessage({ type: 'ready' });
     } catch (err) { self.postMessage({ type: 'initError', error: String((err && err.message) || err) }); }
     return;
@@ -625,7 +627,13 @@ async function pump() {
   busy = false; pump();
 }
 `;
-const kokoro = { state: 'off', worker: null, pending: new Map(), cache: new Map(), seq: 0, files: {}, device: '', dtype: '', warned: false };
+const kokoro = { state: 'off', worker: null, pending: new Map(), cache: new Map(), seq: 0, files: {}, device: '', dtype: '', pct: 0, waiters: [] };
+function kokoroWhenReady() {
+  if (kokoro.state === 'ready') return Promise.resolve(true);
+  if (kokoro.state === 'failed' || settings.engine !== 'kokoro') return Promise.resolve(false);
+  return new Promise(r => kokoro.waiters.push(r));
+}
+function kokoroSettle(ok) { const w = kokoro.waiters; kokoro.waiters = []; w.forEach(r => r(ok)); }
 function setVoiceStatus(t) { const el = document.getElementById('voiceStatus'); if (el) el.textContent = t; }
 function kokoroInit(forceLight = false) {
   if (settings.engine !== 'kokoro' || kokoro.state === 'loading' || kokoro.state === 'ready') return;
@@ -640,7 +648,7 @@ function kokoroInit(forceLight = false) {
   setVoiceStatus(`Loading Fae N'Lancer's natural voice (${gpu ? 'GPU' : 'CPU'})… first load downloads the voice model, later loads use the browser cache.`);
   kokoro.worker.onmessage = onKokoroMessage;
   kokoro.worker.onerror = e => kokoroFail((e && e.message) || 'worker failed to start');
-  kokoro.worker.postMessage({ type: 'init', device: kokoro.device, dtype: kokoro.dtype });
+  kokoro.worker.postMessage({ type: 'init', device: kokoro.device, dtype: kokoro.dtype, voice: settings.kVoice });
 }
 function kokoroReset() {
   if (kokoro.worker) kokoro.worker.terminate();
@@ -651,18 +659,22 @@ function kokoroFail(msg) {
   const wasGpu = kokoro.device === 'webgpu';
   kokoroReset();
   if (wasGpu) { kokoroInit(true); return; } // retry on CPU before giving up
-  kokoro.state = 'failed';
+  kokoro.state = 'failed'; kokoroSettle(false);
   setVoiceStatus('Natural voice unavailable here, using the browser voice.' + (msg ? ` (${String(msg).slice(0, 80)})` : ''));
 }
 function onKokoroMessage(e) {
   const m = e.data;
   if (m.type === 'progress') {
     kokoro.files[m.file] = m.progress;
-    const pct = Math.max(...Object.values(kokoro.files));
+    const pct = Math.max(...Object.values(kokoro.files)); kokoro.pct = pct;
     setVoiceStatus(`Loading Fae N'Lancer's natural voice… ${Math.round(pct)}%`);
+  } else if (m.type === 'warming') {
+    kokoro.pct = 100;
+    setVoiceStatus("Warming up Fae N'Lancer's voice…");
   } else if (m.type === 'ready') {
     kokoro.state = 'ready';
     setVoiceStatus(`Natural voice ready (${kokoro.device === 'webgpu' ? 'GPU' : 'CPU'}).`);
+    kokoroSettle(true);
   } else if (m.type === 'initError') {
     kokoroFail(m.error);
   } else if (m.type === 'audio' || m.type === 'genError') {
@@ -735,11 +747,16 @@ function say(text, opts = {}) {
       }, 60);
     };
     if (kokoroActive()) {
-      safety = setTimeout(finish, est * 3 + 12000);
-      Promise.race([synthesize(text, true), wait(7000).then(() => null)]).then(clip => {
-        if (done) return;
-        if (!clip || !playClip(clip, finish)) browserSpeak();
-      }).catch(() => { if (!done) browserSpeak(); });
+      // Wait for Kokoro rather than switching voices when a line is slow; only a real failure
+      // (or a generation stuck for 45s) falls back to the browser voice.
+      let fellBack = false;
+      safety = setTimeout(() => { if (!done) { fellBack = true; browserSpeak(); } }, 45000);
+      synthesize(text, true).then(clip => {
+        if (done || fellBack) return;
+        clearTimeout(safety);
+        if (!playClip(clip, finish)) { browserSpeak(); return; }
+        safety = setTimeout(finish, clip.audio.length / clip.sr * 1000 + 3000);
+      }).catch(() => { if (!done && !fellBack) browserSpeak(); });
       return;
     }
     browserSpeak();
@@ -758,66 +775,1181 @@ if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
 
 /* ================= Host script ================= */
 const LINES = {
-  welcome: { friendly: ["Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer. Pick a mode and let's get thinking."], spicy: ["Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer, and around here every answer is final. Pick a mode."] },
-  intro_classic: { friendly: ["Welcome, contestants! {n} questions tonight, {t} seconds each. Let's have some fun."], spicy: ["{n} questions. {t} seconds each. No refunds, no do-overs, no crying on air.", "Welcome back to the only show where being a know-it-all pays off. {n} questions, let's go."] },
-  intro_lightning: { friendly: ["Lightning round! Sixty seconds on the clock. Answer as many as you can."], spicy: ["Lightning round! Sixty seconds. Answer fast, think later."] },
-  intro_survival: { friendly: ["Survival mode! You get three lives, and the questions get tougher as you go. Good luck!"], spicy: ["Survival mode. Three lives. Every wrong answer costs one. Let's see how long you last."] },
-  intro_daily: { friendly: ["It's the daily challenge! Everyone playing today gets these same ten questions."], spicy: ["Daily challenge time. Same ten questions for everyone today, so there's no hiding from the group chat."] },
-  q_intro: { friendly: ["Question {n}. {cat}, for {pts} points.", "Here's number {n}, from {cat}.", "Question {n}! This one's {cat}."], spicy: ["Question {n}. {cat}, worth {pts} points.", "Number {n}. {cat}. Try to look confident.", "Question {n}, from {cat}. Everybody act natural."] },
-  q_final: { friendly: ["Here comes the final question! {cat}."], spicy: ["Final question. {cat}. Make it count."] },
-  q_hard: { friendly: [], spicy: ["Oh, this one's a hard one.", "Brace yourselves, this one's hard."] },
-  lock: { friendly: ["Locked in. Let's see…", "Is that your Fae N'Lancer? Here we go…", "Alright, let's check it."], spicy: ["Is that your Fae N'Lancer? Too late, it is.", "Bold. Let's check.", "Locked in. No take-backs."] },
-  correct: { friendly: ["That's right!", "Correct! Nicely done.", "Yes! That's it.", "You got it!"], spicy: ["Correct! The crowd goes mild.", "That's right. Show-off.", "Nailed it.", "Correct, and I'm only a little surprised."] },
-  streak3: { friendly: ["Three in a row! Your multiplier just went up."], spicy: ["Three in a row. Multiplier's up, egos too."] },
-  streak5: { friendly: ["Five straight! Double points now."], spicy: ["Five straight? Somebody's been reading encyclopedias. Double points."] },
-  streak8: { friendly: ["Eight in a row! Triple points!"], spicy: ["Eight in a row! Triple points. I'm calling the network."] },
-  wrong: { friendly: ["Not quite. The answer was {a}.", "Oh, so close! It was {a}.", "Nope, it was {a}. You'll get the next one."], spicy: ["Oof. The answer was {a}.", "Wrong. It was {a}. I'm contractually obligated to keep smiling.", "Nope! It was {a}. We'll fix it in the edit."] },
-  timeout: { friendly: ["Time's up! The answer was {a}."], spicy: ["Silence? Bold strategy. It was {a}.", "Time! It was {a}. Dead air is expensive, people."] },
-  streak_broken: { friendly: ["And that ends a streak of {s}."], spicy: ["And there goes that streak of {s}. Pour one out."] },
-  life_lost: { friendly: ["That's a life gone. {l} left."], spicy: ["That'll cost you a life. {l} left."] },
-  last_life: { friendly: ["One life left. You can do this!"], spicy: ["One life left. No pressure. Well, a lot of pressure."] },
-  fifty: { friendly: ["Fifty-fifty! Two wrong answers, gone."], spicy: ["Fifty-fifty. I've removed two wrong answers. The rest is on you."] },
-  skip: { friendly: ["Skipping that one! Let's try another."], spicy: ["Skip! We'll pretend that question never existed."] },
-  time: { friendly: ["Ten more seconds on the clock."], spicy: ["Ten more seconds. Use them wisely. Or at all."] },
-  lightning_end: { friendly: ["Time's up! Pencils down."], spicy: ["And that's the buzzer! Pencils down."] },
-  over_great: { friendly: ["Outstanding! {c} out of {t} and {p} points. Take a bow."], spicy: ["{c} out of {t}, {p} points. You're making me look good."] },
-  over_ok: { friendly: ["Solid show! {c} out of {t} and {p} points."], spicy: ["{c} out of {t} and {p} points. Respectable. Not legendary, but respectable."] },
-  over_bad: { friendly: ["{c} out of {t} and {p} points. Every champion starts somewhere!"], spicy: ["{c} out of {t}. {p} points. We'll fix it in the edit."] },
-  survival_over: { friendly: ["That's all your lives! You survived {c} questions for {p} points."], spicy: ["And you're out! {c} correct, {p} points. Survival is hard."] },
-  new_best: { friendly: ["And that's a new personal best!"], spicy: ["New personal best! Somebody screenshot this."] },
-  board_intro: { friendly: ["Welcome to the board! {names}, let's play. {p} picks first."], spicy: ["Welcome to the board, where every wrong answer costs you. {names}. {p}, you're up first."] },
-  your_pick: { friendly: ["{p}, pick a tile.", "{p}, you're up. Choose a category."], spicy: ["{p}, pick your poison.", "{p}, choose wisely. Or don't, it's funnier."] },
-  pick: { friendly: ["{p} picks {cat} for {v}."], spicy: ["{p} goes for {cat}, {v} points. Bold.", "{cat} for {v}. Let's see what you've got, {p}."] },
-  dd_found: { friendly: ["It's a Double Down! {p}, how much do you want to wager?"], spicy: ["Double Down! {p}, how much of your dignity are you betting?"] },
-  dd_go: { friendly: ["{p} wagers {w}. Here's the question."], spicy: ["{p} puts {w} on the line. Here we go."] },
-  board_right: { friendly: ["{p} got it! Plus {v}."], spicy: ["{p} is right. Plus {v}. Don't let it go to your head."] },
-  board_wrong: { friendly: ["Not quite, {p}. That's minus {v}."], spicy: ["Wrong, {p}. That's minus {v}. Ouch."] },
-  board_timeout: { friendly: ["Time's up, {p}. That's minus {v}."], spicy: ["Time, {p}. Minus {v} for the silence."] },
-  steal_ask: { friendly: ["Anyone want to steal?", "It's up for grabs. Who wants to steal?"], spicy: ["Anyone brave enough to steal?", "Up for grabs. Who's feeling lucky?"] },
-  steal_go: { friendly: ["{p} is going for the steal!"], spicy: ["{p} smells blood. Going for the steal!"] },
-  steal_right: { friendly: ["{p} steals it! Plus {v}."], spicy: ["Stolen! {p} takes {v}. Cold."] },
-  steal_none: { friendly: ["No takers. The answer was {a}."], spicy: ["Nobody? Cowards. It was {a}."] },
-  answer_was: { friendly: ["The answer was {a}."], spicy: ["It was {a}, by the way."] },
-  final_intro: { friendly: ["It's time for Fae N'Lancer's Final Answer! The category is {cat}. Make your wagers."], spicy: ["Final round! The category is {cat}. Time to find out who's brave and who's broke. Make your wagers."] },
-  final_q: { friendly: ["Here's the final question. Send your answers to the host now."], spicy: ["Final question. Send your answers to the host, and no peeking at each other."] },
-  final_mark: { friendly: ["Pencils down! The answer was {a}. Let's see who got it."], spicy: ["Pencils down. It was {a}. Let's see who gambled well."] },
-  final_right: { friendly: ["{p} wagered {w}, and got it right!"], spicy: ["{p} bet {w}, and nailed it!"] },
-  final_wrong: { friendly: ["{p} wagered {w}, and missed."], spicy: ["{p} bet {w}, and it's gone."] },
-  winner: { friendly: ["{p} wins with {s} points! Congratulations!"], spicy: ["{p} wins with {s} points. Everyone else, there's always the rematch."] },
-  tie: { friendly: ["It's a tie at the top with {s} points! {names}, settle it in the rematch."], spicy: ["A tie at {s} points between {names}. Nobody wins, everybody loses. Rematch!"] },
-  pause: { friendly: ["We'll be right back after these messages."], spicy: ["We'll be right back after these messages."] },
-  voice_test: { friendly: ["Testing, testing! I'm Fae N'Lancer. If your friends on the call can hear me, the host's voice is working."], spicy: ["Testing, testing. Fae N'Lancer here. If your friends can hear me on the call, congratulations, your stream has a host."] }
+"welcome": {
+"friendly": [
+"Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer. Pick a mode and let's get thinking.",
+"Hello, hello! Fae N'Lancer here, your host for the evening. Choose a mode when you're ready.",
+"Welcome back, brainiacs! Fae N'Lancer, reporting for duty. What are we playing?",
+"The studio lights are on and the questions are warm. Pick a mode and let's go!",
+"Good to see you! I'm Fae N'Lancer, and I've got questions. Lots of them.",
+"Welcome to the show! Grab a snack, pick a mode, and push to think."
+],
+"spicy": [
+"Welcome to Snow's Push to Think Trivia! I'm Fae N'Lancer, and around here every answer is final. Pick a mode.",
+"Oh good, contestants. Fae N'Lancer here. Pick a mode before I start asking myself questions.",
+"Welcome back. I've been waiting in this screen for hours. Pick a mode.",
+"Fae N'Lancer, live and mildly caffeinated. Choose your mode, and your excuses.",
+"The lights are on, the audience is imaginary, and I'm ready. Pick a mode.",
+"Welcome to the only show where I'm the one with all the answers. Pick a mode."
+]
+},
+"intro_classic": {
+"friendly": [
+"Welcome, contestants! {n} questions tonight, {t} seconds each. Let's have some fun.",
+"Here we go! {n} questions, {t} seconds on the clock for each. Good luck, everyone.",
+"Classic mode! {n} questions are lined up and ready. Let's see what you know.",
+"{n} questions, {t} seconds apiece. Settle in, this is going to be fun.",
+"Alright, team. {n} questions stand between you and glory. Let's begin!",
+"Classic rules tonight. {n} questions, streaks earn multipliers. Let's play!"
+],
+"spicy": [
+"{n} questions. {t} seconds each. No refunds, no do-overs, no crying on air.",
+"Welcome back to the only show where being a know-it-all pays off. {n} questions, let's go.",
+"{n} questions, {t} seconds each. I'd wish you luck, but I'm contractually neutral.",
+"Classic mode. {n} chances to impress me. Historically, few have.",
+"{n} questions coming up. Please keep your hands, feet, and wild guesses inside the vehicle.",
+"Let's do this. {n} questions, {t} seconds each, and zero sympathy from me."
+]
+},
+"intro_lightning": {
+"friendly": [
+"Lightning round! Sixty seconds on the clock. Answer as many as you can.",
+"It's Lightning time! Sixty seconds, no pauses, go go go!",
+"Sixty seconds, as many questions as you can handle. Ready, set, think!",
+"Lightning round! Speed matters, streaks matter, let's move!"
+],
+"spicy": [
+"Lightning round! Sixty seconds. Answer fast, think later.",
+"Sixty seconds on the clock. Thinking is optional, speed is not.",
+"Lightning round. Blink and you'll miss it. Actually, please don't blink.",
+"Sixty seconds of pure panic, starting now."
+]
+},
+"intro_survival": {
+"friendly": [
+"Survival mode! You get three lives, and the questions get tougher as you go. Good luck!",
+"Welcome to Survival! Three lives, rising difficulty. How far can you go?",
+"Survival mode, everyone. Three hearts, endless questions. Let's see your staying power.",
+"Three lives, and the questions get harder. Pace yourselves, champions!"
+],
+"spicy": [
+"Survival mode. Three lives. Every wrong answer costs one. Let's see how long you last.",
+"Welcome to Survival, where the questions get harder and my patience gets thinner.",
+"Three lives. That's two more than most contestants deserve. Let's begin.",
+"Survival mode. I've seen people go out on question two. Don't be people."
+]
+},
+"intro_daily": {
+"friendly": [
+"It's the daily challenge! Everyone playing today gets these same ten questions.",
+"Daily challenge time! Same ten questions for everyone today. Compare scores after!",
+"Here's today's challenge. Ten questions, and bragging rights for the best score.",
+"The daily is here! Play it once, then compare notes with your friends."
+],
+"spicy": [
+"Daily challenge time. Same ten questions for everyone today, so there's no hiding from the group chat.",
+"Today's challenge. Everyone gets the same ten, so your excuses won't work.",
+"The daily challenge. Ten questions, one shot, and a screenshot waiting to happen.",
+"Same ten questions as everyone else today. May the least embarrassing player win."
+]
+},
+"q_intro": {
+"friendly": [
+"Question {n}. {cat}, for {pts} points.",
+"Here's number {n}, from {cat}.",
+"Question {n}! This one's {cat}.",
+"On to question {n}. The category is {cat}.",
+"Number {n} coming up. {cat}, worth {pts}.",
+"Question {n}, and it's a {cat} question.",
+"Here we go, question {n}. {cat}.",
+"Next up, number {n}. Let's talk {cat}.",
+"Question {n}. {pts} points are waiting in {cat}.",
+"Alright, question {n}. Put your {cat} hats on.",
+"Number {n}. Fresh from the {cat} pile.",
+"Question {n}. Let's see who knows their {cat}.",
+"And now, question {n}, in {cat}.",
+"Number {n}. This one's worth {pts}. Category: {cat}."
+],
+"spicy": [
+"Question {n}. {cat}, worth {pts} points.",
+"Number {n}. {cat}. Try to look confident.",
+"Question {n}, from {cat}. Everybody act natural.",
+"Number {n}. {cat}. I'm already judging you.",
+"Question {n}. {cat}. No googling, I can tell.",
+"Here comes number {n}. It's {cat}, so good luck with that.",
+"Question {n}. {cat}, for {pts}. Don't embarrass me.",
+"Number {n}, in {cat}. This one separates the scholars from the guessers.",
+"Question {n}. {cat}. I'd sit up straight for this one.",
+"Number {n}. {cat}. Somebody in this call definitely knows this. Maybe.",
+"Question {n}. {cat}. Place your bets on who panics first.",
+"Here's number {n}. {cat}, worth {pts}. Show me something.",
+"Question {n}. {cat}. I've heard worse categories. Not many.",
+"Number {n}. It's {cat}. Deep breaths, everyone."
+]
+},
+"q_final": {
+"friendly": [
+"Here comes the final question! {cat}.",
+"Last question of the round! It's {cat}.",
+"This is it, the final question. {cat}.",
+"One more to go! The final question is {cat}."
+],
+"spicy": [
+"Final question. {cat}. Make it count.",
+"Last one. {cat}. Everything you've done tonight comes down to this. No pressure.",
+"The final question. {cat}. Finish strong or finish funny.",
+"Final question, {cat}. Redemption is available, but not guaranteed."
+]
+},
+"q_hard": {
+"friendly": [
+"Heads up, this one's a hard one.",
+"This is a tough one, take your time.",
+"Here's a hard one for you."
+],
+"spicy": [
+"Oh, this one's a hard one.",
+"Brace yourselves, this one's hard.",
+"This one's hard. I'm not saying it's impossible. I'm just saying it's hard.",
+"Difficulty: hard. Confidence: optional.",
+"This one's spicy. Proceed carefully."
+]
+},
+"lock": {
+"friendly": [
+"Locked in. Let's see…",
+"Is that your Fae N'Lancer? Here we go…",
+"Alright, let's check it.",
+"Answer locked. Moment of truth…",
+"Okay, let's find out…",
+"Got it. Checking…",
+"Locked and loaded. Let's see…",
+"Here comes the reveal…",
+"Your answer's in. Drumroll, please…",
+"Let's see if that's right…",
+"Okay, okay. Let's take a look…",
+"Locked in! Fingers crossed…"
+],
+"spicy": [
+"Is that your Fae N'Lancer? Too late, it is.",
+"Bold. Let's check.",
+"Locked in. No take-backs.",
+"Interesting choice. Let's see if it's the right one.",
+"Oh, you sounded so sure. Let's check.",
+"Locked in. I'm not making a face. This is just my face.",
+"Alright, let's see how this ages.",
+"Committed. I respect it. Checking now.",
+"No hesitation. Either genius or chaos. Let's see.",
+"That's the one, huh? Okay…",
+"Locked. Somewhere, a trivia coach is watching.",
+"Final answer received. Here comes the verdict."
+]
+},
+"correct": {
+"friendly": [
+"That's right!",
+"Correct! Nicely done.",
+"Yes! That's it.",
+"You got it!",
+"Correct! Well played.",
+"Spot on!",
+"That's the one!",
+"Right answer!",
+"Nailed it! Great job.",
+"Absolutely correct!",
+"Yes indeed!",
+"Correct, and nicely done.",
+"That's exactly right!",
+"Right on the money!",
+"Perfect!",
+"Look at you go!"
+],
+"spicy": [
+"Correct! The crowd goes mild.",
+"That's right. Show-off.",
+"Nailed it.",
+"Correct, and I'm only a little surprised.",
+"Right. Don't let it go to your head.",
+"Correct. Annoyingly correct.",
+"That's right. Somebody's been paying attention.",
+"Yes. Fine. You're smart. We get it.",
+"Correct. I'll allow it.",
+"Right answer. The audience at home is mildly impressed.",
+"Correct! Even I'm impressed, and I know everything.",
+"That's it. Try not to gloat. Okay, gloat a little.",
+"Correct. Somebody screenshot that before it's a fluke.",
+"Right! Your brain showed up today.",
+"Correct. Put it on the highlight reel.",
+"Correct. Let's see if you can do it twice."
+]
+},
+"correct_fast": {
+"friendly": [
+"Wow, that was quick! Correct!",
+"Speedy and right! Love it.",
+"Didn't even hesitate. Correct!",
+"Lightning fast, and correct!",
+"That was instant! Well done.",
+"Quick draw! That's right."
+],
+"spicy": [
+"Didn't even blink. Correct.",
+"Fast and right. Show-off.",
+"That was suspiciously quick. Correct.",
+"You answered before I finished breathing. Correct.",
+"Instant. Did you write this question?",
+"Speedrun strats. Correct."
+]
+},
+"correct_clutch": {
+"friendly": [
+"At the buzzer! Correct!",
+"Just in time, and right!",
+"Down to the wire, and you got it!",
+"Cutting it close, but correct!",
+"That was close! Right answer!"
+],
+"spicy": [
+"At the buzzer! My heart can't take this.",
+"Last second, correct. You love drama, don't you?",
+"Cutting it close. Correct, but I aged a year.",
+"Buzzer beater! Showboat.",
+"With zero time to spare. Correct, and dramatic."
+]
+},
+"correct_hard": {
+"friendly": [
+"That was a hard one, and you got it!",
+"Impressive! That was a tough question.",
+"Great job on a hard one!",
+"Hard question, right answer. Excellent!",
+"That's a tough one, and you nailed it!"
+],
+"spicy": [
+"That was a hard one. Who are you?",
+"Correct on a hard one. Okay, genius.",
+"Hard question, correct answer. I'm checking for hidden notes.",
+"That was hard and you got it. I'm recalibrating my opinion of you.",
+"Correct on a hard one. Put that on your resume."
+]
+},
+"comeback": {
+"friendly": [
+"And we're back on track! Correct!",
+"There it is! Back in the game!",
+"Correct! Shake off those misses!",
+"Comeback time! That's right!",
+"Yes! That's the bounce-back!"
+],
+"spicy": [
+"Oh, look who remembered how trivia works. Correct.",
+"Correct! The comeback tour begins.",
+"Finally! I was about to send a search party. Correct.",
+"Back from the dead. Correct.",
+"Right! Your brain rebooted."
+]
+},
+"streak3": {
+"friendly": [
+"Three in a row! Your multiplier just went up.",
+"That's three straight! Points multiplier is up.",
+"Three in a row! Keep it rolling!",
+"Hat trick! One and a half times points now."
+],
+"spicy": [
+"Three in a row. Multiplier's up, egos too.",
+"Three straight. Don't get cocky.",
+"Three in a row. The multiplier likes you. I'm undecided.",
+"Hat trick. Somebody's warming up."
+]
+},
+"streak5": {
+"friendly": [
+"Five straight! Double points now.",
+"Five in a row! Your points are doubled!",
+"That's five! You're on fire, double points!",
+"Five correct in a row! Double points unlocked!"
+],
+"spicy": [
+"Five straight? Somebody's been reading encyclopedias. Double points.",
+"Five in a row. Double points. I'm starting to get nervous.",
+"Five straight. Are you cheating, or just like this?",
+"Five in a row, double points. Unbelievable. Literally, I don't believe it."
+]
+},
+"streak8": {
+"friendly": [
+"Eight in a row! Triple points!",
+"Eight straight! Triple points, incredible!",
+"That's eight! Triple points, amazing!"
+],
+"spicy": [
+"Eight in a row! Triple points. I'm calling the network.",
+"Eight straight. Triple points. This is getting ridiculous.",
+"Eight in a row. Someone check this player for a library card."
+]
+},
+"streak_big": {
+"friendly": [
+"{s} in a row! Unstoppable!",
+"That's {s} straight! Incredible!",
+"{s} correct in a row! What a run!"
+],
+"spicy": [
+"{s} in a row. At this point I'm just reading you the answers.",
+"{s} straight. I need to write harder questions.",
+"{s} in a row. Is this a trivia game or a lecture?"
+]
+},
+"wrong": {
+"friendly": [
+"Not quite. The answer was {a}.",
+"Oh, so close! It was {a}.",
+"Nope, it was {a}. You'll get the next one.",
+"Not this time. The right answer was {a}.",
+"Sorry, that's not it. It was {a}.",
+"Good try! The answer was {a}.",
+"Ah, not quite. We were looking for {a}.",
+"That one got away. It was {a}.",
+"Unlucky! The answer was {a}.",
+"Not right, but good effort. It was {a}.",
+"Close, but it was {a}.",
+"No worries, that was tricky. The answer was {a}.",
+"Almost! The answer was {a}.",
+"The answer we wanted was {a}. Next one's yours!"
+],
+"spicy": [
+"Oof. The answer was {a}.",
+"Wrong. It was {a}. I'm contractually obligated to keep smiling.",
+"Nope! It was {a}. We'll fix it in the edit.",
+"Wrong. {a}. Write that down somewhere.",
+"Incorrect. It was {a}. Bold of you, though.",
+"No. The answer was {a}. I felt that one.",
+"Wrong. It was {a}. Let's never speak of this.",
+"Nope. {a}. The audience gasped. Well, I gasped.",
+"That's not it. It was {a}. Confidently incorrect, my favorite genre.",
+"Wrong! It was {a}. Somewhere, a teacher sighs.",
+"Incorrect. The answer was {a}. Blame the lag.",
+"No. {a}. I'll pretend I didn't see that.",
+"Wrong. It was {a}. Skill issue.",
+"Nope. {a}. Rough. Moving on before it gets awkward."
+]
+},
+"wrong_easy": {
+"friendly": [
+"Oh no, that was an easy one! It was {a}.",
+"Tricky for an easy one! The answer was {a}.",
+"Happens to the best of us. It was {a}.",
+"An easy one slipped by! It was {a}."
+],
+"spicy": [
+"That was the easy one. It was {a}. Oh no.",
+"It was {a}. That was a warm-up question.",
+"Wrong on an easy one. It was {a}. I'm not mad, just disappointed.",
+"{a}. That was easy mode. We'll talk about this later.",
+"It was {a}. That one was rated easy, for the record."
+]
+},
+"timeout": {
+"friendly": [
+"Time's up! The answer was {a}.",
+"Out of time! It was {a}.",
+"The clock won that one. It was {a}.",
+"Time ran out! We were looking for {a}.",
+"And that's time! The answer was {a}.",
+"Oh, the timer got you. It was {a}.",
+"Time's up on that one. It was {a}.",
+"Just ran out of time! The answer was {a}."
+],
+"spicy": [
+"Silence? Bold strategy. It was {a}.",
+"Time! It was {a}. Dead air is expensive, people.",
+"The clock wins again. It was {a}.",
+"Nobody? It was {a}. The crickets were louder.",
+"Out of time. {a}. Did everyone freeze?",
+"Time's up. It was {a}. Did the call drop?",
+"And that's time. {a}. I could hear the thinking. It wasn't enough.",
+"Buzzer! It was {a}. Next time, try pressing a button."
+]
+},
+"streak_broken": {
+"friendly": [
+"And that ends a streak of {s}.",
+"That's the end of a {s} answer streak. Great run!",
+"A streak of {s} comes to an end.",
+"Nice run of {s}! Let's start a new one."
+],
+"spicy": [
+"And there goes that streak of {s}. Pour one out.",
+"Streak of {s}, gone. Like tears in rain.",
+"{s} in a row, and it all came crashing down.",
+"Rest in peace, streak of {s}."
+]
+},
+"life_lost": {
+"friendly": [
+"That's a life gone. {l} left.",
+"You lose a life. {l} remaining.",
+"One life down, {l} to go.",
+"Down to {l} lives. Stay sharp!"
+],
+"spicy": [
+"That'll cost you a life. {l} left.",
+"One life gone. {l} left. Tick tock.",
+"Life lost. {l} left. I'd start trying harder.",
+"There goes a heart. {l} left."
+]
+},
+"last_life": {
+"friendly": [
+"One life left. You can do this!",
+"Last life! Careful now.",
+"Down to your final life. Focus!"
+],
+"spicy": [
+"One life left. No pressure. Well, a lot of pressure.",
+"Last life. Every question is a boss fight now.",
+"Final life. I'd hate to see this end. Actually, it'd be pretty entertaining."
+]
+},
+"fifty": {
+"friendly": [
+"Fifty-fifty! Two wrong answers, gone.",
+"Fifty-fifty used! Now it's one of two.",
+"Two wrong answers removed. Choose wisely!",
+"Fifty-fifty! That narrows it down."
+],
+"spicy": [
+"Fifty-fifty. I've removed two wrong answers. The rest is on you.",
+"Fifty-fifty. Now it's a coin flip. Try not to lose a coin flip.",
+"Two wrong answers, gone. Still possible to miss it, though.",
+"Fifty-fifty. Training wheels on."
+]
+},
+"skip": {
+"friendly": [
+"Skipping that one! Let's try another.",
+"Skip! Here's a fresh question.",
+"No problem, let's move on to a new one.",
+"Skipped! On to the next."
+],
+"spicy": [
+"Skip! We'll pretend that question never existed.",
+"Skipped. Coward. I mean, strategist.",
+"Skip. That question will remember this.",
+"Skipped. Next question, and a little less dignity."
+]
+},
+"time": {
+"friendly": [
+"Ten more seconds on the clock.",
+"Extra time added! Ten more seconds.",
+"Here's ten more seconds. Take a breath.",
+"Ten bonus seconds!"
+],
+"spicy": [
+"Ten more seconds. Use them wisely. Or at all.",
+"Extra time. Try thinking faster in it.",
+"Ten more seconds. I'm very generous.",
+"Ten seconds added. The clock pities you."
+]
+},
+"lightning_end": {
+"friendly": [
+"Time's up! Pencils down.",
+"And that's the buzzer! Great round.",
+"Sixty seconds done! Let's see the score."
+],
+"spicy": [
+"And that's the buzzer! Pencils down.",
+"Time! Put the keyboard down and back away slowly.",
+"That's sixty seconds. Somebody needs a glass of water."
+]
+},
+"over_great": {
+"friendly": [
+"Outstanding! {c} out of {t} and {p} points. Take a bow.",
+"What a game! {c} out of {t}, {p} points.",
+"Brilliant! {c} out of {t} for {p} points. Well played!",
+"{c} out of {t}! {p} points. You're a natural."
+],
+"spicy": [
+"{c} out of {t}, {p} points. You're making me look good.",
+"{c} out of {t}. {p} points. Fine, you're smart.",
+"{c} out of {t} and {p} points. I need harder questions.",
+"{p} points, {c} out of {t}. Frame this one."
+]
+},
+"over_ok": {
+"friendly": [
+"Solid show! {c} out of {t} and {p} points.",
+"Nice game! {c} out of {t}, {p} points.",
+"{c} out of {t} for {p} points. Good stuff!",
+"Good effort! {c} out of {t} and {p} points."
+],
+"spicy": [
+"{c} out of {t} and {p} points. Respectable. Not legendary, but respectable.",
+"{c} out of {t}. {p} points. A perfectly average performance.",
+"{p} points, {c} out of {t}. Middle of the pack, like a sandwich.",
+"{c} out of {t}. {p} points. Not bad, not great, very human."
+]
+},
+"over_bad": {
+"friendly": [
+"{c} out of {t} and {p} points. Every champion starts somewhere!",
+"{c} out of {t}. Tough round, but the next one's yours.",
+"{c} out of {t}, {p} points. Shake it off and play again!"
+],
+"spicy": [
+"{c} out of {t}. {p} points. We'll fix it in the edit.",
+"{c} out of {t}. I've seen worse. Not often.",
+"{c} out of {t} and {p} points. Let's call it a warm-up.",
+"{p} points. {c} out of {t}. The rematch button is right there."
+]
+},
+"survival_over": {
+"friendly": [
+"That's all your lives! You survived {c} questions for {p} points.",
+"Game over! {c} correct, {p} points. Nice run!",
+"Out of lives! {c} right answers and {p} points."
+],
+"spicy": [
+"And you're out! {c} correct, {p} points. Survival is hard.",
+"Out of lives. {c} correct, {p} points. The questions win this time.",
+"That's it, no hearts left. {c} correct and {p} points. Respawn?"
+]
+},
+"new_best": {
+"friendly": [
+"And that's a new personal best!",
+"New personal best! Congratulations!",
+"That's your best score yet!"
+],
+"spicy": [
+"New personal best! Somebody screenshot this.",
+"Personal best! Don't get used to it.",
+"New record. Tell everyone, they'll want to know."
+]
+},
+"pause": {
+"friendly": [
+"We'll be right back after these messages.",
+"Taking a quick break. Don't touch that dial!",
+"Intermission! Stretch, hydrate, return."
+],
+"spicy": [
+"We'll be right back after these messages.",
+"Taking a quick break. Don't touch that dial!",
+"Intermission! Stretch, hydrate, return."
+]
+},
+"voice_test": {
+"friendly": [
+"Testing, testing! I'm Fae N'Lancer. If your friends on the call can hear me, the host's voice is working.",
+"Mic check, one two! Fae N'Lancer here. If the call can hear this, we're good to go.",
+"Hello, everyone! This is Fae N'Lancer checking in. Can you hear me?"
+],
+"spicy": [
+"Testing, testing. Fae N'Lancer here. If your friends can hear me on the call, congratulations, your stream has a host.",
+"Mic check. If you can hear me, the voice works. If you can't, well, you won't hear this anyway.",
+"Is this thing on? Fae N'Lancer here. Somebody nod if you can hear me."
+]
+},
+"board_intro": {
+"friendly": [
+"Welcome to the board! {names}, let's play. {p} picks first.",
+"Board time! Tonight's players are {names}. {p}, you start.",
+"Welcome, {names}! Pick tiles, win points, and watch out for steals. {p} goes first."
+],
+"spicy": [
+"Welcome to the board, where every wrong answer costs you. {names}. {p}, you're up first.",
+"Tonight's contestants: {names}. May the least wrong player win. {p}, start us off.",
+"{names}, welcome. Friendships will be tested. {p}, you pick first."
+]
+},
+"your_pick": {
+"friendly": [
+"{p}, pick a tile.",
+"{p}, you're up. Choose a category.",
+"Your turn, {p}. What'll it be?",
+"{p}, the board is yours.",
+"Over to you, {p}.",
+"{p}, pick something good."
+],
+"spicy": [
+"{p}, pick your poison.",
+"{p}, choose wisely. Or don't, it's funnier.",
+"{p}, you're up. No pressure.",
+"{p}, the board awaits your questionable judgment.",
+"Your move, {p}. Everyone's watching.",
+"{p}, pick a tile. Any tile. Preferably one you can answer."
+]
+},
+"pick": {
+"friendly": [
+"{p} picks {cat} for {v}.",
+"{cat} for {v}, chosen by {p}.",
+"Alright, {p}, {cat} for {v}.",
+"{p} goes with {cat}, {v} points.",
+"{cat} for {v}. Here we go, {p}."
+],
+"spicy": [
+"{p} goes for {cat}, {v} points. Bold.",
+"{cat} for {v}. Let's see what you've got, {p}.",
+"{p} picks {cat} for {v}. Brave or foolish, we'll know soon.",
+"{cat}, {v} points. {p}, I hope you studied.",
+"{p} wants {cat} for {v}. The board respects the audacity."
+]
+},
+"pick_big": {
+"friendly": [
+"{p} goes big! {cat} for {v}!",
+"Top of the board! {cat} for {v}, {p}!",
+"{v} points on the line. {cat}, {p}!"
+],
+"spicy": [
+"{p} goes straight for {cat}, {v}. Somebody's feeling brave.",
+"{v} points. {cat}. {p}, this is either legendary or tragic.",
+"The big one! {cat} for {v}. Everybody watch {p} sweat."
+]
+},
+"dd_found": {
+"friendly": [
+"It's a Double Down! {p}, how much do you want to wager?",
+"Double Down! {p}, name your wager.",
+"You found a Double Down, {p}! How much will you bet?"
+],
+"spicy": [
+"Double Down! {p}, how much of your dignity are you betting?",
+"Double Down! {p}, time to gamble.",
+"Surprise, it's a Double Down. {p}, put your points where your mouth is."
+]
+},
+"dd_go": {
+"friendly": [
+"{p} wagers {w}. Here's the question.",
+"{w} on the line for {p}. Let's go!",
+"{p} bets {w}. Good luck!"
+],
+"spicy": [
+"{p} puts {w} on the line. Here we go.",
+"{w}. Bold, {p}. Let's see if it pays off.",
+"{p} bets {w}. I love a gambler."
+]
+},
+"board_right": {
+"friendly": [
+"{p} got it! Plus {v}.",
+"Correct, {p}! That's {v} points.",
+"Nice one, {p}! Plus {v}.",
+"{p} is right! {v} points added.",
+"That's it, {p}! Plus {v}."
+],
+"spicy": [
+"{p} is right. Plus {v}. Don't let it go to your head.",
+"Correct, {p}. {v} points. Annoyingly good.",
+"{p} gets it. Plus {v}. The others look nervous.",
+"Right, {p}. Plus {v}. Save some points for everyone else.",
+"{p} with the correct answer. {v} points. Smug face allowed."
+]
+},
+"board_wrong": {
+"friendly": [
+"Not quite, {p}. That's minus {v}.",
+"Sorry, {p}, that's not it. Minus {v}.",
+"Oh no, {p}. That costs {v}.",
+"Not this time, {p}. Minus {v}."
+],
+"spicy": [
+"Wrong, {p}. That's minus {v}. Ouch.",
+"Nope, {p}. {v} points, gone.",
+"Wrong answer, {p}. The board takes {v}.",
+"{p}, that's minus {v}. The others are smiling.",
+"Incorrect, {p}. Minus {v}. That's going to leave a mark."
+]
+},
+"board_timeout": {
+"friendly": [
+"Time's up, {p}. That's minus {v}.",
+"Out of time, {p}. Minus {v}.",
+"The clock got you, {p}. Minus {v}."
+],
+"spicy": [
+"Time, {p}. Minus {v} for the silence.",
+"{p} froze. Minus {v}.",
+"Nothing from {p}? That's minus {v}."
+]
+},
+"steal_ask": {
+"friendly": [
+"Anyone want to steal?",
+"It's up for grabs. Who wants to steal?",
+"Steal opportunity! Anyone?",
+"The question's open. Who's stealing?"
+],
+"spicy": [
+"Anyone brave enough to steal?",
+"Up for grabs. Who's feeling lucky?",
+"Steal it if you dare.",
+"Points are just lying there. Anyone?"
+]
+},
+"steal_go": {
+"friendly": [
+"{p} is going for the steal!",
+"{p} wants to steal it!",
+"Steal attempt from {p}!"
+],
+"spicy": [
+"{p} smells blood. Going for the steal!",
+"{p} is swooping in!",
+"Oh, {p} wants those points. Steal attempt!"
+]
+},
+"steal_right": {
+"friendly": [
+"{p} steals it! Plus {v}.",
+"Great steal, {p}! {v} points.",
+"{p} swoops in and takes {v}!"
+],
+"spicy": [
+"Stolen! {p} takes {v}. Cold.",
+"{p} steals it. Plus {v}. Friendship over.",
+"Robbery! {p} takes {v}."
+]
+},
+"steal_none": {
+"friendly": [
+"No takers. The answer was {a}.",
+"Nobody's stealing. It was {a}.",
+"Let's move on. The answer was {a}."
+],
+"spicy": [
+"Nobody? Cowards. It was {a}.",
+"No steals. Very cautious bunch. It was {a}.",
+"Nobody wants it? It was {a}."
+]
+},
+"answer_was": {
+"friendly": [
+"The answer was {a}.",
+"It was {a}.",
+"The right answer was {a}."
+],
+"spicy": [
+"It was {a}, by the way.",
+"For the record, {a}.",
+"The answer, which nobody got, was {a}."
+]
+},
+"lead_change": {
+"friendly": [
+"And {p} takes the lead!",
+"{p} is in first place now!",
+"New leader: {p}!"
+],
+"spicy": [
+"{p} takes the lead. Everyone else, look alive.",
+"New leader, {p}. The throne changes hands.",
+"{p} is on top. For now."
+]
+},
+"went_negative": {
+"friendly": [
+"{p} is in the negatives now, but there's time to recover!",
+"{p} dips below zero. Plenty of game left!"
+],
+"spicy": [
+"{p} is officially in the red. Bold strategy.",
+"{p} is below zero. Impressive, in a way."
+]
+},
+"final_intro": {
+"friendly": [
+"It's time for Fae N'Lancer's Final Answer! The category is {cat}. Make your wagers.",
+"Final round! The category is {cat}. Everyone, place your wagers.",
+"Here comes the Final Answer! Category: {cat}. Time to wager."
+],
+"spicy": [
+"Final round! The category is {cat}. Time to find out who's brave and who's broke. Make your wagers.",
+"It's Fae N'Lancer's Final Answer. {cat}. Wager wisely, or entertainingly.",
+"Final round. {cat}. This is where friendships end. Place your wagers."
+]
+},
+"final_q": {
+"friendly": [
+"Here's the final question. Send your answers to the host now.",
+"The final question! Message your answers to the host."
+],
+"spicy": [
+"Final question. Send your answers to the host, and no peeking at each other.",
+"Here it is. Send your answers to the host. Quietly. Suspiciously."
+]
+},
+"final_mark": {
+"friendly": [
+"Pencils down! The answer was {a}. Let's see who got it.",
+"Time's up! It was {a}. Let's check the answers."
+],
+"spicy": [
+"Pencils down. It was {a}. Let's see who gambled well.",
+"Time. The answer was {a}. Let's see who's crying."
+]
+},
+"final_right": {
+"friendly": [
+"{p} wagered {w}, and got it right!",
+"{p} bet {w}, and it pays off!",
+"Correct for {p}! Plus {w}."
+],
+"spicy": [
+"{p} bet {w}, and nailed it!",
+"{p} wagered {w}. Correct! Big brain.",
+"{p}, {w}, correct. Cha-ching."
+]
+},
+"final_wrong": {
+"friendly": [
+"{p} wagered {w}, and missed.",
+"Not this time for {p}. That's minus {w}.",
+"{p} bet {w}, but that's not it."
+],
+"spicy": [
+"{p} bet {w}, and it's gone.",
+"{p} wagered {w}. Wrong. Thoughts and prayers.",
+"{p}, minus {w}. Oof."
+]
+},
+"winner": {
+"friendly": [
+"{p} wins with {s} points! Congratulations!",
+"And the winner is {p}, with {s} points!",
+"Congratulations, {p}! {s} points takes the crown."
+],
+"spicy": [
+"{p} wins with {s} points. Everyone else, there's always the rematch.",
+"{p} takes it with {s}. Bow down.",
+"Your champion: {p}, with {s} points. Expect to hear about this forever."
+]
+},
+"tie": {
+"friendly": [
+"It's a tie at the top with {s} points! {names}, settle it in the rematch.",
+"A tie! {names} share first place with {s} points."
+],
+"spicy": [
+"A tie at {s} points between {names}. Nobody wins, everybody loses. Rematch!",
+"{names}, tied at {s}. This calls for a rematch. Immediately."
+]
+},
+"cat:General Knowledge": {
+"friendly": [
+"Anything goes in this one.",
+"A little bit of everything here.",
+"This could be about literally anything."
+],
+"spicy": [
+"Anything goes in this one.",
+"A little bit of everything here.",
+"This could be about literally anything."
+]
+},
+"cat:Entertainment: Books": {
+"friendly": [
+"Bookworms, this is your moment.",
+"Time to prove you actually read the book.",
+"No movie adaptations allowed."
+],
+"spicy": [
+"Bookworms, this is your moment.",
+"Time to prove you actually read the book.",
+"No movie adaptations allowed."
+]
+},
+"cat:Entertainment: Film": {
+"friendly": [
+"Grab the popcorn.",
+"Lights, camera, question.",
+"Movie buffs, lean in."
+],
+"spicy": [
+"Grab the popcorn.",
+"Lights, camera, question.",
+"Movie buffs, lean in."
+]
+},
+"cat:Entertainment: Music": {
+"friendly": [
+"Turn it up.",
+"Music nerds, assemble.",
+"Hum along if it helps."
+],
+"spicy": [
+"Turn it up.",
+"Music nerds, assemble.",
+"Hum along if it helps."
+]
+},
+"cat:Entertainment: Musicals & Theatres": {
+"friendly": [
+"Curtain up!",
+"Theatre kids, this is your time.",
+"Jazz hands ready."
+],
+"spicy": [
+"Curtain up!",
+"Theatre kids, this is your time.",
+"Jazz hands ready."
+]
+},
+"cat:Entertainment: Television": {
+"friendly": [
+"Don't touch that remote.",
+"Couch potatoes, this one's for you.",
+"Binge-watchers, activate."
+],
+"spicy": [
+"Don't touch that remote.",
+"Couch potatoes, this one's for you.",
+"Binge-watchers, activate."
+]
+},
+"cat:Entertainment: Video Games": {
+"friendly": [
+"Gamers, respawn your brains.",
+"Press start.",
+"No save states on this one."
+],
+"spicy": [
+"Gamers, respawn your brains.",
+"Press start.",
+"No save states on this one."
+]
+},
+"cat:Entertainment: Board Games": {
+"friendly": [
+"Roll the dice.",
+"Game night energy.",
+"No flipping the table."
+],
+"spicy": [
+"Roll the dice.",
+"Game night energy.",
+"No flipping the table."
+]
+},
+"cat:Science & Nature": {
+"friendly": [
+"Lab goggles on.",
+"Science time.",
+"Nature documentary voice activated."
+],
+"spicy": [
+"Lab goggles on.",
+"Science time.",
+"Nature documentary voice activated."
+]
+},
+"cat:Science: Computers": {
+"friendly": [
+"Have you tried turning your brain off and on again?",
+"Nerd alert.",
+"Compiling question."
+],
+"spicy": [
+"Have you tried turning your brain off and on again?",
+"Nerd alert.",
+"Compiling question."
+]
+},
+"cat:Science: Mathematics": {
+"friendly": [
+"Calculators away.",
+"Math time. Stay calm.",
+"Show your work. Just kidding."
+],
+"spicy": [
+"Calculators away.",
+"Math time. Stay calm.",
+"Show your work. Just kidding."
+]
+},
+"cat:Mythology": {
+"friendly": [
+"Gods and monsters time.",
+"Legends only.",
+"Consult your oracle."
+],
+"spicy": [
+"Gods and monsters time.",
+"Legends only.",
+"Consult your oracle."
+]
+},
+"cat:Sports": {
+"friendly": [
+"Game on.",
+"Warm up those brain muscles.",
+"Sports fans, stretch it out."
+],
+"spicy": [
+"Game on.",
+"Warm up those brain muscles.",
+"Sports fans, stretch it out."
+]
+},
+"cat:Geography": {
+"friendly": [
+"Get your map out.",
+"Globe trotters, this one's yours.",
+"Let's travel."
+],
+"spicy": [
+"Get your map out.",
+"Globe trotters, this one's yours.",
+"Let's travel."
+]
+},
+"cat:History": {
+"friendly": [
+"Back in time we go.",
+"History buffs, step up.",
+"Dust off those textbooks."
+],
+"spicy": [
+"Back in time we go.",
+"History buffs, step up.",
+"Dust off those textbooks."
+]
+},
+"cat:Politics": {
+"friendly": [
+"Facts only on this one.",
+"Civics class is in session."
+],
+"spicy": [
+"Facts only on this one.",
+"Civics class is in session."
+]
+},
+"cat:Art": {
+"friendly": [
+"Culture time.",
+"Artsy folks, you're up.",
+"Let's visit the gallery."
+],
+"spicy": [
+"Culture time.",
+"Artsy folks, you're up.",
+"Let's visit the gallery."
+]
+},
+"cat:Celebrities": {
+"friendly": [
+"Red carpet time.",
+"Star-spotting, everyone.",
+"Famous faces ahead."
+],
+"spicy": [
+"Red carpet time.",
+"Star-spotting, everyone.",
+"Famous faces ahead."
+]
+},
+"cat:Animals": {
+"friendly": [
+"Creature feature time.",
+"Animal lovers, this one's yours.",
+"Straight from the wild."
+],
+"spicy": [
+"Creature feature time.",
+"Animal lovers, this one's yours.",
+"Straight from the wild."
+]
+},
+"cat:Vehicles": {
+"friendly": [
+"Buckle up.",
+"Start your engines.",
+"Gearheads, this one's for you."
+],
+"spicy": [
+"Buckle up.",
+"Start your engines.",
+"Gearheads, this one's for you."
+]
+},
+"cat:Entertainment: Comics": {
+"friendly": [
+"Capes on.",
+"Comic fans, assemble.",
+"Straight from the panels."
+],
+"spicy": [
+"Capes on.",
+"Comic fans, assemble.",
+"Straight from the panels."
+]
+},
+"cat:Science: Gadgets": {
+"friendly": [
+"Gadget time.",
+"Tech lovers, lean in.",
+"Plug in your brain."
+],
+"spicy": [
+"Gadget time.",
+"Tech lovers, lean in.",
+"Plug in your brain."
+]
+},
+"cat:Entertainment: Japanese Anime & Manga": {
+"friendly": [
+"Anime fans, power up.",
+"Time to prove your watch list.",
+"Manga readers, this one's yours."
+],
+"spicy": [
+"Anime fans, power up.",
+"Time to prove your watch list.",
+"Manga readers, this one's yours."
+]
+},
+"cat:Entertainment: Cartoon & Animations": {
+"friendly": [
+"Saturday morning vibes.",
+"Cartoon time.",
+"Animation fans, you're up."
+],
+"spicy": [
+"Saturday morning vibes.",
+"Cartoon time.",
+"Animation fans, you're up."
+]
+}
 };
-const lastPick = {};
+// Shuffle-bag picking: every line in a pool plays once before any repeats,
+// and the bag is saved so a new session continues where the last one left off.
+const lineBags = store.get('lineBags', {});
+let bagSaveT = null;
 function line(key, vars = {}) {
   const set = LINES[key]; if (!set) return '';
-  let pool = set[settings.sass]; if (!pool || !pool.length) pool = set.friendly || [];
+  let tone = settings.sass, pool = set[tone];
+  if (!pool || !pool.length) { tone = 'friendly'; pool = set.friendly || []; }
   if (!pool.length) return '';
-  let s = rand(pool);
-  if (pool.length > 1) { let tries = 0; while (s === lastPick[key] && tries++ < 5) s = rand(pool); }
-  lastPick[key] = s;
-  return s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+  const bk = key + '|' + tone;
+  let st = lineBags[bk];
+  if (!st || st.n !== pool.length || !Array.isArray(st.left) || !st.left.length) {
+    const order = shuffle([...pool.keys()]);
+    if (st && order.length > 1 && order[0] === st.last) order.push(order.shift());
+    st = { n: pool.length, left: order, last: st ? st.last : -1 };
+  }
+  const idx = st.left.shift(); st.last = idx; lineBags[bk] = st;
+  clearTimeout(bagSaveT); bagSaveT = setTimeout(() => store.set('lineBags', lineBags), 400);
+  return pool[idx].replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
 }
+function catFlavor(cat) { return LINES['cat:' + cat] ? line('cat:' + cat) : ''; }
 
 /* ================= Question bank ================= */
 let BANK = [];
@@ -886,7 +2018,7 @@ function newGame(mode) {
     lives: mode === 'survival' ? 3 : null, clock: mode === 'lightning' ? 60 : null,
     life: mode === 'lightning' ? { fifty: 0, skip: 0, time: 0 } : mode === 'daily' ? { fifty: 1, skip: 0, time: 1 } : { fifty: 1, skip: 1, time: 1 },
     used: new Set(), q: null, options: [], correctIdx: -1, removed: new Set(), phase: 'idle', paused: false,
-    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, daily: mode === 'daily' ? dailyList() : null
+    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, catCount: {}, lastCat: null, wrongRun: 0, daily: mode === 'daily' ? dailyList() : null
   };
   if (mode === 'daily') G.total = G.daily.length;
 }
@@ -903,9 +2035,23 @@ function pickNext() {
     else if (G.mode === 'classic') want = adaptiveDifficulty();
   }
   if (want) { const p = pool.filter(q => q.difficulty === want && !G.used.has(q.id)); if (p.length) pool = p; }
-  const q = draw(pool, G.used);
-  if (q) G.used.add(q.id);
+  const q = drawBalanced(pool, G.used);
+  if (q) { G.used.add(q.id); G.catCount[q.category] = (G.catCount[q.category] || 0) + 1; G.lastCat = q.category; }
   return q;
+}
+// Pick a category first (never the same one twice in a row when there's a choice,
+// and favoring categories used least this game), then a random unseen question in it.
+function drawBalanced(pool, used) {
+  let cand = pool.filter(q => !seen.has(q.id) && !used.has(q.id));
+  if (!cand.length) { pool.forEach(q => seen.delete(q.id)); cand = pool.filter(q => !used.has(q.id)); }
+  if (!cand.length) return null;
+  const byCat = {};
+  cand.forEach(q => (byCat[q.category] ||= []).push(q));
+  let cats = Object.keys(byCat);
+  if (cats.length > 1 && G.lastCat) { const f = cats.filter(c => c !== G.lastCat); if (f.length) cats = f; }
+  const min = Math.min(...cats.map(c => G.catCount[c] || 0));
+  cats = cats.filter(c => (G.catCount[c] || 0) === min);
+  return rand(byCat[rand(cats)]);
 }
 
 /* ================= Rendering ================= */
@@ -1006,6 +2152,7 @@ function onTick() {
 }
 function beginAnswering() {
   if (G.phase !== 'reading') return;
+  G.answerStartedLate = true;
   G.phase = 'answering'; G.timeLeft = settings.timer; G.timeMax = settings.timer; renderLifelines();
 }
 
@@ -1037,7 +2184,8 @@ async function startGame(mode = settings.mode) {
 
 function makeIntro(q, n) {
   let intro = n === G.total ? line('q_final', { cat: q.category }) : line('q_intro', { n, cat: q.category, pts: POINTS[q.difficulty] });
-  if (q.difficulty === 'hard' && settings.sass === 'spicy' && Math.random() < .4) intro += ' ' + line('q_hard');
+  if (q.difficulty === 'hard' && Math.random() < .45) intro += ' ' + line('q_hard');
+  else if (Math.random() < .35) { const f = catFlavor(q.category); if (f) intro += ' ' + f; }
   return intro;
 }
 function makeOptions(q) { return q.type === 'boolean' ? ['True', 'False'] : shuffle([q.correct, ...q.incorrect]); }
@@ -1061,11 +2209,15 @@ async function nextQuestion() {
   let q, options = null, intro = null;
   if (G.queued) { ({ q, options, intro } = G.queued); G.queued = null; }
   else { q = pickNext(); if (!q) return endGame(); }
+  G.answerStartedLate = false;
   G.q = q; G.index++; G.phase = 'intro'; G.timeLeft = settings.timer; G.timeMax = settings.timer;
   seen.add(q.id);
   G.options = options || makeOptions(q);
   G.correctIdx = G.options.indexOf(q.correct);
-  G.pre = { lock: line('lock'), correct: line('correct'), wrong: line('wrong', { a: q.correct }), timeout: line('timeout', { a: q.correct }) };
+  G.pre = { lock: line('lock'),
+    correct: q.difficulty === 'hard' && Math.random() < .5 ? line('correct_hard') : line('correct'),
+    wrong: q.difficulty === 'easy' && Math.random() < .5 ? line('wrong_easy', { a: q.correct }) : line('wrong', { a: q.correct }),
+    timeout: line('timeout', { a: q.correct }) };
   setMood('neutral'); renderQuestionShell(); renderHud();
 
   if (G.mode === 'lightning') {
@@ -1132,10 +2284,16 @@ async function reveal(i, my) {
     G.score += pts;
     const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + fmt(pts); tiles[i].appendChild(f);
     sfx.correct(); setMood('happy'); restartMood(); celebrate($('#board'), 1200);
-    msg = lightning || !G.pre ? line('correct') : G.pre.correct;
-    if (G.streak === 3) extra.push(line('streak3')); else if (G.streak === 5) extra.push(line('streak5')); else if (G.streak === 8) extra.push(line('streak8'));
+    const frac = G.timeMax ? G.timeLeft / G.timeMax : 0;
+    if (!lightning && G.phase !== 'reading' && G.timeLeft <= 2.5) msg = line('correct_clutch');
+    else if (G.wrongRun >= 2) msg = line('comeback');
+    else if (!lightning && frac >= .8 && G.answerStartedLate && Math.random() < .6) msg = line('correct_fast');
+    else msg = lightning || !G.pre ? line('correct') : G.pre.correct;
+    G.wrongRun = 0;
+    if (G.streak === 3) extra.push(line('streak3')); else if (G.streak === 5) extra.push(line('streak5'));
+    else if (G.streak === 8) extra.push(line('streak8')); else if (G.streak >= 10 && G.streak % 5 === 0) extra.push(line('streak_big', { s: G.streak }));
   } else {
-    const broken = G.streak; G.streak = 0;
+    const broken = G.streak; G.streak = 0; G.wrongRun++;
     if (i >= 0) tiles[i].classList.add('wrong');
     if (i >= 0) sfx.wrong(); setMood(i < 0 ? 'confused' : 'sad');
     msg = lightning || !G.pre ? line(i < 0 ? 'timeout' : 'wrong', { a: q.correct }) : (i < 0 ? G.pre.timeout : G.pre.wrong);
@@ -1408,7 +2566,7 @@ async function startBoard() {
     mode: 'board', board, players: roster.map(name => ({ name, score: 0 })), turn: 0,
     score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, index: 0, total: Infinity, lives: null, clock: null,
     life: { fifty: 0, skip: 0, time: 0 }, used: new Set(), q: null, options: [], correctIdx: -1, removed: new Set(), phase: 'board', paused: false,
-    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, final: null, stealList: [], tried: new Set()
+    timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null, catCount: {}, lastCat: null, wrongRun: 0, final: null, stealList: [], tried: new Set()
   };
   if (board.approx) toast('Some categories are short on questions, so a few tiles use a different difficulty.');
   startTicker(); sfx.start();
@@ -1451,6 +2609,12 @@ function renderBoardHud() {
   $('#streak').textContent = G.dd && !G.final ? 'Double Down' : '';
   $('#lives').textContent = '';
   $('#muteBtn').textContent = settings.muted ? '🔇' : '🔊';
+}
+// Index of the single leading player, or -1 when tied at the top.
+function boardLeader() {
+  const best = Math.max(...G.players.map(p => p.score));
+  const top = G.players.map((p, i) => p.score === best ? i : -1).filter(i => i >= 0);
+  return top.length === 1 ? top[0] : -1;
 }
 function tilesLeft() { return G.board.grid.flat().filter(t => !t.done).length; }
 
@@ -1512,7 +2676,9 @@ async function boardAsk(t) {
   $('#chipPts').textContent = `${fmt(G.value)} points`;
   renderHud();
   const spoken = questionSpeech(q, G.options);
-  const intro = t.dd ? line('dd_go', { p: p.name, w: fmt(G.value) }) : line('pick', { p: p.name, cat: shortCat(q.category), v: t.value });
+  const top = Math.max(...G.board.grid.flat().map(x => x.value));
+  let intro = t.dd ? line('dd_go', { p: p.name, w: fmt(G.value) }) : line(t.value === top ? 'pick_big' : 'pick', { p: p.name, cat: shortCat(q.category), v: fmt(t.value) });
+  if (!t.dd && Math.random() < .3) { const f = catFlavor(q.category); if (f) intro += ' ' + f; }
   const introDone = say(intro);
   prefetch(spoken, G.pre.lock, q.explain);
   await introDone; if (my !== run) return;
@@ -1529,18 +2695,24 @@ async function boardResolve(i, my) {
     sfx.drum(); await wait(1000); if (my !== run) return;
   }
   tiles.forEach(t => t.classList.remove('locked'));
+  const leaderBefore = boardLeader();
   if (right) {
     p.score += G.value;
     tiles[i].classList.add('right');
     const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + fmt(G.value); tiles[i].appendChild(f);
     sfx.correct(); setMood('happy'); restartMood(); celebrate($('#board'), 1200);
     renderHud();
-    return boardReveal(line(G.stealing ? 'steal_right' : 'board_right', { p: p.name, v: fmt(G.value) }), my);
+    let rmsg = line(G.stealing ? 'steal_right' : 'board_right', { p: p.name, v: fmt(G.value) });
+    const leaderNow = boardLeader();
+    if (leaderNow === G.answerer && leaderBefore !== G.answerer) rmsg += ' ' + line('lead_change', { p: p.name });
+    return boardReveal(rmsg, my);
   }
+  const wasNonNeg = p.score >= 0;
   p.score -= G.value;
   if (i >= 0) { tiles[i].classList.add('wrong'); G.removed.add(i); sfx.wrong(); }
   setMood(i < 0 ? 'confused' : 'sad'); renderHud();
-  const lost = line(i < 0 ? 'board_timeout' : 'board_wrong', { p: p.name, v: fmt(G.value) });
+  let lost = line(i < 0 ? 'board_timeout' : 'board_wrong', { p: p.name, v: fmt(G.value) });
+  if (wasNonNeg && p.score < 0 && Math.random() < .6) lost += ' ' + line('went_negative', { p: p.name });
   const eligible = G.players.map((_, k) => k).filter(k => !G.tried.has(k));
   const optionsLeft = G.options.length - G.removed.size;
   if (!G.dd && eligible.length && optionsLeft > 1) {
@@ -1789,10 +2961,18 @@ $('#catSel').onchange = e => { settings.category = e.target.value; saveSettings(
 $('#diffSel').onchange = e => { settings.difficulty = e.target.value; saveSettings(); };
 $('#roundSel').onchange = e => { settings.rounds = +e.target.value; saveSettings(); $('#classicDesc').textContent = `${settings.rounds} questions, a timer on each`; };
 $('#startBtn').onclick = () => startGame();
-$('#testVoiceBtn').onclick = () => {
+$('#testVoiceBtn').onclick = async () => {
   ac();
-  if (settings.engine === 'kokoro' && kokoro.state === 'loading') toast('Natural voice is still loading, so this uses the browser voice.');
-  else if (!synth && !kokoroActive()) toast("This browser doesn't support speech.");
+  if (settings.muted) { toast('The host is muted. Press M to unmute.'); return; }
+  if (settings.engine === 'kokoro') {
+    if (kokoro.state === 'off') kokoroInit();
+    if (kokoro.state === 'loading') {
+      toast(`Natural voice still loading${kokoro.pct ? ` (${Math.round(kokoro.pct)}%)` : ''}. It will speak as soon as it's ready.`);
+      showBubble('Warming up my voice…');
+      const ok = await kokoroWhenReady();
+      if (!ok) toast('The natural voice failed to load, so this uses the browser voice.');
+    } else if (kokoro.state === 'failed') toast('The natural voice failed to load, so this uses the browser voice.');
+  } else if (!synth) toast("This browser doesn't support speech.");
   say(line('voice_test'));
 };
 
