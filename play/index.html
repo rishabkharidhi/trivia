@@ -50,13 +50,13 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(246,243,255,.12)}
 .chip.easy{background:var(--go);color:var(--ink)}.chip.medium{background:var(--marquee);color:var(--ink)}.chip.hard{background:var(--hot)}
-#buzz{flex:1;min-height:38vh;width:100%;border:0;border-radius:28px;background:radial-gradient(circle at 50% 35%,#ffa3d2,var(--hot) 60%,#b5277a);color:#fff;font-size:42px;font-weight:900;letter-spacing:.04em;box-shadow:0 10px 0 #7d1a56,0 18px 40px rgba(255,61,139,.35);transition:transform .06s,box-shadow .06s,filter .2s}
-#buzz:active:not(:disabled){transform:translateY(8px);box-shadow:0 2px 0 #7d1a56}
-#buzz:disabled{filter:grayscale(.7) brightness(.6);box-shadow:0 6px 0 #4a1440}
-#buzz small{display:block;font-size:15px;font-weight:600;opacity:.85;margin-top:8px;letter-spacing:0}
+#buzz{flex:none;height:132px;width:100%;border:0;border-radius:28px;background:radial-gradient(circle at 50% 30%,#ff8a7a,#e03131 58%,#9c1c1c);color:#fff;font-size:30px;font-weight:900;letter-spacing:.04em;box-shadow:0 8px 0 #6d1212,0 18px 40px rgba(255,61,139,.35);transition:transform .06s,box-shadow .06s,filter .2s}
+#buzz:active:not(:disabled){transform:translateY(8px);box-shadow:0 2px 0 #6d1212}
+#buzz:disabled{filter:grayscale(.7) brightness(.6);box-shadow:0 5px 0 #4a1212}
+#buzz small{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:8px;letter-spacing:0}
 .opts{display:grid;grid-template-columns:1fr;gap:10px}
 .opt{display:flex;align-items:center;gap:12px;text-align:left;border:3px solid var(--edge);border-radius:16px;background:var(--studio-2);padding:14px;font-size:18px;font-weight:700;width:100%}
-.opt .k{flex:none;width:36px;height:36px;border-radius:50%;background:var(--marquee);color:var(--ink);display:grid;place-items:center;font-weight:900}
+.opt .k{flex:none;width:36px;height:36px;border-radius:50%;background:var(--soft,#b79cff);color:var(--ink);display:grid;place-items:center;font-weight:900}
 .opt.right{background:var(--go);color:var(--ink);border-color:#aff5e3}
 .opt.wrong{background:var(--bust);border-color:#ffb3ad}
 .opt:disabled{opacity:.55}
@@ -79,6 +79,62 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .wagerbox input{flex:1;margin:0;font-size:20px;text-align:center}
 .owner{font-size:15px;color:var(--marquee);font-weight:700;text-align:center;margin-top:6px}
 .err{color:var(--bust);font-weight:700;font-size:14px;min-height:20px}
+#telly .qm-bob,#telly .qm-pose,#telly .shape-bang,#telly .eyes,#telly .qm-dot{transform-box:view-box}
+#telly .shape-bang,#telly .e-happy,#telly .e-sad,#telly .e-wide,#telly .m-grin,#telly .m-frown,#telly .m-o,#telly .m-talk,#telly .drops{display:none}
+#host.mood-happy .shape-q{display:none}
+#host.mood-happy .shape-bang{display:inline;transform-origin:120px 190px;animation:bang .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bang{from{transform:scale(.6,.4)}to{transform:scale(1)}}
+#host.mood-happy .e-open{display:none} #host.mood-happy .e-happy{display:inline}
+#host.mood-happy .m-smile{display:none} #host.mood-happy .m-grin{display:inline}
+#host.mood-sad .e-open{display:none} #host.mood-sad .e-sad{display:inline}
+#host.mood-sad .m-smile{display:none} #host.mood-sad .m-frown{display:inline}
+#host.mood-sad .qm-pose{transform-origin:120px 230px;transform:rotate(-16deg) translate(-8px,16px) scaleY(.92);transition:transform .45s ease}
+#host.mood-confused .e-open{display:none} #host.mood-confused .e-wide{display:inline}
+#host.mood-confused .m-smile{display:none} #host.mood-confused .m-o{display:inline}
+#host.mood-confused .qm-pose{transform-origin:120px 230px;animation:tilt 1.1s ease-in-out infinite alternate}
+@keyframes tilt{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+#telly .qm-pose{transition:transform .35s ease}
+#host.talking .m-smile,#host.talking .m-grin,#host.talking .m-frown,#host.talking .m-o{display:none}
+#host.talking .m-talk{display:inline;transform-box:fill-box;transform-origin:center;animation:yap .17s ease-in-out infinite alternate}
+#host.talking .qm-bob{animation:bob .34s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+@keyframes yap{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
+#telly .eyes{transform-origin:120px 48px;animation:blink 5.5s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+#telly .qm-dot{transform-origin:120px 276px}
+#host.talking .qm-dot{animation:squish .34s ease-in-out infinite alternate}
+@keyframes squish{from{transform:scale(1,1)}to{transform:scale(1.08,.9)}}
+#host.sweat .drops{display:inline;animation:drip .6s ease-in infinite}
+@keyframes drip{from{transform:translateY(-2px);opacity:1}to{transform:translateY(8px);opacity:.2}}
+#host.sweat .qm-bob{animation:jitter .12s linear infinite}
+@keyframes jitter{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}}
+
+/* countdown, same idea as the single-screen fuse */
+.timerwrap{display:flex;align-items:center;gap:10px}
+.fuse{flex:1;height:12px;border-radius:6px;background:rgba(247,243,255,.14);overflow:hidden}
+.fuse i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--soft,#b79cff),#e7ddff);transition:width .1s linear}
+.fuse.warn i{background:linear-gradient(90deg,#ff9f1c,var(--marquee))}
+.fuse.danger i{background:linear-gradient(90deg,var(--bust),#ff9c9c)}
+.secs{font-weight:800;font-size:19px;min-width:38px;text-align:right}
+.secs.warn{color:var(--marquee)} .secs.danger{color:var(--bust)}
+/* the host, small on phones and full size in the side rail */
+#hostbox{display:flex;align-items:center;gap:12px}
+#telly.mini{height:86px;width:auto;flex:none}
+#bubble{flex:1;background:var(--paper);color:var(--ink);border-radius:16px;padding:10px 14px;font-size:15px;line-height:1.35;font-weight:500}
+#bubble .who{display:block;font-size:11px;font-weight:700;color:var(--hot);margin-bottom:2px}
+/* wide screens: main column plus a right rail for the host and scores */
+@media (min-width: 900px){
+  body{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;grid-template-areas:"top rail" "main rail";gap:16px;align-content:start}
+  .top{grid-area:top}
+  #landing,#lobby,#playArea{grid-area:main}
+  #rail{grid-area:rail;display:flex;flex-direction:column;gap:12px}
+  #telly.mini{height:150px}
+  #hostbox{flex-direction:column;align-items:stretch}
+  #bubble{font-size:16px;min-height:70px}
+  #buzz{height:150px;font-size:34px}
+  .opts{grid-template-columns:1fr 1fr}
+}
+@media (max-width: 899px){ #rail{display:contents} }
 </style>
 </head>
 <body>
@@ -162,6 +218,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
     </div>
   </div>
   <div class="card" id="qCard">
+    <div class="timerwrap" id="timerRow" style="margin-bottom:10px"><div class="fuse" id="fuse"><i id="fuseFill"></i></div><span class="secs" id="secs">20</span></div>
     <div class="meta" id="meta"></div>
     <p class="question" id="qText">Waiting to start…</p>
     <div class="owner hide" id="qOwner"></div>
@@ -169,8 +226,42 @@ button{font-family:inherit;color:inherit;cursor:pointer}
   <button id="buzz" disabled>BUZZ<small id="buzzSub">waiting…</small></button>
   <div class="opts hide" id="opts"></div>
   <div class="status" id="status"></div>
-  <div class="card"><div class="scores" id="scores"></div></div>
 </section>
+
+<aside id="rail">
+  <div class="card" id="hostCard"><div id="hostbox"><div id="host" class="mood-neutral"><svg id="telly" class="mini" viewBox="0 0 240 300" role="img" aria-label="Fae N'Lancer, the game host">
+      <ellipse class="shadow" cx="120" cy="288" rx="34" ry="7" fill="#070930" opacity=".5"/>
+      <g class="qm-bob"><g class="qm-pose">
+        <g class="shape-q">
+          <path d="M68 100 C68 38 172 38 172 100 C172 140 120 140 120 185" fill="none" stroke="#c4175e" stroke-width="54" stroke-linecap="round"/>
+          <path d="M68 100 C68 38 172 38 172 100 C172 140 120 140 120 185" fill="none" stroke="#ff3d8b" stroke-width="44" stroke-linecap="round"/>
+          <path d="M80 82 C88 56 116 46 140 50" fill="none" stroke="#ffd1e4" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+        </g>
+        <g class="shape-bang">
+          <rect x="82" y="18" width="76" height="176" rx="38" fill="#c4175e"/>
+          <rect x="87" y="23" width="66" height="166" rx="33" fill="#ff3d8b"/>
+          <path d="M98 40 L98 100" stroke="#ffd1e4" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+        </g>
+        <g class="face" transform="translate(120 56) scale(1.22) translate(-120 -56)">
+          <g class="eyes">
+            <g class="e-open"><ellipse cx="108" cy="48" rx="6.5" ry="8.5" fill="#141747"/><ellipse cx="132" cy="48" rx="6.5" ry="8.5" fill="#141747"/><circle cx="110" cy="45" r="2.2" fill="#fff"/><circle cx="134" cy="45" r="2.2" fill="#fff"/></g>
+            <g class="e-happy"><path d="M101 51 Q108 40 115 51" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M125 51 Q132 40 139 51" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/></g>
+            <g class="e-sad"><path d="M101 46 Q108 54 115 48" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M125 48 Q132 54 139 46" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/></g>
+            <g class="e-wide"><circle cx="107" cy="47" r="9" fill="#fff"/><circle cx="133" cy="47" r="9" fill="#fff"/><circle cx="107" cy="47" r="3.5" fill="#141747"/><circle cx="133" cy="47" r="3.5" fill="#141747"/></g>
+          </g>
+          <path class="m-smile" d="M110 63 Q120 73 130 63" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path class="m-grin" d="M107 61 Q120 80 133 61 Z" fill="#141747"/>
+          <path class="m-frown" d="M110 70 Q120 61 130 70" stroke="#141747" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <ellipse class="m-o" cx="120" cy="67" rx="5" ry="6.5" fill="#141747"/>
+          <ellipse class="m-talk" cx="120" cy="66" rx="8" ry="6" fill="#141747"/>
+          <g class="drops"><path d="M150 36 q5 8 0 12 q-5 -4 0 -12z" fill="#9fd8ff"/><path d="M88 56 q4 7 0 10 q-4 -3 0 -10z" fill="#9fd8ff"/></g>
+        </g>
+        <g class="bowtie"><path d="M120 178 L100 168 L100 190 Z M120 178 L140 168 L140 190 Z" fill="#ffc53d"/><circle cx="120" cy="179" r="5" fill="#e0a520"/></g>
+      </g></g>
+      <g class="qm-dot"><circle cx="120" cy="252" r="24" fill="#c4175e"/><circle cx="120" cy="252" r="19" fill="#ff3d8b"/><circle cx="113" cy="245" r="5" fill="#ffd1e4" opacity=".7"/></g>
+    </svg></div><div id="bubble"><span class="who">Fae N'Lancer</span><span id="bubbleText">Waiting to start…</span></div></div></div>
+  <div class="card"><p class="sectitle">Scores</p><div class="scores" id="scores"></div></div>
+</aside>
 
 <script type="module">
 // Point this at your deployed Worker, or pass ?server=... in the URL.
@@ -184,7 +275,7 @@ const LETTERS = ['A', 'B', 'C', 'D'];
 
 let ws = null, pid = localStorage.getItem('ptt.pid') || '', me = null, roomCode = '', controllerId = null;
 let amController = false, mode = 'buzz', myTurn = false, answered = false, myTile = false;
-let offset = 0, bestRtt = Infinity, shownAt = 0, deadline = 0, players = [];
+let offset = 0, bestRtt = Infinity, shownAt = 0, deadline = 0, players = [], timerId = null;
 let settings = { mode: 'buzz', rounds: 10, difficulty: 'any', boardSize: 'full', timer: 20000, answerMs: 7000, autoNext: true };
 
 $('#name').value = localStorage.getItem('ptt.name') || '';
@@ -229,6 +320,26 @@ const send = o => ws?.readyState === 1 && ws.send(JSON.stringify(o));
 function setConn(t, live, dead) { const c = $('#conn'); c.textContent = t; c.className = 'pill' + (live ? ' live' : dead ? ' dead' : ''); }
 function syncClock() { for (let i = 0; i < 4; i++) setTimeout(() => send({ t: 'ping', c: Date.now() }), i * 120); }
 const roomNow = () => Date.now() + offset;
+
+function setMood(m) { const h = $('#host'); if (h) h.className = 'mood-' + m; }
+function bubble(t) { const b = $('#bubbleText'); if (b) b.textContent = t; }
+function startTimer() {
+  stopTimer();
+  $('#timerRow').classList.remove('hide');
+  const span = Math.max(1, deadline - Math.max(shownAt, roomNow()));
+  timerId = setInterval(() => {
+    const left = deadline - roomNow();
+    const frac = Math.max(0, Math.min(1, left / span));
+    $('#fuseFill').style.width = (frac * 100) + '%';
+    const secs = Math.max(0, Math.ceil(left / 1000));
+    $('#secs').textContent = secs;
+    const cls = left <= 5000 ? 'danger' : left <= 10000 ? 'warn' : '';
+    $('#fuse').className = 'fuse ' + cls;
+    $('#secs').className = 'secs ' + cls;
+    if (left <= 0) stopTimer();
+  }, 100);
+}
+function stopTimer() { clearInterval(timerId); timerId = null; }
 
 /* ---------- lobby ---------- */
 $$('.modecard').forEach(b => b.onclick = () => {
@@ -315,9 +426,9 @@ function handle(m) {
   if (m.t === 'wager') return onWagerPrompt(m);
   if (m.t === 'wagered') { $('#status').textContent = `${m.name} wagers ${m.amount}.`; return; }
   if (m.t === 'question') return onQuestion(m);
-  if (m.t === 'buzzing') { $('#status').textContent = `${m.name} is buzzing…`; return; }
+  if (m.t === 'buzzing') { $('#status').textContent = `${m.name} is buzzing…`; bubble(`${m.name} is buzzing in…`); return; }
   if (m.t === 'locked') return onLocked(m);
-  if (m.t === 'wrong') { $('#status').textContent = `${m.name} got it wrong (${m.delta}).`; renderScores(m.scores); return; }
+  if (m.t === 'wrong') { $('#status').textContent = `${m.name} got it wrong (${m.delta}).`; setMood('sad'); bubble(`${m.name} got it wrong. ${m.delta} points.`); renderScores(m.scores); return; }
   if (m.t === 'reopen') return onReopen(m);
   if (m.t === 'reveal') return onReveal(m);
   if (m.t === 'over') return onOver(m);
@@ -334,7 +445,8 @@ function enterGame() {
 
 /* ---------- board ---------- */
 function onBoard(m) {
-  mode = settings.mode = 'board'; enterGame();
+  mode = settings.mode = 'board'; enterGame(); stopTimer(); $('#timerRow').classList.add('hide');
+  setMood('neutral'); bubble(m.turn === me ? 'Your pick — choose a tile.' : `${m.turnName} is picking…`);
   $('#boardCard').classList.remove('hide'); $('#qCard').classList.add('hide');
   $('#buzz').classList.add('hide'); $('#opts').classList.add('hide'); $('#wagerBox').classList.add('hide');
   myTile = m.turn === me;
@@ -379,6 +491,9 @@ function onQuestion(m) {
   $('#opts').classList.remove('hide');                 // options readable before anyone buzzes
   $('#buzz').classList.toggle('hide', mode === 'board');
   $('#status').textContent = mode === 'board' ? '' : 'Read the options, then buzz to lock in.';
+  setMood('neutral');
+  bubble(mode === 'board' ? `${m.ownerName}'s tile for ${m.value}.` : 'Buzz in when you know it!');
+  setTimeout(() => startTimer(), Math.max(0, shownAt - roomNow()));
   if (mode !== 'board') armBuzz();
 }
 function buildOptions(options) {
@@ -410,6 +525,8 @@ function onLocked(m) {
   $('#buzz').classList.add('hide'); $('#opts').classList.remove('hide');
   $$('.opt').forEach(o => o.disabled = !myTurn);
   $('#status').textContent = myTurn ? 'Your answer — pick one.' : `${m.name} is answering.`;
+  bubble(myTurn ? 'You buzzed in! Pick an answer.' : `${m.name} buzzed in first.`);
+  stopTimer();
   if (myTurn) navigator.vibrate?.([30, 60, 30]);
 }
 function answer(i) {
@@ -421,6 +538,7 @@ function answer(i) {
 }
 function onReopen(m) {
   deadline = m.deadline; myTurn = false; answered = false;
+  setMood('neutral'); bubble('Back open — anyone who has not tried can buzz.'); startTimer();
   const iTried = (m.tried || []).includes(me);
   $$('.opt').forEach(o => { o.disabled = true; o.style.outline = ''; });
   $('#opts').classList.remove('hide');
@@ -433,13 +551,18 @@ function onReveal(m) {
   $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
   $('#buzz').classList.add('hide'); $('#opts').classList.remove('hide');
   $$('.opt').forEach((o, i) => { o.disabled = true; o.style.outline = ''; if (i === m.correctIdx) o.classList.add('right'); });
+  stopTimer(); $('#timerRow').classList.add('hide');
   $('#status').textContent = m.winner ? `${m.winner.name} got it (+${m.winner.delta})` : `Nobody got it. The answer was ${m.correct}.`;
+  setMood(m.winner ? 'happy' : 'sad');
+  bubble(m.explain || (m.winner ? `${m.winner.name} got it, plus ${m.winner.delta}.` : `The answer was ${m.correct}.`));
   if (m.explain) $('#qText').textContent = m.explain;
   renderScores(m.scores);
 }
 function onOver(m) {
+  stopTimer(); $('#timerRow').classList.add('hide');
   players = m.scores; renderScores(m.scores);
   const top = m.scores[0];
+  setMood('happy'); bubble(top ? `${top.name} wins with ${top.score} points!` : 'Game over.');
   show('lobby');                                  // back to the lobby: settings are editable again
   renderLobby();
   $('#lobbyNote').dataset.sticky = '1';
