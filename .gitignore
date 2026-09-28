@@ -1,0 +1,15 @@
+# Wrangler / Node
+node_modules/
+.wrangler/
+.dev.vars
+.env
+*.log
+
+# Trivia build artifacts (regenerable, and evidence.jsonl is ~20 MB)
+evidence.jsonl
+flagged.json
+questions.json.tmp
+
+# OS junk
+.DS_Store
+Thumbs.db
