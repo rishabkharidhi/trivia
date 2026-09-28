@@ -50,11 +50,12 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 .chip{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(246,243,255,.12)}
 .chip.easy{background:var(--go);color:var(--ink)}.chip.medium{background:var(--marquee);color:var(--ink)}.chip.hard{background:var(--hot)}
-#buzz{flex:none;height:132px;width:100%;border:0;border-radius:28px;background:radial-gradient(circle at 50% 30%,#ff8a7a,#e03131 58%,#9c1c1c);color:#fff;font-size:30px;font-weight:900;letter-spacing:.04em;box-shadow:0 8px 0 #6d1212,0 18px 40px rgba(255,61,139,.35);transition:transform .06s,box-shadow .06s,filter .2s}
+#buzz{flex:none;height:112px;width:min(320px,100%);border:0;border-radius:28px;background:radial-gradient(circle at 50% 30%,#ff8a7a,#e03131 58%,#9c1c1c);color:#fff;font-size:30px;font-weight:900;letter-spacing:.04em;box-shadow:0 8px 0 #6d1212,0 18px 40px rgba(255,61,139,.35);transition:transform .06s,box-shadow .06s,filter .2s}
 #buzz:active:not(:disabled){transform:translateY(8px);box-shadow:0 2px 0 #6d1212}
 #buzz:disabled{filter:grayscale(.7) brightness(.6);box-shadow:0 5px 0 #4a1212}
 #buzz small{display:block;font-size:13px;font-weight:600;opacity:.85;margin-top:8px;letter-spacing:0}
 .opts{display:grid;grid-template-columns:1fr;gap:10px}
+.buzzrow{display:flex;justify-content:center}
 .opt{display:flex;align-items:center;gap:12px;text-align:left;border:3px solid var(--edge);border-radius:16px;background:var(--studio-2);padding:14px;font-size:18px;font-weight:700;width:100%}
 .opt .k{flex:none;width:36px;height:36px;border-radius:50%;background:var(--soft,#b79cff);color:var(--ink);display:grid;place-items:center;font-weight:900}
 .opt.right{background:var(--go);color:var(--ink);border-color:#aff5e3}
@@ -111,6 +112,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 
 /* countdown, same idea as the single-screen fuse */
 .timerwrap{display:flex;align-items:center;gap:10px}
+.tlabel{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);min-width:54px}
 .fuse{flex:1;height:12px;border-radius:6px;background:rgba(247,243,255,.14);overflow:hidden}
 .fuse i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--soft,#b79cff),#e7ddff);transition:width .1s linear}
 .fuse.warn i{background:linear-gradient(90deg,#ff9f1c,var(--marquee))}
@@ -124,14 +126,16 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #bubble .who{display:block;font-size:11px;font-weight:700;color:var(--hot);margin-bottom:2px}
 /* wide screens: main column plus a right rail for the host and scores */
 @media (min-width: 900px){
-  body{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;grid-template-areas:"top rail" "main rail";gap:16px;align-content:start}
+  body{max-width:none;margin:0;padding-left:24px;padding-right:24px;display:grid;grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"top rail" "main rail";gap:20px;align-content:start}
+  .opt{font-size:19px;padding:16px}
+  .question{font-size:24px}
   .top{grid-area:top}
   #landing,#lobby,#playArea{grid-area:main}
   #rail{grid-area:rail;display:flex;flex-direction:column;gap:12px}
   #telly.mini{height:150px}
   #hostbox{flex-direction:column;align-items:stretch}
   #bubble{font-size:16px;min-height:70px}
-  #buzz{height:150px;font-size:34px}
+  #buzz{height:120px;width:min(360px,100%);font-size:32px}
   .opts{grid-template-columns:1fr 1fr}
 }
 @media (max-width: 899px){ #rail{display:contents} }
@@ -218,13 +222,13 @@ button{font-family:inherit;color:inherit;cursor:pointer}
     </div>
   </div>
   <div class="card" id="qCard">
-    <div class="timerwrap" id="timerRow" style="margin-bottom:10px"><div class="fuse" id="fuse"><i id="fuseFill"></i></div><span class="secs" id="secs">20</span></div>
+    <div class="timerwrap" id="timerRow" style="margin-bottom:10px"><span class="tlabel" id="timerLabel">Buzz</span><div class="fuse" id="fuse"><i id="fuseFill"></i></div><span class="secs" id="secs">20</span></div>
     <div class="meta" id="meta"></div>
     <p class="question" id="qText">Waiting to start…</p>
     <div class="owner hide" id="qOwner"></div>
   </div>
-  <button id="buzz" disabled>BUZZ<small id="buzzSub">waiting…</small></button>
   <div class="opts hide" id="opts"></div>
+  <div class="buzzrow"><button id="buzz" disabled>BUZZ<small id="buzzSub">waiting…</small></button></div>
   <div class="status" id="status"></div>
 </section>
 
@@ -323,8 +327,9 @@ const roomNow = () => Date.now() + offset;
 
 function setMood(m) { const h = $('#host'); if (h) h.className = 'mood-' + m; }
 function bubble(t) { const b = $('#bubbleText'); if (b) b.textContent = t; }
-function startTimer() {
+function startTimer(label) {
   stopTimer();
+  if (label) $('#timerLabel').textContent = label;
   $('#timerRow').classList.remove('hide');
   const span = Math.max(1, deadline - Math.max(shownAt, roomNow()));
   timerId = setInterval(() => {
@@ -493,7 +498,7 @@ function onQuestion(m) {
   $('#status').textContent = mode === 'board' ? '' : 'Read the options, then buzz to lock in.';
   setMood('neutral');
   bubble(mode === 'board' ? `${m.ownerName}'s tile for ${m.value}.` : 'Buzz in when you know it!');
-  setTimeout(() => startTimer(), Math.max(0, shownAt - roomNow()));
+  setTimeout(() => startTimer(mode === 'board' ? 'Answer' : 'Buzz'), Math.max(0, shownAt - roomNow()));
   if (mode !== 'board') armBuzz();
 }
 function buildOptions(options) {
@@ -526,7 +531,9 @@ function onLocked(m) {
   $$('.opt').forEach(o => o.disabled = !myTurn);
   $('#status').textContent = myTurn ? 'Your answer — pick one.' : `${m.name} is answering.`;
   bubble(myTurn ? 'You buzzed in! Pick an answer.' : `${m.name} buzzed in first.`);
-  stopTimer();
+  // in Board mode the clock is the picker's answer time, so only they need to see it
+  if (mode === 'board') { if (myTurn) startTimer('Answer'); else { stopTimer(); $('#timerRow').classList.add('hide'); } }
+  else stopTimer();
   if (myTurn) navigator.vibrate?.([30, 60, 30]);
 }
 function answer(i) {
@@ -538,7 +545,7 @@ function answer(i) {
 }
 function onReopen(m) {
   deadline = m.deadline; myTurn = false; answered = false;
-  setMood('neutral'); bubble('Back open — anyone who has not tried can buzz.'); startTimer();
+  setMood('neutral'); bubble('Back open — anyone who has not tried can buzz.'); startTimer('Steal');
   const iTried = (m.tried || []).includes(me);
   $$('.opt').forEach(o => { o.disabled = true; o.style.outline = ''; });
   $('#opts').classList.remove('hide');
