@@ -124,3 +124,29 @@ export function nextTurn(order, current) {
   const i = order.indexOf(current);
   return order[(i + 1) % order.length];
 }
+
+/* ---------- Survival ---------- */
+export const SURVIVAL_RAMP = [['easy', 2], ['medium', 3], ['hard', 99]];
+export function survivalDifficulty(round) {
+  let n = round;
+  for (const [d, span] of SURVIVAL_RAMP) { if (n <= span) return d; n -= span; }
+  return 'hard';
+}
+// One category and difficulty per round, with a question for every survivor.
+export function pickRoundPool(bank, usedIds, difficulty, need, lastCategory, rand = Math.random) {
+  const group = (filterFn) => {
+    const by = {};
+    for (const q of bank) if (!q.retired && !usedIds.has(q.id) && filterFn(q)) (by[q.category] ||= []).push(q);
+    return by;
+  };
+  const pick = arr => arr[Math.floor(rand() * arr.length)];
+  for (const [by, diff] of [[group(q => q.difficulty === difficulty), difficulty], [group(() => true), 'mixed']]) {
+    const cats = Object.keys(by).filter(c => by[c].length >= need);
+    if (!cats.length) continue;
+    const fresh = cats.filter(c => c !== lastCategory);
+    const cat = pick(fresh.length ? fresh : cats);
+    return { category: cat, difficulty: diff, pool: by[cat] };
+  }
+  return null;
+}
+export function aliveIds(players) { return Object.keys(players).filter(id => !players[id].out); }

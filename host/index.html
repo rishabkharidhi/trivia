@@ -219,12 +219,19 @@ function handle(m) {
   if (m.t === 'welcome' || m.t === 'state') { players = m.state.players; settings = m.state.settings || {}; renderPlayers(); renderSetup(); return; }
   if (m.t === 'config') { settings = { ...settings, ...m.settings }; renderSetup(); return; }
   if (m.t === 'players') { players = m.players; renderPlayers(); return; }
+  if (m.t === 'survival') {
+    show('question'); $('#phasePill').textContent = `Round ${m.round}`;
+    players = m.scores; renderPlayers(); setMood('neutral');
+    bubble(`Round ${m.round}: ${m.category.replace(/^(Entertainment|Science): /, '')}, ${m.difficulty}. ${m.turnName} is up.`);
+    return;
+  }
   if (m.t === 'board') return onBoard(m);
   if (m.t === 'wager') { setMood('happy'); bubble(`${m.name} found a Double Down! Wagering up to ${m.max}.`); return; }
   if (m.t === 'wagered') { bubble(`${m.name} wagers ${m.amount}.`); return; }
   if (m.t === 'question') return onQuestion(m);
   if (m.t === 'buzzing') { highlight = m.id; renderPlayers(); bubble(`${m.name} is buzzing in…`); return; }
-  if (m.t === 'locked') { highlight = m.id; renderPlayers(); stopTimer(); setMood('neutral'); bubble(`${m.name} is answering.`); return; }
+  if (m.t === 'locked') { highlight = m.id; renderPlayers(); setMood('neutral'); bubble(`${m.name} is answering…`);
+    if (m.deadline) { deadline = m.deadline; $('#fuse').classList.remove('hide'); startTimer(); } else stopTimer(); return; }
   if (m.t === 'wrong') { players = m.scores; highlight = null; renderPlayers(); setMood('sad'); bubble(`${m.name} got it wrong. ${m.delta} points.`); return; }
   if (m.t === 'reopen') { deadline = m.deadline; startTimer(); setMood('neutral'); bubble('Open to everyone else — buzz in!'); return; }
   if (m.t === 'reveal') return onReveal(m);
@@ -265,6 +272,7 @@ function onQuestion(m) {
   turnId = null; highlight = m.owner || null;
   $('#phasePill').textContent = m.mode === 'board'
     ? `${m.ownerName}'s tile for ${m.value}${m.dd ? ' · Double Down' : ''}`
+    : m.mode === 'survival' ? `Round ${m.round} · ${m.ownerName}`
     : `Question ${m.round}${m.rounds ? ' of ' + m.rounds : ''}`;
   $('#fact').classList.add('hide');
   const q = m.question;
@@ -326,7 +334,8 @@ function renderPlayers() {
   players.forEach(p => {
     const row = document.createElement('div');
     row.className = 'prow' + (p.id === highlight ? ' buzzed' : '') + (p.id === turnId ? ' turn' : '') + (p.connected ? '' : ' out');
-    const n = document.createElement('span'); n.textContent = p.name;
+    const hearts = p.lives != null ? (p.out ? ' 💀' : ' ' + '❤️'.repeat(p.lives)) : '';
+    const n = document.createElement('span'); n.textContent = p.name + hearts;
     const s = document.createElement('span'); s.className = 's' + (p.score < 0 ? ' neg' : ''); s.textContent = p.score;
     row.append(n, s); box.appendChild(row);
   });

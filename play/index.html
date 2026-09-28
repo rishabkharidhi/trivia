@@ -177,16 +177,18 @@ button{font-family:inherit;color:inherit;cursor:pointer}
     <div class="modes">
       <button class="modecard" data-mode="buzz" aria-pressed="true"><b>Buzz-In</b><small>Everyone races to buzz. A wrong answer opens the question to the rest.</small></button>
       <button class="modecard" data-mode="board" aria-pressed="false"><b>Board</b><small>Take turns picking category tiles for points. Miss it and the others can steal.</small></button>
+      <button class="modecard" data-mode="survival" aria-pressed="false"><b>Survival</b><small>Everyone gets lives. Each round shares one category, and a wrong answer costs a life. Last one standing wins.</small></button>
     </div>
   </div>
   <div class="card" id="setCard">
     <p class="sectitle">Settings</p>
     <div class="setgrid">
       <label class="buzz-only">Questions<select id="rounds"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option><option value="25">25</option><option value="30">30</option></select></label>
+      <label class="surv-only hide">Lives each<select id="lives"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="5">5</option></select></label>
       <label class="board-only hide">Board size<select id="boardSize"><option value="full">Full, 25 tiles</option><option value="quick">Quick, 15 tiles</option></select></label>
       <label class="buzz-only">Difficulty<select id="difficulty"><option value="any">Mixed</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
       <label>Buzz window<select id="timer"><option value="10000">10 sec</option><option value="15000">15 sec</option><option value="20000" selected>20 sec</option><option value="30000">30 sec</option></select></label>
-      <label>Answer time<select id="answerMs"><option value="5000">5 sec</option><option value="7000" selected>7 sec</option><option value="10000">10 sec</option><option value="15000">15 sec</option></select></label>
+      <label>Answer time<select id="answerMs"><option value="5000">5 sec</option><option value="7000" selected>7 sec</option><option value="10000">10 sec</option><option value="15000">15 sec</option><option value="20000">20 sec</option><option value="30000">30 sec</option></select></label>
       <label>Next question<select id="autoNext"><option value="1" selected>Automatic</option><option value="0">I press next</option></select></label>
     </div>
   </div>
@@ -280,7 +282,7 @@ const LETTERS = ['A', 'B', 'C', 'D'];
 let ws = null, pid = localStorage.getItem('ptt.pid') || '', me = null, roomCode = '', controllerId = null;
 let amController = false, mode = 'buzz', myTurn = false, answered = false, myTile = false;
 let offset = 0, bestRtt = Infinity, shownAt = 0, deadline = 0, players = [], timerId = null;
-let settings = { mode: 'buzz', rounds: 10, difficulty: 'any', boardSize: 'full', timer: 20000, answerMs: 7000, autoNext: true };
+let settings = { mode: 'buzz', rounds: 10, difficulty: 'any', boardSize: 'full', lives: 3, timer: 20000, answerMs: 7000, autoNext: true };
 
 $('#name').value = localStorage.getItem('ptt.name') || '';
 $('#code').value = (qs.get('room') || '').toUpperCase();
@@ -356,7 +358,7 @@ $$('.modecard').forEach(b => b.onclick = () => {
 $$('#setCard select').forEach(sel => sel.onchange = () => {
   if (!amController) return;
   settings = { ...settings, rounds: +$('#rounds').value, difficulty: $('#difficulty').value, boardSize: $('#boardSize').value,
-    timer: +$('#timer').value, answerMs: +$('#answerMs').value, autoNext: $('#autoNext').value === '1' };
+    lives: +$('#lives').value, timer: +$('#timer').value, answerMs: +$('#answerMs').value, autoNext: $('#autoNext').value === '1' };
   send({ t: 'config', settings });
 });
 $('#startBtn').onclick = () => { if (amController) send({ t: 'start', settings }); };
@@ -378,22 +380,25 @@ $('#screenBtn').onclick = () => {
 };
 
 function renderLobby() {
-  const board = settings.mode === 'board';
+  const board = settings.mode === 'board', surv = settings.mode === 'survival';
   $$('.modecard').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === settings.mode)));
-  $$('.buzz-only').forEach(e => e.classList.toggle('hide', board));
+  $$('.buzz-only').forEach(e => e.classList.toggle('hide', board || surv));
   $$('.board-only').forEach(e => e.classList.toggle('hide', !board));
+  $$('.surv-only').forEach(e => e.classList.toggle('hide', !surv));
   $('#rounds').value = settings.rounds; $('#difficulty').value = settings.difficulty;
-  $('#boardSize').value = settings.boardSize; $('#timer').value = settings.timer;
+  $('#boardSize').value = settings.boardSize; $('#timer').value = settings.timer; $('#lives').value = settings.lives || 3;
   $('#answerMs').value = settings.answerMs; $('#autoNext').value = settings.autoNext ? '1' : '0';
   // only the controller sees controls; everyone else sees the same setup, read-only
   $('#modeCard').classList.toggle('hide', !amController);
   $('#setCard').classList.toggle('hide', !amController);
   $('#readCard').classList.toggle('hide', amController);
   $('#startBtn').classList.toggle('hide', !amController);
-  const tags = [board ? 'Board' : 'Buzz-In'];
+  const tags = [board ? 'Board' : surv ? 'Survival' : 'Buzz-In'];
   if (board) tags.push(settings.boardSize === 'quick' ? '15 tiles' : '25 tiles');
+  else if (surv) tags.push(`${settings.lives || 3} lives each`);
   else tags.push(`${settings.rounds} questions`, settings.difficulty === 'any' ? 'Mixed' : settings.difficulty);
-  tags.push(`${settings.timer / 1000}s to buzz`, `${settings.answerMs / 1000}s to answer`, settings.autoNext ? 'auto-advance' : 'manual next');
+  if (!surv) tags.push(`${settings.timer / 1000}s to buzz`);
+  tags.push(`${settings.answerMs / 1000}s to answer`, settings.autoNext ? 'auto-advance' : 'manual next');
   const box = $('#readout'); box.textContent = '';
   tags.forEach(t => { const s = document.createElement('span'); s.className = 'tag'; s.textContent = t; box.appendChild(s); });
   const host = players.find(p => p.id === controllerId);
@@ -427,6 +432,7 @@ function handle(m) {
   }
   if (m.t === 'config') { settings = { ...settings, ...m.settings }; renderLobby(); return; }
   if (m.t === 'players') { players = m.players; controllerId = m.controllerId; amController = m.controllerId === me; renderLobby(); renderScores(players); return; }
+  if (m.t === 'survival') return onSurvival(m);
   if (m.t === 'board') return onBoard(m);
   if (m.t === 'wager') return onWagerPrompt(m);
   if (m.t === 'wagered') { $('#status').textContent = `${m.name} wagers ${m.amount}.`; return; }
@@ -441,7 +447,7 @@ function handle(m) {
 }
 function enterGame() {
   show('game');
-  $('#gameMode').textContent = settings.mode === 'board' ? 'Board' : 'Buzz-In';
+  $('#gameMode').textContent = { board: 'Board', survival: 'Survival' }[settings.mode] || 'Buzz-In';
   $('#nextBtn').classList.toggle('hide', !amController);
   $('#endBtn').classList.toggle('hide', !amController);
   $('#nextBtn').textContent = settings.mode === 'board' ? 'Next tile' : 'Next';
@@ -478,14 +484,23 @@ function onWagerPrompt(m) {
   $('#wagerIn').focus();
 }
 
+function onSurvival(m) {
+  settings.mode = 'survival'; mode = 'survival'; enterGame();
+  $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
+  setMood('neutral');
+  bubble(`Round ${m.round}: ${m.category.replace(/^(Entertainment|Science): /, '')}, ${m.difficulty}. ${m.turnName} is up.`);
+  renderScores(m.scores);
+}
+
 /* ---------- questions ---------- */
 function onQuestion(m) {
   answered = false; myTurn = false;
-  mode = m.mode === 'board' ? 'board' : 'buzz';
+  mode = m.mode || 'buzz';        // buzz | board | survival
   enterGame();
   $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
-  $('#qOwner').classList.toggle('hide', mode !== 'board');
+  $('#qOwner').classList.toggle('hide', mode === 'buzz');
   if (mode === 'board') $('#qOwner').textContent = `${m.ownerName}'s tile${m.dd ? ' — Double Down' : ''} for ${m.value}`;
+  if (mode === 'survival') { $('#qOwner').classList.remove('hide'); $('#qOwner').textContent = `${m.ownerName}'s question`; }
   shownAt = m.shownAt; deadline = m.deadline;
   const q = m.question, meta = $('#meta');
   meta.textContent = '';
@@ -494,12 +509,15 @@ function onQuestion(m) {
   $('#qText').textContent = q.text;
   buildOptions(q.options);
   $('#opts').classList.remove('hide');                 // options readable before anyone buzzes
-  $('#buzz').classList.toggle('hide', mode === 'board');
-  $('#status').textContent = mode === 'board' ? '' : 'Read the options, then buzz to lock in.';
+  $('#buzz').classList.toggle('hide', mode !== 'buzz');
+  $('#status').textContent = mode === 'buzz' ? 'Read the options, then buzz to lock in.' : '';
   setMood('neutral');
-  bubble(mode === 'board' ? `${m.ownerName}'s tile for ${m.value}.` : 'Buzz in when you know it!');
-  setTimeout(() => startTimer(mode === 'board' ? 'Answer' : 'Buzz'), Math.max(0, shownAt - roomNow()));
-  if (mode !== 'board') armBuzz();
+  bubble(mode === 'board' ? `${m.ownerName}'s tile for ${m.value}.`
+       : mode === 'survival' ? `${m.ownerName}'s turn.`
+       : 'Buzz in when you know it!');
+  const turnBased = mode !== 'buzz';
+  setTimeout(() => { if (!turnBased || !myTurn) startTimer(turnBased ? 'Answer' : 'Buzz'); }, Math.max(0, shownAt - roomNow()));
+  if (!turnBased) armBuzz();
 }
 function buildOptions(options) {
   const box = $('#opts'); box.textContent = '';
@@ -530,9 +548,10 @@ function onLocked(m) {
   $('#buzz').classList.add('hide'); $('#opts').classList.remove('hide');
   $$('.opt').forEach(o => o.disabled = !myTurn);
   $('#status').textContent = myTurn ? 'Your answer — pick one.' : `${m.name} is answering.`;
-  bubble(myTurn ? 'You buzzed in! Pick an answer.' : `${m.name} buzzed in first.`);
-  // in Board mode the clock is the picker's answer time, so only they need to see it
-  if (mode === 'board') { if (myTurn) startTimer('Answer'); else { stopTimer(); $('#timerRow').classList.add('hide'); } }
+  bubble(myTurn
+    ? (mode === 'buzz' ? 'You buzzed in! Pick an answer.' : 'Your question — pick an answer.')
+    : (mode === 'buzz' ? `${m.name} buzzed in first.` : `${m.name} is answering.`));
+  if (m.deadline) { deadline = m.deadline; $('#timerRow').classList.remove('hide'); startTimer('Answer'); }
   else stopTimer();
   if (myTurn) navigator.vibrate?.([30, 60, 30]);
 }
@@ -580,7 +599,8 @@ function renderScores(list) {
   (list || []).forEach(p => {
     const row = document.createElement('div');
     row.className = 'srow' + (p.id === me ? ' me' : '');
-    const n = document.createElement('span'); n.textContent = p.name + (p.connected ? '' : ' (away)');
+    const hearts = p.lives != null ? (p.out ? ' 💀' : ' ' + '❤️'.repeat(p.lives)) : '';
+    const n = document.createElement('span'); n.textContent = p.name + (p.connected ? '' : ' (away)') + hearts;
     const s = document.createElement('span'); s.textContent = p.score;
     row.append(n, s); box.appendChild(row);
   });

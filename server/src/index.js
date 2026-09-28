@@ -4,7 +4,8 @@ import {
   BUZZ_GRACE_MS, REVEAL_LEAD_MS,
   normalizeBuzz, rankBuzzes, awardPoints, penalty, remainingContenders,
   pickQuestion, shuffleOptions, scoreboard,
-  buildBoard, boardTilesLeft, boardTopValue, publicBoard, nextTurn
+  buildBoard, boardTilesLeft, boardTopValue, publicBoard, nextTurn,
+  survivalDifficulty, pickRoundPool, aliveIds, POINTS
 } from './rules.js';
 
 const IDLE_MS = 2 * 60 * 60 * 1000;   // a room with nobody connected is wiped after this
@@ -33,7 +34,8 @@ const BLANK = () => ({
   players: {},               // pid -> { name, score, connected }
   controllerId: null,        // the player who presses Start/Next; screens never control
   round: 0,
-  settings: { mode: 'buzz', rounds: 10, category: 'all', difficulty: 'any', timer: 20000, answerMs: 7000, boardSize: 'full', autoNext: true },
+  settings: { mode: 'buzz', rounds: 10, category: 'all', difficulty: 'any', timer: 20000, answerMs: 7000, boardSize: 'full', lives: 3, autoNext: true },
+  roundCat: '', roundDiff: '', roundPool: [], order: [], outCount: 0,
   board: null, turn: null, picker: null, tileValue: 0, wagering: false,
   question: null,            // { id, text, options, correctIdx, category, difficulty, explain, source }
   shownAt: 0, deadline: 0,
@@ -126,7 +128,10 @@ export class Room {
       Object.values(this.state.players).forEach(p => { p.score = 0; });
       this.state.round = 0; this.state.usedIds = []; this.state.catCounts = {}; this.state.lastCategory = null;
       this.state.board = null; this.state.turn = null; this.state.picker = null;
-      if (this.state.settings.mode === 'board') await this.startBoard(); else await this.nextQuestion();
+      const mode = this.state.settings.mode;
+      if (mode === 'board') await this.startBoard();
+      else if (mode === 'survival') await this.startSurvival();
+      else await this.nextQuestion();
       return;
     }
     if (m.t === 'config' && isController) {      // lobby choices, so joiners see them before the start
@@ -137,7 +142,13 @@ export class Room {
     }
     if (m.t === 'pick' && this.state.settings.mode === 'board') { await this.pickTile(pid, m.r, m.c); return; }
     if (m.t === 'wager' && pid === this.state.picker && this.state.wagering) { await this.setWager(Number(m.amount)); return; }
-    if (m.t === 'next' && isController) { this.state.settings.mode === 'board' ? await this.backToBoard() : await this.nextQuestion(); return; }
+    if (m.t === 'next' && isController) {
+      const mode = this.state.settings.mode;
+      if (mode === 'board') await this.backToBoard();
+      else if (mode === 'survival') await this.survivalNext();
+      else await this.nextQuestion();
+      return;
+    }
     if (m.t === 'end' && isController) { this.state.phase = 'over'; await this.save(); this.broadcast({ t: 'over', scores: scoreboard(this.state.players) }); return; }
 
     if (m.t === 'buzz') {
@@ -216,7 +227,10 @@ export class Room {
     if (t.kind === 'answer') return this.resolveAnswer(this.state.lockedId, -1);   // ran out of time
     if (t.kind === 'pick') return this.autoPick();                                  // picker went quiet
     if (t.kind === 'question') return this.reveal(null);                            // nobody buzzed
-    if (t.kind === 'autonext') return this.state.settings.mode === 'board' ? this.backToBoard() : this.nextQuestion();
+    if (t.kind === 'autonext') {
+      const mode = this.state.settings.mode;
+      return mode === 'board' ? this.backToBoard() : mode === 'survival' ? this.survivalNext() : this.nextQuestion();
+    }
     if (t.kind === 'wager') return this.setWager(0);            // picker never entered one
   }
 
@@ -254,6 +268,71 @@ export class Room {
       question: { text: s.question.text, options, category: q.category, difficulty: q.difficulty },
       shownAt: s.shownAt, deadline: s.deadline
     });
+  }
+
+  /* ---------- survival ---------- */
+  async startSurvival() {
+    const s = this.state;
+    const lives = Math.max(1, Math.min(9, s.settings.lives || 3));
+    Object.values(s.players).forEach(p => { p.lives = lives; p.maxLives = lives; p.out = false; p.outOrder = 0; });
+    s.outCount = 0; s.round = 0; s.roundCat = ''; s.usedIds = [];
+    await this.survivalNextRound();
+  }
+  async survivalNextRound() {
+    const s = this.state;
+    const alive = aliveIds(s.players).filter(id => s.players[id].connected);
+    if (alive.length <= 1 && s.round > 0) return this.survivalEnd();
+    let bank; try { bank = await this.bankOrFetch(); } catch { return; }
+    s.round++;
+    const pick = pickRoundPool(bank, new Set(s.usedIds), survivalDifficulty(s.round), alive.length, s.roundCat);
+    if (!pick) return this.survivalEnd();
+    s.roundCat = pick.category; s.roundDiff = pick.difficulty;
+    s.roundPool = pick.pool.map(q => q.id);
+    s.order = alive; s.turn = alive[0];
+    this.broadcast({ t: 'survival', round: s.round, category: pick.category, difficulty: pick.difficulty,
+      turn: s.turn, turnName: s.players[s.turn]?.name || '', scores: this.survivalScores() });
+    await this.serveSurvivalQuestion();
+  }
+  survivalScores() {
+    return Object.entries(this.state.players)
+      .map(([id, p]) => ({ id, name: p.name, score: p.score, connected: p.connected, lives: p.lives ?? null, out: !!p.out, outOrder: p.outOrder || 0 }))
+      // survivors first, then the eliminated by how long they lasted (later out = higher), score breaks ties
+      .sort((a, b) => (a.out - b.out) || (b.outOrder - a.outOrder) || (b.score - a.score));
+  }
+  async serveSurvivalQuestion() {
+    const s = this.state;
+    let bank; try { bank = await this.bankOrFetch(); } catch { return; }
+    const q = bank.find(x => s.roundPool.includes(x.id) && !s.usedIds.includes(x.id));
+    if (!q) return this.survivalNextRound();
+    s.usedIds.push(q.id);
+    const options = shuffleOptions(q);
+    s.question = { id: q.id, text: q.type === 'boolean' ? `True or false: ${q.question}` : q.question,
+      options, correctIdx: options.indexOf(q.correct), category: q.category, difficulty: q.difficulty,
+      explain: q.explain || '', source: q.explainSource || null };
+    s.phase = 'locked'; s.lockedId = s.turn; s.tried = []; s.buzzes = [];
+    s.shownAt = Date.now() + REVEAL_LEAD_MS;
+    s.lockedAt = s.shownAt;
+    s.deadline = s.shownAt + (s.settings.answerMs || 7000);
+    await this.setTimer('answer', s.deadline);
+    this.broadcast({ t: 'question', round: s.round, now: Date.now(), mode: 'survival',
+      question: { text: s.question.text, options, category: q.category, difficulty: q.difficulty },
+      shownAt: s.shownAt, deadline: s.deadline, owner: s.turn, ownerName: s.players[s.turn]?.name || '' });
+    this.broadcast({ t: 'locked', id: s.turn, name: s.players[s.turn]?.name || '', deadline: s.deadline, now: Date.now() });
+  }
+  async survivalNext() {
+    const s = this.state;
+    const alive = aliveIds(s.players).filter(id => s.players[id].connected);
+    if (alive.length <= 1) return this.survivalEnd();
+    const rest = s.order.filter(id => !s.players[id].out && s.order.indexOf(id) > s.order.indexOf(s.turn));
+    if (rest.length) { s.turn = rest[0]; return this.serveSurvivalQuestion(); }
+    return this.survivalNextRound();
+  }
+  async survivalEnd() {
+    const s = this.state;
+    s.phase = 'over';
+    aliveIds(s.players).forEach(id => { s.players[id].outOrder = 99; });
+    await this.save();
+    this.broadcast({ t: 'over', mode: 'survival', scores: this.survivalScores() });
   }
 
   /* ---------- board mode ---------- */
@@ -372,6 +451,7 @@ export class Room {
     if (!p) return;
     const right = idx === s.question.correctIdx;
     const board = s.settings.mode === 'board';
+    if (s.settings.mode === 'survival') return this.resolveSurvival(pid, idx, right);
     s.tried.push(pid);
     let delta;
     if (right) {
@@ -391,6 +471,27 @@ export class Room {
       return;
     }
     return this.reveal(null);
+  }
+
+  async resolveSurvival(pid, idx, right) {
+    const s = this.state, p = s.players[pid];
+    let extra = null;
+    if (right) p.score += POINTS[s.question.difficulty] || 100;
+    else {
+      p.lives = Math.max(0, (p.lives ?? 1) - 1);
+      if (p.lives === 0) { p.out = true; p.outOrder = ++s.outCount; extra = 'eliminated'; }
+    }
+    s.tried.push(pid);
+    const alive = aliveIds(s.players).filter(id => s.players[id].connected);
+    s.phase = 'reveal'; s.lockedId = null;
+    s.lastReveal = { correctIdx: s.question.correctIdx, correct: s.question.options[s.question.correctIdx],
+      explain: s.question.explain, source: s.question.source,
+      winner: right ? { id: pid, name: p.name, delta: POINTS[s.question.difficulty] || 100 } : null };
+    if (s.settings.autoNext && alive.length > 1) await this.setTimer('autonext', Date.now() + 6000); else await this.save();
+    this.broadcast({ t: 'reveal', ...s.lastReveal, mode: 'survival', scores: this.survivalScores(),
+      round: s.round, lifeLost: !right, eliminated: extra === 'eliminated' ? { id: pid, name: p.name } : null,
+      alive: alive.length });
+    if (alive.length <= 1) await this.survivalEnd();
   }
 
   async reveal(winner) {

@@ -18,9 +18,11 @@ Play from separate devices instead of one shared screen. The single-screen game 
 
 ## Modes and settings
 The controller's device has the settings, all applied when a round starts:
-- **Mode**: Buzz-In or Board.
+- **Mode**: Buzz-In, Board or Survival.
 - **Buzz-In**: question count, difficulty, buzz window (how long a question stays open), answer time, auto-advance or manual next.
 - **Board**: 5 categories x 5 values (200-2,000) or a quick 15-tile board. The player whose turn it is picks a tile and answers it alone; a wrong answer or a timeout costs the tile's value and opens it to everyone else as a buzz-in steal. Double Down tiles let the picker wager up to their score (minimum cap: the board's top value) and allow no steals. Turns rotate after every tile, and the game ends when the board is cleared.
+- **Survival**: everyone gets the same number of lives (1, 2, 3 or 5). Each round picks one category and difficulty, and every surviving player answers their own question from it in turn, so nobody hears another player's answer. A wrong answer or a timeout costs a life; at zero you're out. Difficulty ramps up each round and the last player standing wins.
+- **Timers**: the buzz window and the answer clock both go up to 30 seconds. Once a player is locked in, everyone sees the answer countdown.
 - **End game** stops a round early so you can switch modes.
 
 Options are shown to everyone as soon as a question appears, so players read A-D first and then buzz to lock in.
@@ -36,7 +38,7 @@ Rooms clean themselves up, so nothing stale lingers:
 ## Deploy the Worker
 Needs Node and a Cloudflare account (free plan is fine).
 
-    cd online
+    cd server
     npx wrangler login
     npx wrangler deploy
 
@@ -55,4 +57,4 @@ The Worker reads questions from `QUESTIONS_URL` in `wrangler.toml` (your publish
 Durable Objects run on the Workers free plan. A game between friends is a few thousand messages, against 100,000 requests/day, where 20 incoming WebSocket messages count as 1 request.
 
 ## Not in this phase
-Board and Last Standing online, the Kokoro host voice (the screen uses the browser voice for now), spectators, and folding this screen into the main `index.html` design.
+The Kokoro host voice (the screen uses the browser voice for now), spectators, and folding this screen into the main `index.html` design.
