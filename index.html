@@ -23,16 +23,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0c0f3c;color:var(--pa
 button{font-family:inherit;color:inherit;cursor:pointer}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--marquee);outline-offset:3px}
 .screen{position:absolute;inset:0;display:none}
-#stage[data-screen="title"] #title,#stage[data-screen="game"] #game,#stage[data-screen="results"] #results,#stage[data-screen="players"] #players,#stage[data-screen="board"] #boardScreen,#stage[data-screen="podium"] #podium{display:block}
+#stage[data-screen="title"] #title,#stage[data-screen="game"] #game,#stage[data-screen="results"] #results,#stage[data-screen="players"] #players,#stage[data-screen="board"] #boardScreen,#stage[data-screen="standing"] #standing,#stage[data-screen="podium"] #podium{display:block}
 
 /* ---------- Host ---------- */
 #host{position:absolute;width:330px;transition:left .5s ease,top .5s ease;z-index:5}
 #stage[data-screen="title"] #host{left:48px;top:96px}
 #stage[data-screen="game"] #host{left:28px;top:76px}
 #stage[data-screen="results"] #host,#stage[data-screen="players"] #host,#stage[data-screen="podium"] #host{left:60px;top:110px}
-#stage[data-screen="board"] #host{left:28px;top:76px}
+#stage[data-screen="board"] #host,#stage[data-screen="standing"] #host{left:28px;top:76px}
 #telly{display:block;margin:0 auto;height:290px;width:auto;transition:height .5s ease}
-#stage[data-screen="game"] #telly,#stage[data-screen="board"] #telly{height:190px}
+#stage[data-screen="game"] #telly,#stage[data-screen="board"] #telly,#stage[data-screen="standing"] #telly{height:190px}
 #telly .qm-bob,#telly .qm-pose,#telly .shape-bang,#telly .eyes,#telly .qm-dot{transform-box:view-box}
 #telly .shape-bang,#telly .e-happy,#telly .e-sad,#telly .e-wide,#telly .m-grin,#telly .m-frown,#telly .m-o,#telly .m-talk,#telly .drops{display:none}
 #host.mood-happy .shape-q{display:none}
@@ -64,8 +64,8 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 @keyframes jitter{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-1px)}}
 #bubble{position:relative;margin-top:14px;background:var(--paper);color:var(--ink);border-radius:20px;padding:14px 18px;font-size:19px;line-height:1.35;font-weight:500;min-height:64px;max-height:134px;overflow:hidden;box-shadow:0 10px 30px rgba(5,7,40,.45)}
 #bubble::before{content:"";position:absolute;top:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-top:0;border-bottom-color:var(--paper)}
-#stage[data-screen="game"] #bubble,#stage[data-screen="board"] #bubble{max-height:140px}
-#stage:not([data-screen="game"]):not([data-screen="board"]) #bubble{max-height:230px}
+#stage[data-screen="game"] #bubble,#stage[data-screen="board"] #bubble,#stage[data-screen="standing"] #bubble{max-height:140px}
+#stage:not([data-screen="game"]):not([data-screen="board"]):not([data-screen="standing"]) #bubble{max-height:230px}
 #bubble.long{font-size:16.5px}
 #bubble .who{display:block;font-size:13px;font-weight:700;color:var(--hot);margin-bottom:2px}
 
@@ -84,15 +84,15 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 .marquee h1 small{display:block;font-size:28px;color:var(--paper);text-shadow:none;margin-bottom:4px}
 .marquee h1 span{display:block;font-size:46px;color:var(--paper);text-shadow:0 0 16px rgba(255,61,139,.7),0 4px 0 var(--hot)}
 .tagline{margin:18px 4px 16px;font-size:21px;line-height:1.4;color:var(--muted);max-width:720px}
-.modes{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
-.mode{text-align:left;background:var(--studio-2);border:3px solid var(--edge);border-radius:18px;padding:14px 16px;min-height:112px}
-.mode b{display:block;font-size:20px;font-weight:800;margin-bottom:6px}
-.mode small{display:block;font-size:14px;line-height:1.3;color:var(--muted)}
+.modes{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.mode{text-align:left;background:var(--studio-2);border:3px solid var(--edge);border-radius:16px;padding:12px 12px;min-height:118px}
+.mode b{display:block;font-size:17px;line-height:1.1;font-weight:800;margin-bottom:6px}
+.mode small{display:block;font-size:12.5px;line-height:1.3;color:var(--muted)}
 .mode[aria-pressed="true"]{border-color:var(--marquee);background:#3a2f80;box-shadow:0 0 0 3px rgba(255,197,61,.25)}
 .mode[aria-pressed="true"] small{color:var(--paper)}
 .options{display:flex;gap:16px;margin:18px 0 20px}
 .field{display:flex;flex-direction:column;gap:6px;font-size:15px;color:var(--muted)}
-.field select{font:500 17px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:12px;padding:9px 12px;min-width:170px}
+.field select{font:500 17px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:12px;padding:9px 12px;min-width:170px;max-width:255px}
 .field select option{background:var(--studio)}
 .actions{display:flex;gap:14px;align-items:center}
 .btn{border:0;border-radius:999px;padding:14px 26px;font-size:18px;font-weight:700;background:var(--studio-3);box-shadow:inset 0 0 0 2px var(--edge)}
@@ -236,6 +236,17 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 .bgrid.b-quick .btile{height:148px}
 .btile:hover:not(:disabled){transform:translateY(-3px);border-color:var(--marquee)}
 .btile.done{opacity:.12;cursor:default}
+.scard{position:absolute;left:392px;top:84px;width:862px;border-radius:28px;padding:26px 34px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 20px 40px rgba(5,7,40,.5)}
+.round-line{font-family:var(--display);font-size:30px;color:var(--marquee);margin-bottom:10px}
+.srow{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid rgba(170,176,232,.15);font-size:20px}
+.srow:last-child{border-bottom:0}
+.srow .hearts{font-size:18px;letter-spacing:2px}
+.srow .pts{font-family:var(--display);font-size:22px;color:var(--paper)}
+.srow .who{font-weight:700}
+.srow.up .who{color:var(--marquee)}
+.srow.out{opacity:.4}
+.srow.out .who{text-decoration:line-through}
+.srow .tag{font-size:14px;color:var(--muted)}
 .pstrip{position:absolute;left:40px;right:40px;top:630px;display:flex;gap:12px}
 .pchip{flex:1;min-width:0;background:var(--studio-2);border:3px solid var(--edge);border-radius:16px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .pchip .n{font-size:17px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -328,6 +339,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
         <button class="mode" data-mode="survival" aria-pressed="false"><b>Survival</b><small>Three lives, and it gets harder as you go</small></button>
         <button class="mode" data-mode="daily" aria-pressed="false"><b>Daily</b><small>Today's fixed 10 questions</small></button>
         <button class="mode" data-mode="board" aria-pressed="false"><b>Board</b><small>Pick categories, wager points, play with friends</small></button>
+        <button class="mode" data-mode="standing" aria-pressed="false"><b>Last Standing</b><small>Everyone plays, lose lives, last one wins</small></button>
       </div>
       <div class="options">
         <label class="field">Category<select id="catSel"><option value="all">All categories</option></select></label>
@@ -412,7 +424,8 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
       <div class="addrow"><input id="pInput" maxlength="16" placeholder="Player name" autocomplete="off" aria-label="Player name"><button class="btn primary" id="pAdd">Add</button></div>
       <div class="plist" id="pList"></div>
       <div class="options" style="margin:0 0 20px">
-        <label class="field">Board size<select id="bSize"><option value="full">Full: 25 tiles (200–2,000)</option><option value="quick">Quick: 15 tiles (200, 800, 2,000)</option></select></label>
+        <label class="field" id="bSizeField">Board size<select id="bSize"><option value="full">Full: 25 tiles (200–2,000)</option><option value="quick">Quick: 15 tiles (200, 800, 2,000)</option></select></label>
+        <label class="field" id="livesField" hidden>Lives per player<select id="livesSel"><option value="1">1 life, sudden death</option><option value="2">2 lives</option><option value="3">3 lives</option><option value="5">5 lives</option></select></label>
       </div>
       <div class="actions">
         <button class="btn primary" id="pStart">Build the board</button>
@@ -427,6 +440,17 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
     <div class="bhud"><div class="turnpill" id="turnPill"></div><div class="spacer"></div><button class="btn" id="bEnd">Skip to final round</button><button class="icon-btn" id="bPauseBtn" aria-label="Pause menu" title="Pause (Esc)">⏸</button></div>
     <div class="bgrid" id="bGrid"></div>
     <div class="pstrip" id="pStrip"></div>
+  </section>
+
+  <!-- Last Standing: between turns -->
+  <section id="standing" class="screen">
+    <div class="bhud"><div class="turnpill" id="sTurnPill"></div><div class="spacer"></div><button class="icon-btn" id="sPauseBtn" aria-label="Pause menu" title="Pause (Esc)">⏸</button></div>
+    <div class="scard">
+      <div class="round-line" id="sRoundLine"></div>
+      <div class="chips" id="sRoundChips"></div>
+      <div id="sList"></div>
+      <div class="actions" style="margin-top:20px"><button class="btn primary" id="sGo">Start the question <kbd>Space</kbd></button></div>
+    </div>
   </section>
 
   <!-- Board podium -->
@@ -515,7 +539,7 @@ function strHash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h
 function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 /* ================= Settings & persistent data ================= */
-const DEFAULTS = { engine: 'kokoro', kVoice: 'af_sky', voiceQuality: 'auto', voiceURI: '', rate: 1.05, pitch: 1, volume: 1, sass: 'spicy', timer: 20, readOptions: true, waitRead: true, readFacts: true, sfx: true, muted: false, rounds: 10, mode: 'classic', category: 'all', difficulty: 'any' };
+const DEFAULTS = { standingLives: 3, engine: 'kokoro', kVoice: 'af_sky', voiceQuality: 'auto', voiceURI: '', rate: 1.05, pitch: 1, volume: 1, sass: 'spicy', timer: 20, readOptions: true, waitRead: true, readFacts: true, sfx: true, muted: false, rounds: 10, mode: 'classic', category: 'all', difficulty: 'any' };
 const settings = Object.assign({}, DEFAULTS, store.get('settings', {}));
 const saveSettings = () => store.set('settings', settings);
 const seen = new Set(store.get('seen', []));
@@ -1929,6 +1953,97 @@ const LINES = {
 "Cartoon time.",
 "Animation fans, you're up."
 ]
+},
+"standing_intro": {
+"friendly": [
+"Last Standing! {names}, you each have {l}. Lose them all and you're out. Good luck!",
+"Welcome to Last Standing, {names}! {l} each. Let's see who lasts."
+],
+"spicy": [
+"Last Standing. {names}, {l} each. Miss enough and you're gone. Let's thin the herd.",
+"Last Standing, {names}. {l} apiece. Only one of you is walking out of here."
+]
+},
+"round_intro": {
+"friendly": [
+"Round {n}! The category is {cat}, difficulty {d}. Everyone gets one.",
+"Here comes round {n}: {cat}, {d}.",
+"Round {n}. {cat}, {d} difficulty, one question each."
+],
+"spicy": [
+"Round {n}. {cat}, {d}. Everyone gets a turn, nobody gets mercy.",
+"Round {n}: {cat}, and it's {d}. Try to look calm.",
+"Round {n}. {cat}, {d}. Somebody's about to have a bad time."
+]
+},
+"your_turn": {
+"friendly": [
+"{p}, you're up.",
+"Over to you, {p}.",
+"{p}, this one's yours.",
+"Your turn, {p}.",
+"{p}, step up."
+],
+"spicy": [
+"{p}, your turn. The others are watching.",
+"You're up, {p}. Don't waste it.",
+"{p}, let's see it.",
+"Your turn, {p}. No pressure. Some pressure.",
+"{p}, the spotlight's on you."
+]
+},
+"eliminated": {
+"friendly": [
+"{p} is out of lives. Great run, {p}!",
+"And that's the end for {p}. Well played!",
+"{p} is eliminated. Nice effort!"
+],
+"spicy": [
+"{p} is eliminated. It was fun while it lasted.",
+"And {p} is out. Somebody get the door.",
+"{p}, your watch has ended.",
+"{p} is out. The circle tightens."
+]
+},
+"survived_round": {
+"friendly": [
+"That's round {n} done. {c} still standing!",
+"End of round {n}. {c} players left."
+],
+"spicy": [
+"Round {n} survived. {c} left. The circle tightens.",
+"Round {n} done, {c} still breathing."
+]
+},
+"final_two": {
+"friendly": [
+"Down to the final two! {names}, this is it.",
+"Two left: {names}. Anyone's game."
+],
+"spicy": [
+"Two left. {names}. One of you is about to be very smug.",
+"Final two: {names}. Let's settle this."
+]
+},
+"standing_winner": {
+"friendly": [
+"{p} is the last one standing, with {s} points! Congratulations!",
+"{p} outlasted everyone! {s} points."
+],
+"spicy": [
+"{p} outlasted everyone, with {s} points. The rest of you, better luck next round.",
+"Last one standing: {p}, {s} points. Insufferable, but earned."
+]
+},
+"standing_tie": {
+"friendly": [
+"Everyone's out at once! {p} takes it on points with {s}.",
+"All eliminated in the same round! {p} wins on points, {s}."
+],
+"spicy": [
+"Everybody fell in the same round. {p} wins on points with {s}. Chaos.",
+"Total wipeout. {p} takes it on points, {s}."
+]
 }
 };
 // Shuffle-bag picking: every line in a pool plays once before any repeats,
@@ -1962,6 +2077,7 @@ function normalizeQ(q) {
   return { id: String(q.id || strHash(norm(q.question)).toString(16)), category: q.category || 'General Knowledge',
     difficulty: ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium', type,
     question: q.question, correct: q.correct, incorrect: q.incorrect.slice(0, 3).map(String),
+    retired: !!q.retired,
     explain: typeof q.explain === 'string' ? q.explain.trim() : '',
     explainSource: q.explainSource && typeof q.explainSource.url === 'string' && /^https:\/\/en\.wikipedia\.org\//.test(q.explainSource.url) ? { title: String(q.explainSource.title || 'Wikipedia'), url: q.explainSource.url } : null };
 }
@@ -1972,7 +2088,7 @@ async function loadBank() {
     if (r.ok) { const d = await r.json(); loaded = Array.isArray(d) ? d : (d.questions || []); fromFile = true; }
   } catch {}
   const byText = new Map();
-  for (const raw of [...loaded, ...STARTER]) { const q = normalizeQ(raw); if (q && !byText.has(norm(q.question))) byText.set(norm(q.question), q); }
+  for (const raw of [...loaded, ...STARTER]) { const q = normalizeQ(raw); if (q && !q.retired && !byText.has(norm(q.question))) byText.set(norm(q.question), q); }
   BANK = [...byText.values()];
   const live = BANK.filter(q => !flagged.has(q.id)).length;
   $('#bankStatus').textContent = fromFile
@@ -2085,6 +2201,15 @@ function clearIntensity() {
 function stampTime() { const st = $('#stamp'); if (RM) return; restartAnim(st, 'show'); }
 function renderHud() {
   if (G.mode === 'board') { renderBoardHud(); renderLifelines(); return; }
+  if (G.mode === 'standing') {
+    const p = G.players[G.answerer ?? G.order[G.turn]];
+    $('#progress').textContent = `Round ${G.round}, ${p.name}`;
+    $('#score').textContent = fmt(p.score);
+    $('#streak').textContent = '';
+    $('#lives').textContent = p.out ? '💀' : livesIcons(p);
+    $('#muteBtn').textContent = settings.muted ? '🔇' : '🔊';
+    renderLifelines(); return;
+  }
   const p = $('#progress');
   if (G.mode === 'lightning') p.textContent = `Lightning, question ${G.index}`;
   else if (G.mode === 'survival') p.textContent = `Survival, question ${G.index}`;
@@ -2102,7 +2227,7 @@ function renderLifelines() {
   $('#fiftyBtn').disabled = !active || !G.life.fifty || G.q?.type === 'boolean';
   $('#skipBtn').disabled = !active || !G.life.skip;
   $('#timeBtn').disabled = !active || !G.life.time || G.mode === 'lightning';
-  const noLife = G.mode === 'lightning' || G.mode === 'board';
+  const noLife = G.mode === 'lightning' || G.mode === 'board' || G.mode === 'standing';
   $('#fiftyBtn').hidden = $('#timeBtn').hidden = noLife;
   $('#skipBtn').hidden = noLife || G.mode === 'daily';
   const f = $('#flagBtn'), isF = G.q && flagged.has(G.q.id);
@@ -2162,7 +2287,7 @@ function beginAnswering() {
 /* ================= Game flow ================= */
 async function startGame(mode = settings.mode) {
   if (!BANK.length) return;
-  if (mode === 'board') { showPlayers(); return; }
+  if (mode === 'board' || mode === 'standing') { showPlayers(mode); return; }
   ac();
   newGame(mode);
   if (G.mode !== 'daily' && !G.pool.length) { toast('No questions match that category and difficulty.'); return; }
@@ -2254,7 +2379,7 @@ function answer(i) {
   tiles.forEach(t => t.disabled = true);
   tiles[i].classList.add('locked');
   renderLifelines();
-  (G.mode === 'board' ? boardResolve : reveal)(i, my);
+  (G.mode === 'board' ? boardResolve : G.mode === 'standing' ? standingResolve : reveal)(i, my);
 }
 function timeUp() {
   if (G.phase !== 'answering') return;
@@ -2262,7 +2387,7 @@ function timeUp() {
   const my = ++run; hostStop();
   G.phase = 'locked'; tiles.forEach(t => t.disabled = true);
   clearIntensity(); sfx.buzzer(); stampTime();
-  (G.mode === 'board' ? boardResolve : reveal)(-1, my);
+  (G.mode === 'board' ? boardResolve : G.mode === 'standing' ? standingResolve : reveal)(-1, my);
 }
 
 async function reveal(i, my) {
@@ -2326,6 +2451,11 @@ async function reveal(i, my) {
   await say(info.text, { bubble: false });
 }
 function advance() {
+  if (G && G.mode === 'standing' && !G.paused) {
+    if (G.phase === 'standings') { standingAsk(); return; }
+    if (G.phase === 'revealed') standingAfter();
+    return; // 'between' and everything else ignores the key
+  }
   if (G && G.mode === 'board' && !G.paused) {
     if (G.final && G.phase === 'answering') { finalCollect(); return; }
     if (G.phase === 'revealed') boardAfterQuestion();
@@ -2445,7 +2575,7 @@ function toggleMute() {
 /* ---------- Pause ---------- */
 function togglePause() {
   const scr = stage.dataset.screen;
-  if (!G || G.phase === 'over' || (scr !== 'game' && scr !== 'board')) return;
+  if (!G || G.phase === 'over' || (scr !== 'game' && scr !== 'board' && scr !== 'standing')) return;
   G.paused = !G.paused;
   $('#pauseModal').classList.toggle('open', G.paused);
   $('#quitBtn').textContent = G.mode === 'board' ? 'End game and see scores' : 'End game and see results';
@@ -2455,6 +2585,7 @@ function togglePause() {
 
 /* ---------- End ---------- */
 async function endGame() {
+  if (G && G.mode === 'standing') { $('#pauseModal').classList.remove('open'); G.paused = false; endStanding(); return; }
   if (G && G.mode === 'board') { $('#pauseModal').classList.remove('open'); G.paused = false; showPodium(); return; }
   if (!G || G.phase === 'over') return;
   const my = ++run; stopTicker(); hostStop();
@@ -2504,9 +2635,14 @@ let roster = store.get('players', []);
 const shortCat = c => c.replace(/^(Entertainment|Science): /, '');
 const joinNames = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
-function showPlayers() {
+function showPlayers(mode = 'board') {
   setScreen('players'); setMood('neutral'); hostStop();
+  playersFor = mode;
   $('#bSize').value = settings.boardSize || 'full';
+  $('#livesSel').value = String(settings.standingLives || 3);
+  $('#bSizeField').hidden = mode !== 'board';
+  $('#livesField').hidden = mode !== 'standing';
+  $('#pStart').firstChild.textContent = mode === 'standing' ? 'Start Last Standing' : 'Build the board';
   renderRoster(); showBubble("Who's playing tonight? Add everyone's names.");
   setTimeout(() => $('#pInput').focus(), 50);
 }
@@ -2533,7 +2669,8 @@ $('#pAdd').onclick = addPlayer;
 $('#pInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPlayer(); } });
 $('#pBack').onclick = toMenu;
 $('#bSize').onchange = e => { settings.boardSize = e.target.value; saveSettings(); };
-$('#pStart').onclick = () => startBoard();
+let playersFor = 'board';
+$('#pStart').onclick = () => (playersFor === 'standing' ? startStanding() : startBoard());
 
 function buildBoard(size) {
   const tiers = TIERS[size] || TIERS.full;
@@ -2773,6 +2910,190 @@ function boardAfterQuestion() {
 }
 $('#bEnd').onclick = () => { if (G && G.mode === 'board' && G.phase === 'board') startFinal(); };
 
+/* ================= Last Standing (multiplayer Survival) ================= */
+const STANDING_RAMP = [['easy', 2], ['medium', 3], ['hard', 99]]; // difficulty by round number
+function livesIcons(p) { return '❤️'.repeat(Math.max(0, p.lives)) + '🖤'.repeat(Math.max(0, p.maxLives - p.lives)); }
+function alivePlayers() { return G.players.filter(p => !p.out); }
+function standingDifficulty(round) {
+  let n = round;
+  for (const [d, span] of STANDING_RAMP) { if (n <= span) return d; n -= span; }
+  return 'hard';
+}
+async function startStanding() {
+  const err = $('#pErr'); err.textContent = '';
+  if (roster.length < 2) { err.textContent = 'Add at least 2 players.'; return; }
+  const lives = +$('#livesSel').value || 3;
+  settings.standingLives = lives; saveSettings();
+  ac();
+  G = {
+    mode: 'standing', players: roster.map(name => ({ name, score: 0, lives, maxLives: lives, out: false, outOrder: 0 })),
+    round: 0, turn: 0, order: [], outCount: 0, roundCat: '', roundDiff: 'easy',
+    score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, index: 0, total: Infinity, lives: null, clock: null,
+    life: { fifty: 0, skip: 0, time: 0 }, used: new Set(), q: null, options: [], correctIdx: -1, removed: new Set(),
+    phase: 'standings', paused: false, timeLeft: 0, timeMax: settings.timer, optionsShown: false, queued: null, pre: null,
+    catCount: {}, lastCat: null, wrongRun: 0, final: null
+  };
+  startTicker(); sfx.start();
+  setScreen('standing'); setMood('happy');
+  await say(line('standing_intro', { names: joinNames(G.players.map(p => p.name)), l: lives === 1 ? 'one life' : `${lives} lives` }));
+  nextRound();
+}
+// Each round uses one category and difficulty for everyone, so no player hears another's answer.
+function pickRoundCategory(diff) {
+  const byCat = {};
+  BANK.filter(q => !flagged.has(q.id) && q.difficulty === diff && !G.used.has(q.id)).forEach(q => (byCat[q.category] ||= []).push(q));
+  const need = alivePlayers().length;
+  let cats = Object.keys(byCat).filter(c => byCat[c].length >= need);
+  let fallbackDiff = diff;
+  if (!cats.length) { // not enough at this difficulty: widen to any difficulty
+    const any = {};
+    BANK.filter(q => !flagged.has(q.id) && !G.used.has(q.id)).forEach(q => (any[q.category] ||= []).push(q));
+    cats = Object.keys(any).filter(c => any[c].length >= need);
+    if (!cats.length) return null;
+    const cat = rand(cats.filter(c => c !== G.lastCat).length ? cats.filter(c => c !== G.lastCat) : cats);
+    return { cat, diff: 'mixed', pool: any[cat] };
+  }
+  const fresh = cats.filter(c => c !== G.lastCat);
+  const cat = rand(fresh.length ? fresh : cats);
+  return { cat, diff: fallbackDiff, pool: byCat[cat] };
+}
+async function nextRound() {
+  const my = ++run;
+  const alive = alivePlayers();
+  if (alive.length <= 1 && G.round > 0) return endStanding();
+  G.round++;
+  const pick = pickRoundCategory(standingDifficulty(G.round));
+  if (!pick) return endStanding();
+  G.roundCat = pick.cat; G.roundDiff = pick.diff; G.roundPool = pick.pool; G.lastCat = pick.cat;
+  G.order = alive.map(p => G.players.indexOf(p));
+  G.turn = 0;
+  showStandings(my, true);
+}
+function renderStandingList() {
+  const list = $('#sList'); list.textContent = '';
+  const upIdx = G.order[G.turn];
+  G.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'srow' + (p.out ? ' out' : '') + (i === upIdx ? ' up' : '');
+    const hearts = document.createElement('span'); hearts.className = 'hearts'; hearts.textContent = p.out ? '💀' : livesIcons(p);
+    const who = document.createElement('span'); who.className = 'who'; who.textContent = p.name;
+    const tag = document.createElement('span'); tag.className = 'tag';
+    tag.textContent = p.out ? `out in round ${p.outRound}` : (i === upIdx ? 'up next' : '');
+    const pts = document.createElement('span'); pts.className = 'pts'; pts.textContent = fmt(p.score);
+    row.append(hearts, who, tag, pts); list.appendChild(row);
+  });
+}
+async function showStandings(my, roundStart) {
+  hostStop(); clearIntensity();
+  G.phase = 'standings';
+  $('#game').classList.remove('revealed');
+  setScreen('standing');
+  const p = G.players[G.order[G.turn]];
+  $('#sTurnPill').textContent = `Round ${G.round}`;
+  $('#sRoundLine').textContent = `Round ${G.round}`;
+  const chips = $('#sRoundChips'); chips.textContent = '';
+  const c1 = document.createElement('span'); c1.className = 'chip'; c1.textContent = shortCat(G.roundCat);
+  const c2 = document.createElement('span'); c2.className = 'chip ' + (G.roundDiff === 'mixed' ? '' : G.roundDiff);
+  c2.textContent = G.roundDiff === 'mixed' ? 'Mixed' : G.roundDiff[0].toUpperCase() + G.roundDiff.slice(1);
+  chips.append(c1, c2);
+  renderStandingList();
+  $('#sGo').firstChild.textContent = `${p.name}, start the question `;
+  if (roundStart) {
+    setMood('neutral');
+    await say(line('round_intro', { n: G.round, cat: shortCat(G.roundCat), d: G.roundDiff === 'mixed' ? 'mixed' : G.roundDiff }));
+    if (my !== run) return;
+  }
+  say(line('your_turn', { p: p.name }));
+}
+async function standingAsk() {
+  if (!G || G.mode !== 'standing' || G.phase !== 'standings' || G.paused) return;
+  const my = ++run; hostStop();
+  const pi = G.order[G.turn], p = G.players[pi];
+  const pool = (G.roundPool || []).filter(q => !G.used.has(q.id));
+  const fresh = pool.filter(q => !seen.has(q.id));
+  const q = (fresh.length ? rand(fresh) : pool.length ? rand(pool) : null);
+  if (!q) return endStanding();
+  G.used.add(q.id); seen.add(q.id); saveSeen();
+  G.answerer = pi; G.q = q; G.index++;
+  G.options = makeOptions(q); G.correctIdx = G.options.indexOf(q.correct);
+  G.timeLeft = G.timeMax = settings.timer; G.answerStartedLate = false;
+  G.pre = { lock: line('lock'), correct: line('correct'), wrong: line('wrong', { a: q.correct }), timeout: line('timeout', { a: q.correct }) };
+  G.factPromise = q.explain ? null : wikiLookup(q);
+  setScreen('game'); setMood('neutral'); renderQuestionShell();
+  $('#chipPts').textContent = `${POINTS[q.difficulty]} points`;
+  renderHud();
+  const spoken = questionSpeech(q, G.options);
+  G.phase = 'reading'; showQuestionText(); showOptions();
+  if (!settings.waitRead) beginAnswering();
+  prefetch(G.pre.lock, G.pre.correct, G.pre.wrong, q.explain);
+  await say(spoken, { bubble: false });
+  if (my !== run) return;
+  beginAnswering();
+}
+async function standingResolve(i, my) {
+  const q = G.q, p = G.players[G.answerer], right = i === G.correctIdx;
+  if (i >= 0) { sfx.lock(); await say(G.pre.lock); if (my !== run) return; sfx.drum(); await wait(1000); if (my !== run) return; }
+  tiles.forEach(t => t.classList.remove('locked'));
+  tiles[G.correctIdx].classList.add('right');
+  let msg, extra = [];
+  if (right) {
+    const pts = POINTS[q.difficulty];
+    p.score += pts; G.correct++;
+    const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + fmt(pts); tiles[i].appendChild(f);
+    sfx.correct(); setMood('happy'); restartMood(); celebrate($('#board'), 1200);
+    msg = G.pre.correct;
+  } else {
+    if (i >= 0) { tiles[i].classList.add('wrong'); sfx.wrong(); }
+    setMood(i < 0 ? 'confused' : 'sad');
+    p.lives--;
+    msg = i < 0 ? G.pre.timeout : G.pre.wrong;
+    if (p.lives <= 0) {
+      p.out = true; p.outRound = G.round; p.outOrder = ++G.outCount;
+      extra.push(line('eliminated', { p: p.name }));
+    } else if (p.lives === 1) extra.push(line('last_life'));
+    else extra.push(line('life_lost', { l: p.lives }));
+  }
+  G.answered++; renderHud();
+  G.phase = 'revealed';
+  const done = G.turn >= G.order.length - 1;
+  const survivors = alivePlayers().length;
+  $('#nextBtn').firstChild.textContent = survivors <= 1 ? 'See results' : done ? 'Next round' : 'Next player';
+  $('#game').classList.add('revealed'); bulbify($('#board'), 890, 400, 34);
+  const factP = showFact(q, my);
+  await say(msg, { bubbleText: [msg, ...extra].join(' ') });
+  if (my !== run) return;
+  if (extra.length) { await say(extra.join(' '), { bubble: false }); if (my !== run) return; }
+  const info = await factP;
+  if (my !== run || !info || !settings.readFacts) return;
+  await say(info.text, { bubble: false });
+}
+async function standingAfter() {
+  const my = ++run;
+  G.phase = 'between'; // ignore extra Space presses while the host wraps up the round
+  if (alivePlayers().length <= 1) return endStanding();
+  // move to the next surviving player in this round
+  let next = G.turn + 1;
+  while (next < G.order.length && G.players[G.order[next]].out) next++;
+  if (next < G.order.length) { G.turn = next; return showStandings(my, false); }
+  const survivors = alivePlayers();
+  if (survivors.length <= 1) return endStanding();
+  hostStop();
+  setScreen('standing'); renderStandingList();
+  await say(survivors.length === 2
+    ? line('final_two', { names: joinNames(survivors.map(p => p.name)) })
+    : line('survived_round', { n: G.round, c: survivors.length }));
+  if (my !== run) return;
+  nextRound();
+}
+function endStanding() {
+  run++; stopTicker(); hostStop(); clearIntensity();
+  G.phase = 'over';
+  alivePlayers().forEach(p => { p.outOrder = 99 + p.score; });
+  showPodium();
+}
+$('#sGo').onclick = e => { e.currentTarget.blur(); standingAsk(); };
+$('#sPauseBtn').onclick = e => { e.currentTarget.blur(); togglePause(); };
+
 /* ---------- final round ---------- */
 function pickFinalQuestion() {
   const avail = BANK.filter(q => !flagged.has(q.id) && !G.board.used.has(q.id) && q.type === 'multiple');
@@ -2861,12 +3182,14 @@ function showPodium() {
   const my = ++run; hostStop(); stopTicker(); clearIntensity(); closeSheet();
   G.phase = 'over';
   $('#game').classList.remove('revealed', 'stealing', 'revealed-final');
-  const ranked = G.players.slice().sort((a, b) => b.score - a.score);
+  const standing = G.mode === 'standing';
+  const ranked = G.players.slice().sort(standing ? (a, b) => (b.outOrder - a.outOrder) || (b.score - a.score) : (a, b) => b.score - a.score);
   const ranks = $('#podRanks'); ranks.textContent = '';
   const medals = ['🥇', '🥈', '🥉'];
   let place = 0;
+  const rankKey = p => standing ? `${p.outOrder}|${p.score}` : String(p.score);
   ranked.forEach((p, i) => {
-    if (i > 0 && p.score < ranked[i - 1].score) place = i;
+    if (i > 0 && rankKey(p) !== rankKey(ranked[i - 1])) place = i;
     ranks.append(el('div', { className: 'rank' + (place === 0 ? ' first' : '') },
       el('span', { className: 'm', textContent: medals[place] || String(place + 1) }),
       el('span', { className: 'n', textContent: p.name }),
@@ -2874,24 +3197,33 @@ function showPodium() {
   });
   // all-time high scores
   const date = todayKey();
-  let highs = store.get('boardHighs', []);
+  let highs = store.get(standing ? 'standingHighs' : 'boardHighs', []);
   const added = G.players.map(p => ({ name: p.name, score: p.score, date, id: Math.random() }));
   highs = highs.concat(added).sort((a, b) => b.score - a.score).slice(0, 10);
   const newIds = new Set(added.map(a => a.id));
-  store.set('boardHighs', highs.map(({ name, score, date }) => ({ name, score, date })));
+  store.set(standing ? 'standingHighs' : 'boardHighs', highs.map(({ name, score, date }) => ({ name, score, date })));
   const ol = $('#podHigh'); ol.textContent = '';
   highs.slice(0, 5).forEach(h => ol.append(el('li', { className: newIds.has(h.id) ? 'new' : '' }, `${h.name} `, el('span', { textContent: `${fmt(h.score)} (${h.date})` }))));
-  const top = ranked.filter(p => p.score === ranked[0].score);
-  $('#podWinner').textContent = top.length > 1 ? `Tie: ${joinNames(top.map(p => p.name))}` : `${top[0].name} wins!`;
+  const top = standing ? ranked.filter(p => !p.out).length ? ranked.filter(p => !p.out) : [ranked[0]] : ranked.filter(p => p.score === ranked[0].score);
+  $('#podWinner').textContent = top.length > 1 && !standing ? `Tie: ${joinNames(top.map(p => p.name))}` : `${top[0].name} wins!`;
+  $('#podLabel').textContent = standing ? 'Last Standing: final scores' : 'Final scores';
+  $('#podCard').querySelector('.hs h3').textContent = standing ? 'All-time high scores' : 'All-time board high scores';
   setScreen('podium');
   bulbify($('#podCard'), 828, $('#podCard').offsetHeight + 28, 34);
   setMood('happy'); sfx.over(); confetti(); celebrate($('#podCard'), 2200);
-  const msg = top.length > 1 ? line('tie', { s: fmt(top[0].score), names: joinNames(top.map(p => p.name)) }) : line('winner', { p: top[0].name, s: fmt(top[0].score) });
+  const msg = standing
+    ? (ranked.every(p => p.out) ? line('standing_tie', { p: top[0].name, s: fmt(top[0].score) }) : line('standing_winner', { p: top[0].name, s: fmt(top[0].score) }))
+    : top.length > 1 ? line('tie', { s: fmt(top[0].score), names: joinNames(top.map(p => p.name)) }) : line('winner', { p: top[0].name, s: fmt(top[0].score) });
   say(msg);
 }
-function boardRematch() { if (roster.length >= 2) { $('#bSize').value = settings.boardSize || 'full'; startBoard(); } else showPlayers(); }
+function boardRematch() {
+  const standing = G && G.mode === 'standing';
+  if (roster.length < 2) { showPlayers(standing ? 'standing' : 'board'); return; }
+  if (standing) { $('#livesSel').value = String(settings.standingLives || 3); startStanding(); }
+  else { $('#bSize').value = settings.boardSize || 'full'; startBoard(); }
+}
 $('#podAgain').onclick = boardRematch;
-$('#podPlayers').onclick = showPlayers;
+$('#podPlayers').onclick = () => showPlayers(G && G.mode === 'standing' ? 'standing' : 'board');
 $('#podMenu').onclick = toMenu;
 
 /* ================= Confetti & toast ================= */
@@ -2957,7 +3289,7 @@ $('#clearSeenBtn').onclick = () => { seen.clear(); saveSeen(); toast('Question h
 function selectMode(m) {
   settings.mode = m; saveSettings();
   $$('.mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
-  const daily = m === 'daily' || m === 'board';
+  const daily = m === 'daily' || m === 'board' || m === 'standing';
   $('#catSel').disabled = $('#diffSel').disabled = daily;
   $('#roundSel').disabled = m !== 'classic';
 }
@@ -3012,6 +3344,11 @@ addEventListener('keydown', e => {
   if (k === 'm') { toggleMute(); return; }
   if (scr === 'title') { if (k === 'enter') { e.preventDefault(); startGame(); } return; }
   if (scr === 'board') { if (k === 'escape') togglePause(); return; }
+  if (scr === 'standing') {
+    if (k === 'escape') togglePause();
+    else if ((k === ' ' || k === 'enter') && !G.paused) { e.preventDefault(); standingAsk(); }
+    return;
+  }
   if (scr === 'players') { if (k === 'escape') toMenu(); return; }
   if (scr === 'podium') {
     if (k === 'enter') { e.preventDefault(); boardRematch(); } else if (k === 'escape') toMenu();

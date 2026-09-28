@@ -34,10 +34,26 @@ The host uses Kokoro-82M (Apache 2.0) through kokoro-js, running entirely in the
 - If the model can't load, the game falls back to the browser's built-in voice automatically.
 - The on-screen name is Fae N'Lancer; the voice says it as "Final Answer" (`SPOKEN_NAME` in index.html).
 
+## Retired questions
+Questions with `"retired": "<reason>"` in `questions.json` stay in the file but never appear in the game.
+Currently retired (223):
+- `date question` (149): pop-culture "what year was X released / born / founded" questions, plus birth-year questions outside History.
+- `dated pop culture` (74): pre-1990 deep cuts, hand-reviewed one by one. Things still culturally alive (Casablanca quotes, Back to the Future, Toto's "Africa", the 1986 Zelda, Akira) were kept.
+To bring one back, delete its `retired` field. Re-running `fetch_questions.py` keeps the flags, so retired questions are never re-added.
+
 ## Removing bad questions
 In-game, press X (or "Flag question"). Then Settings > "Copy flagged list", paste into `flagged.json`, and run:
 
     python3 fetch_questions.py --skip-fetch --flagged flagged.json
+
+## Last Standing (multiplayer Survival)
+Pick Last Standing, add 2-8 players, choose lives per player (1, 2, 3 or 5).
+- Each round uses one category and difficulty; every surviving player gets their own question from it.
+- Turns rotate in the order players were added; a between-turns screen shows lives, scores and who's up.
+- Wrong answers and timeouts cost a life. At zero the player is eliminated.
+- Difficulty ramps: easy for rounds 1-2, medium for 3-5, hard after that.
+- Correct answers still score points (100/200/300 by difficulty). Ranking is by who survived longest, with points as the tiebreak.
+- Solo Survival is unchanged and still on the title screen.
 
 ## Board mode
 Pick Board on the title screen, add 2-8 players (saved for next time), choose Full (25 tiles: 200, 400, 800, 1,600, 2,000) or Quick (15 tiles: 200, 800, 2,000).
@@ -50,7 +66,7 @@ Pick Board on the title screen, add 2-8 players (saved for next time), choose Fu
 - Needs 5 categories with enough questions. The starter set can just about fill it; run fetch_questions.py for real variety.
 
 ## Controls
-1-4 or A-D answer. Space/Enter next. Esc or the ⏸ button opens the pause menu (resume, end the game, or quit to the main menu). F 50/50, S skip, T +10 sec, X flag, R repeat, M mute, Esc pause.
+1-4 or A-D answer. Space/Enter next (and starts a player's turn in Last Standing). Esc or the ⏸ button opens the pause menu (resume, end the game, or quit to the main menu). F 50/50, S skip, T +10 sec, X flag, R repeat, M mute, Esc pause.
 
 ## License
 

@@ -421,7 +421,8 @@
     "December 27th, 2001",
     "October 11th, 2001"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "01e5ce846910",
@@ -494,7 +495,8 @@
     "November 4th, 1999",
     "December 20th, 2002"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "02491e86eb72",
@@ -522,7 +524,8 @@
     "2009",
     "2014"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "02638a1dbc6d",
@@ -593,7 +596,8 @@
     "1999",
     "1998"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "02bf11c66115",
@@ -1216,7 +1220,8 @@
    "explainSource": {
     "title": "Elvis Presley",
     "url": "https://en.wikipedia.org/wiki/Elvis_Presley"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "045b8c618999",
@@ -1563,7 +1568,8 @@
     "2011",
     "2016"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "0557169daad1",
@@ -1913,7 +1919,8 @@
     "George Takei",
     "James Doohan"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "0657247d3430",
@@ -1983,7 +1990,8 @@
     "December 10, 2014",
     "September 13, 2012"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "068837fd5e39",
@@ -2401,7 +2409,8 @@
    "explainSource": {
     "title": "OK Computer",
     "url": "https://en.wikipedia.org/wiki/OK_Computer"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "083312a3e4e9",
@@ -2462,7 +2471,8 @@
     "Mark Knopfler",
     "Eric Clapton"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "084c196ff2ec",
@@ -2909,7 +2919,8 @@
     "The Rock Brothers",
     "The Stone Brothers"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "0a06645cc2ec",
@@ -3633,7 +3644,8 @@
     "December 14th, 2069",
     "November 5th, 2076"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "0c40172766f1",
@@ -4204,7 +4216,8 @@
     "Robotman",
     "Negative Man"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "0e6028a2508b",
@@ -4481,7 +4494,8 @@
     "Franc Roddam",
     "Archie Bunker"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "0f00f8423ea4",
@@ -4540,7 +4554,8 @@
    "explainSource": {
     "title": "Taylor Swift",
     "url": "https://en.wikipedia.org/wiki/Taylor_Swift"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "0f0ae3178092",
@@ -5651,7 +5666,8 @@
    "explainSource": {
     "title": "Roblox Corporation",
     "url": "https://en.wikipedia.org/wiki/Roblox_Corporation"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "136cc054fce6",
@@ -6070,7 +6086,8 @@
     "2004",
     "2003"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "1471edac0186",
@@ -6744,7 +6761,8 @@
     "1999",
     "1997"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "16cd72089718",
@@ -7114,7 +7132,8 @@
    "explainSource": {
     "title": "Fay Wray",
     "url": "https://en.wikipedia.org/wiki/Fay_Wray"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "18220af1bb65",
@@ -7821,7 +7840,8 @@
     "The Rolling Stones",
     "The Who"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "1a4933f9cff0",
@@ -8150,7 +8170,8 @@
     "1922",
     "1932"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "1b61b0fc251d",
@@ -8578,7 +8599,8 @@
     "WETA (Washington D.C.)",
     "WNET (New York City)"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "1c7223f2e73d",
@@ -8896,7 +8918,8 @@
    "explainSource": {
     "title": "Simon Helberg",
     "url": "https://en.wikipedia.org/wiki/Simon_Helberg"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "1d623312699b",
@@ -9064,7 +9087,8 @@
     "1986",
     "1993"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "1de4982d3afd",
@@ -9878,7 +9902,8 @@
     "Alpine A110",
     "AC Cobra"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "1ff421aaff71",
@@ -10120,7 +10145,8 @@
     "Red",
     "Speak Now"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "212035fcdd3d",
@@ -11261,7 +11287,8 @@
     "1983",
     "1995"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "24b3151b91f5",
@@ -11986,7 +12013,8 @@
     "November 18th, 2011",
     "October 7th, 2011"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "26912288271d",
@@ -12490,7 +12518,8 @@
     "UB40",
     "The Police"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "2814de701106",
@@ -12530,7 +12559,8 @@
     "1985",
     "1983"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "284a4ded0d14",
@@ -12614,7 +12644,8 @@
     "23rd of September",
     "24th of September"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "2898fafb5128",
@@ -13421,7 +13452,8 @@
     "The Academy",
     "The Bluecoats"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "2bdb7160948b",
@@ -13440,7 +13472,8 @@
    "explainSource": {
     "title": "Guys and Dolls (film)",
     "url": "https://en.wikipedia.org/wiki/Guys_and_Dolls_%28film%29"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "2bf07edf45f7",
@@ -13879,7 +13912,8 @@
     "1999",
     "2003"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "2d18d47a1e7a",
@@ -14279,7 +14313,8 @@
     "1993"
    ],
    "id": "2de29e5feaea",
-   "explain": "The PlayStation launched in Japan on December 3, 1994, and reached North America in September 1995."
+   "explain": "The PlayStation launched in Japan on December 3, 1994, and reached North America in September 1995.",
+   "retired": "date question"
   },
   {
    "id": "2de62ac46590",
@@ -14507,7 +14542,8 @@
    "explainSource": {
     "title": "Elizabeth II",
     "url": "https://en.wikipedia.org/wiki/Elizabeth_II"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "2e818009328e",
@@ -14973,7 +15009,8 @@
     "2009",
     "2007"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "2fc807545b16",
@@ -15930,7 +15967,8 @@
     "2018",
     "2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "324f262af248",
@@ -16198,7 +16236,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "338b7ad29c68",
@@ -16450,7 +16489,8 @@
     "1990",
     "1985"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "344b01c48517",
@@ -16926,7 +16966,8 @@
     "1986",
     "1988"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "363d3e24bd08",
@@ -16952,7 +16993,8 @@
     "The Aztecs",
     "The Edge of Destruction"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "3662a802fe60",
@@ -17345,7 +17387,8 @@
     "The Ocean Blue",
     "The Connells"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "37973d8df6bc",
@@ -17495,7 +17538,8 @@
     "2006",
     "2010"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "37ff7608f593",
@@ -17599,7 +17643,8 @@
     "2007",
     "2012"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "38813f8b2047",
@@ -17696,7 +17741,8 @@
     "2001",
     "1994"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "38d406a1f198",
@@ -17997,7 +18043,8 @@
    "explainSource": {
     "title": "DVD",
     "url": "https://en.wikipedia.org/wiki/DVD"
-   }
+   },
+   "retired": "date question"
   },
   {
    "category": "Science: Computers",
@@ -18072,7 +18119,8 @@
    "explainSource": {
     "title": "Space Station 13",
     "url": "https://en.wikipedia.org/wiki/Space_Station_13"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "39e87bc9d245",
@@ -18460,7 +18508,8 @@
     "November 14, 2002",
     "July 18, 2004"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "3aa633225f30",
@@ -18530,7 +18579,8 @@
     "1953",
     "1959"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "3ad8a885d799",
@@ -19049,7 +19099,8 @@
     "James Blunt - \"1973\"",
     "David Bowie - \"1984\""
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "3ccdaee0de55",
@@ -19414,7 +19465,8 @@
     "2009",
     "2006"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "3eb653a77d18",
@@ -19428,7 +19480,8 @@
     "1984",
     "1995"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "3ebcbb79911f",
@@ -19661,7 +19714,8 @@
    "explainSource": {
     "title": "Year of the Snitch",
     "url": "https://en.wikipedia.org/wiki/Year_of_the_Snitch"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "3f3110de28e1",
@@ -20023,7 +20077,8 @@
     "450 Million",
     "1 Billion"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "407efb815852",
@@ -20115,7 +20170,8 @@
     "November 30, 2009",
     "June 30, 2010"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "40adbcb5fb49",
@@ -20644,7 +20700,8 @@
    "explainSource": {
     "title": "Peace Sells... but Who's Buying?",
     "url": "https://en.wikipedia.org/wiki/Peace_Sells..._but_Who%27s_Buying%3F"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "41e22cfda065",
@@ -20804,7 +20861,8 @@
     "2040",
     "2045"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "424a75403563",
@@ -20872,7 +20930,8 @@
     "Master Control Program",
     "West Campus Analog Computer"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "426ee317a3e9",
@@ -21691,7 +21750,8 @@
     "2014",
     "2009"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "44effe7188d0",
@@ -21925,7 +21985,8 @@
    "explainSource": {
     "title": "Cadillac",
     "url": "https://en.wikipedia.org/wiki/Cadillac"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "4574482a598b",
@@ -22080,7 +22141,8 @@
     "1932",
     "1955"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "45eb1c0c0117",
@@ -23106,7 +23168,8 @@
    "explainSource": {
     "title": "Gabe Newell",
     "url": "https://en.wikipedia.org/wiki/Gabe_Newell"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "48665b52e8c7",
@@ -23322,7 +23385,8 @@
     "General Motors Firebird",
     "Dodge Copperhead"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "4929e791c93f",
@@ -23566,7 +23630,8 @@
     "Mel Gibson",
     "Mark Hamill"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "4a50e4dfffb5",
@@ -23719,7 +23784,8 @@
     "Armored Trooper VOTOMS",
     "Neon Genesis Evangelion"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "4adfce8dde18",
@@ -23817,7 +23883,8 @@
     "April 8th, 2012",
     "August 28th, 2003"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "4b23ddc579f7",
@@ -24177,7 +24244,8 @@
    "explainSource": {
     "title": "A Goofy Movie",
     "url": "https://en.wikipedia.org/wiki/A_Goofy_Movie"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "4cce243ded9b",
@@ -24688,7 +24756,8 @@
    "explainSource": {
     "title": "Titanic (1997 film)",
     "url": "https://en.wikipedia.org/wiki/Titanic_%281997_film%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "4eb77468ab3a",
@@ -24742,7 +24811,8 @@
     "Turner",
     "Booker"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "4ed96a7c2d15",
@@ -25434,7 +25504,8 @@
    "explainSource": {
     "title": "Jurassic World",
     "url": "https://en.wikipedia.org/wiki/Jurassic_World"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "50f8e01a4f73",
@@ -25584,7 +25655,8 @@
     "2004",
     "2005"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "518257190217",
@@ -25617,7 +25689,8 @@
     "1999",
     "1990"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "51b04e1d94a2",
@@ -25952,7 +26025,8 @@
     "Douglas Quaid",
     "Harry Tasker"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "52a366645f45",
@@ -27198,7 +27272,8 @@
     "December 13, 2004",
     "November 12, 2004"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "56babece92bb",
@@ -27595,7 +27670,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "57eb484fca49",
@@ -27872,7 +27948,8 @@
    "explainSource": {
     "title": "History of Tesla, Inc.",
     "url": "https://en.wikipedia.org/wiki/History_of_Tesla%2C_Inc."
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "58e8a3f15efd",
@@ -27989,7 +28066,8 @@
     "July 20, 2015",
     "January 25, 2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "595d9ace98cf",
@@ -28045,7 +28123,8 @@
     "1972",
     "1962"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "59b02bec186a",
@@ -28087,7 +28166,8 @@
     "Stayin' Alive",
     "You Should Be Dancing"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5a09a9816680",
@@ -28157,7 +28237,8 @@
     "Lovin'",
     "Peein'"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5a2f7e91c3d0",
@@ -28171,7 +28252,8 @@
     "Matt Damon",
     "Johnny Depp"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5a3377319a1c",
@@ -28246,7 +28328,8 @@
     "January 1969",
     "February 1966"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "5a726ca062f5",
@@ -28486,7 +28569,8 @@
     "The Jacksons",
     "The Cover Girls"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5b62556370cd",
@@ -29043,7 +29127,8 @@
     "Holly & Jolly",
     "Snowflake & Icicle"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5d8297db143d",
@@ -29397,7 +29482,8 @@
     "2 Meters",
     "5 Meters"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "5e5941770505",
@@ -29567,7 +29653,8 @@
    "explainSource": {
     "title": "Floral Shoppe",
     "url": "https://en.wikipedia.org/wiki/Floral_Shoppe"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "5ee457540787",
@@ -29635,7 +29722,8 @@
     "2004",
     "2005"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "5f4d729e46d5",
@@ -30328,7 +30416,8 @@
    "explainSource": {
     "title": "League of Legends",
     "url": "https://en.wikipedia.org/wiki/League_of_Legends"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "6181c2147e24",
@@ -31058,7 +31147,8 @@
    "explainSource": {
     "title": "Super Mario Sunshine",
     "url": "https://en.wikipedia.org/wiki/Super_Mario_Sunshine"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "64902a866e91",
@@ -32430,7 +32520,8 @@
    "explainSource": {
     "title": "Netflix, Inc.",
     "url": "https://en.wikipedia.org/wiki/Netflix%2C_Inc."
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "68e78750d08d",
@@ -32694,7 +32785,8 @@
    "explainSource": {
     "title": "Bob Ross",
     "url": "https://en.wikipedia.org/wiki/Bob_Ross"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "69bcd0c52eb1",
@@ -33122,7 +33214,8 @@
     "2014",
     "2011"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "6ae04c8722e1",
@@ -33588,7 +33681,8 @@
    "explainSource": {
     "title": "Scatman's World (song)",
     "url": "https://en.wikipedia.org/wiki/Scatman%27s_World_%28song%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "6c5a8d8accdc",
@@ -33708,7 +33802,8 @@
     "November 21, 2006",
     "September 9, 2007"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "6ca39a99a589",
@@ -33769,7 +33864,8 @@
     "Jab him",
     "Tab him"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "6cd25fb13a76",
@@ -34205,7 +34301,8 @@
     "Tonight",
     "Mambo"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "6e07f17662fc",
@@ -34448,7 +34545,8 @@
    "explainSource": {
     "title": "System Shock",
     "url": "https://en.wikipedia.org/wiki/System_Shock"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "6ec847f86076",
@@ -35126,7 +35224,8 @@
    "explainSource": {
     "title": "Tamagotchi",
     "url": "https://en.wikipedia.org/wiki/Tamagotchi"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "70f739f4d1e4",
@@ -35194,7 +35293,8 @@
     "Mousehole",
     "Bridlington"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "714625d74c4c",
@@ -35878,7 +35978,8 @@
     "1984",
     "2009"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "740df5ca4515",
@@ -35991,7 +36092,8 @@
    "explainSource": {
     "title": "Rosemary's Baby (novel)",
     "url": "https://en.wikipedia.org/wiki/Rosemary%27s_Baby_%28novel%29"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "744a3cc33235",
@@ -36493,7 +36595,8 @@
    "incorrect": [
     "True"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "75d1fe3815bb",
@@ -36750,7 +36853,8 @@
     "2011",
     "2007"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "767c69a41067",
@@ -36830,7 +36934,8 @@
    "explainSource": {
     "title": "Platoon (film)",
     "url": "https://en.wikipedia.org/wiki/Platoon_%28film%29"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "76fc551b397a",
@@ -36844,7 +36949,8 @@
     "1998",
     "2003"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "770f1b60b6e1",
@@ -37102,7 +37208,8 @@
    "explainSource": {
     "title": "Eazy-E",
     "url": "https://en.wikipedia.org/wiki/Eazy-E"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "77ba7825a83b",
@@ -37422,7 +37529,8 @@
    "explainSource": {
     "title": "Super Mario Bros.",
     "url": "https://en.wikipedia.org/wiki/Super_Mario_Bros."
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "78add84a12fa",
@@ -37523,7 +37631,8 @@
     "2012",
     "2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "79108acca475",
@@ -37919,7 +38028,8 @@
     "1985",
     "1987"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "7a7db33b0def",
@@ -37952,7 +38062,8 @@
    "explainSource": {
     "title": "Down to the Moon",
     "url": "https://en.wikipedia.org/wiki/Down_to_the_Moon"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "7ab21fdc4b6f",
@@ -38075,7 +38186,8 @@
     "1980",
     "1991"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "7ae99aafd9c0",
@@ -38623,7 +38735,8 @@
     "2006",
     "2004"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "7cb28383c7e4",
@@ -39467,7 +39580,8 @@
    "explainSource": {
     "title": "Pokémon Diamond and Pearl",
     "url": "https://en.wikipedia.org/wiki/Pok%C3%A9mon_Diamond_and_Pearl"
-   }
+   },
+   "retired": "date question"
   },
   {
    "category": "Geography",
@@ -39608,7 +39722,8 @@
     "1995",
     "1994"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "7f64b54762f5",
@@ -39888,7 +40003,8 @@
     "1723",
     "1628"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "803db4c4587d",
@@ -40130,7 +40246,8 @@
     "April 14th, 1984",
     "May 18th, 2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "81029dcc3edc",
@@ -40611,7 +40728,8 @@
     "2011",
     "2013"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "826e24799c5e",
@@ -40975,7 +41093,8 @@
    "incorrect": [
     "True"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "839ab4903dce",
@@ -41093,7 +41212,8 @@
    "explainSource": {
     "title": "Gangnam Style",
     "url": "https://en.wikipedia.org/wiki/Gangnam_Style"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "83feb0fbfc1f",
@@ -41185,7 +41305,8 @@
    "explainSource": {
     "title": "Captain Fantastic and the Brown Dirt Cowboy",
     "url": "https://en.wikipedia.org/wiki/Captain_Fantastic_and_the_Brown_Dirt_Cowboy"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "844035756662",
@@ -41631,7 +41752,8 @@
    "explainSource": {
     "title": "Telstar (instrumental)",
     "url": "https://en.wikipedia.org/wiki/Telstar_%28instrumental%29"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "853c24ec8fb4",
@@ -41822,7 +41944,8 @@
     "2011",
     "2013"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "85bc56b5d627",
@@ -42550,7 +42673,8 @@
     "John Dugan",
     "Joe Bill Hogan"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "889164be3691",
@@ -42715,7 +42839,8 @@
     "September 6th, 2018",
     "October 1st, 2019"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "891944046101",
@@ -42785,7 +42910,8 @@
     "Charlie Chaplin",
     "Groucho Marx"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "893d5a2083eb",
@@ -43709,7 +43835,8 @@
    "explainSource": {
     "title": "Monster Hunter",
     "url": "https://en.wikipedia.org/wiki/Monster_Hunter"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "8ce9a0123463",
@@ -44486,7 +44613,8 @@
     "1981",
     "1980"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "8f76f93e47c7",
@@ -44975,7 +45103,8 @@
    "explainSource": {
     "title": "You Make Me Feel Like Dancing",
     "url": "https://en.wikipedia.org/wiki/You_Make_Me_Feel_Like_Dancing"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "90bfade6d258",
@@ -45090,7 +45219,8 @@
     "Rush",
     "AC/DC"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "90ec5651a066",
@@ -45215,7 +45345,8 @@
    "explainSource": {
     "title": "Gort (The Day the Earth Stood Still)",
     "url": "https://en.wikipedia.org/wiki/Gort_%28The_Day_the_Earth_Stood_Still%29"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "914c767cf712",
@@ -45375,7 +45506,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "919a3ea92a44",
@@ -45500,7 +45632,8 @@
     "1990",
     "2000"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "91eb7502807f",
@@ -45580,7 +45713,8 @@
     "2003",
     "1998"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "9225f876f2ad",
@@ -46526,7 +46660,8 @@
     "March 22, 1997",
     "March 13, 1997"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "94a0e7e909ba",
@@ -46637,7 +46772,8 @@
    "explainSource": {
     "title": "Purple Rain (song)",
     "url": "https://en.wikipedia.org/wiki/Purple_Rain_%28song%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "94f1df151004",
@@ -46651,7 +46787,8 @@
     "2015",
     "2004"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "9520a67fbcf6",
@@ -48104,7 +48241,8 @@
     "July 28, 2000",
     "April 14, 2001"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "99c05374b3a6",
@@ -48224,7 +48362,8 @@
     "2008",
     "2006"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "9a7464a8b991",
@@ -48314,7 +48453,8 @@
    "explainSource": {
     "title": "List of Ubisoft subsidiaries",
     "url": "https://en.wikipedia.org/wiki/List_of_Ubisoft_subsidiaries"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "9acf66b691a7",
@@ -48829,7 +48969,8 @@
     "1973",
     "1988"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "9c56ffd3cde9",
@@ -48843,7 +48984,8 @@
     "9",
     "12"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "9c635d5c544d",
@@ -48913,7 +49055,8 @@
     "2012",
     "2013"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "9ca0c13c9d11",
@@ -49484,7 +49627,8 @@
    "explainSource": {
     "title": "1812 Overture",
     "url": "https://en.wikipedia.org/wiki/1812_Overture"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "9e70b03ac59b",
@@ -49696,7 +49840,8 @@
    "incorrect": [
     "True"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "9f4fd06192eb",
@@ -50515,7 +50660,8 @@
     "2010",
     "2003"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "a13d64494633",
@@ -50583,7 +50729,8 @@
     "1999",
     "2001"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "a17cd7a6d465",
@@ -50898,7 +51045,8 @@
    "explainSource": {
     "title": "Walt Disney",
     "url": "https://en.wikipedia.org/wiki/Walt_Disney"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "a28ba0d9247b",
@@ -52514,7 +52662,8 @@
     "2010",
     "2014"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "a7f05c6be71c",
@@ -52688,7 +52837,8 @@
    "explainSource": {
     "title": "American Graffiti",
     "url": "https://en.wikipedia.org/wiki/American_Graffiti"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "category": "Entertainment: Video Games",
@@ -52844,7 +52994,8 @@
    "explainSource": {
     "title": "Team Fortress 2",
     "url": "https://en.wikipedia.org/wiki/Team_Fortress_2"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "a8ec4bf7c7a4",
@@ -53011,7 +53162,8 @@
     "1938",
     "1954"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "a99227ef3fd9",
@@ -53110,7 +53262,8 @@
    "explainSource": {
     "title": "SpongeBob SquarePants season 1",
     "url": "https://en.wikipedia.org/wiki/SpongeBob_SquarePants_season_1"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "a9d114d01b16",
@@ -53371,7 +53524,8 @@
     "Catcher and the Rye",
     "To Kill a Mockingbird"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "aade5d9d064b",
@@ -53437,7 +53591,8 @@
    "explainSource": {
     "title": "Animalympics",
     "url": "https://en.wikipedia.org/wiki/Animalympics"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "ab0871bc2750",
@@ -53479,7 +53634,8 @@
     "2006",
     "1999"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "ab1ea5c38f12",
@@ -53655,7 +53811,8 @@
     "May 24th, 2016",
     "January 2nd, 2017"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "ab78b7bc03a4",
@@ -54052,7 +54209,8 @@
     "2009",
     "2010"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "ac73580ccd1d",
@@ -55413,7 +55571,8 @@
    "explainSource": {
     "title": "Napoleon Dynamite",
     "url": "https://en.wikipedia.org/wiki/Napoleon_Dynamite"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "b0ffaa7412f0",
@@ -55505,7 +55664,8 @@
    "explainSource": {
     "title": "Weezer (White Album)",
     "url": "https://en.wikipedia.org/wiki/Weezer_%28White_Album%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "b13bfc3cfe69",
@@ -55795,7 +55955,8 @@
    "explainSource": {
     "title": "Fallout (video game)",
     "url": "https://en.wikipedia.org/wiki/Fallout_%28video_game%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "b241bed96de7",
@@ -56879,7 +57040,8 @@
     "2011",
     "2008"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "b6581b570014",
@@ -57152,7 +57314,8 @@
     "Chicago",
     "Smokie"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "b75e7d965ea4",
@@ -57784,7 +57947,8 @@
     "1998",
     "1999"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "b96c639399e2",
@@ -58904,7 +59068,8 @@
     "March 28, 1999",
     "November 4, 2021"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "bcef4a90d8fa",
@@ -58986,7 +59151,8 @@
     "Clue",
     "Candy Land"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "bd45f9bc3a9c",
@@ -59341,7 +59507,8 @@
    "explainSource": {
     "title": "Timely Comics",
     "url": "https://en.wikipedia.org/wiki/Timely_Comics"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "be5dc84057dc",
@@ -59355,7 +59522,8 @@
     "The Muppet Christmas Carol",
     "The Muppet Movie"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "be5df9bb8674",
@@ -59456,7 +59624,8 @@
     "1989 Ford Explorer XLT",
     "Mercedes M-Class"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "bec3cde87f90",
@@ -59482,7 +59651,8 @@
     "2001",
     "2004"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "bed3422d0620",
@@ -59599,7 +59769,8 @@
     "2000",
     "1992"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "bf1e322f5938",
@@ -59777,7 +59948,8 @@
     "2008",
     "2009"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "bfc51016763c",
@@ -59819,7 +59991,8 @@
     "1983",
     "1969"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "bfee479c3ac3",
@@ -60005,7 +60178,8 @@
     "April 14, 2015",
     "November 18, 2014"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "c073f5074f46",
@@ -61326,7 +61500,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "c591ad7f355e",
@@ -61883,7 +62058,8 @@
     "1975",
     "1973"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "c78ebb04ca04",
@@ -62867,7 +63043,8 @@
     "1993",
     "1995"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "cadcec9078d3",
@@ -63953,7 +64130,8 @@
     "Bonzo Dog Doo-Dah Band",
     "The Firm"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "cea09ac0db74",
@@ -64110,7 +64288,8 @@
     "Wilhelm Steinitz",
     "Bobby Fischer"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "cf20fd16a29d",
@@ -64152,7 +64331,8 @@
     "Vincent Price",
     "Lon Chaney Jr."
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "cf3e7f123d33",
@@ -64296,7 +64476,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "cfba003bf8d0",
@@ -64515,7 +64696,8 @@
     "Paris",
     "Brussels"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "d096dc114cb8",
@@ -64590,7 +64772,8 @@
    "explainSource": {
     "title": "Virtual Boy",
     "url": "https://en.wikipedia.org/wiki/Virtual_Boy"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "d0f84940c3d3",
@@ -64710,7 +64893,8 @@
     "2016",
     "2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "d1686c2b6fce",
@@ -65116,7 +65300,8 @@
    "explainSource": {
     "title": "Origin of Muse",
     "url": "https://en.wikipedia.org/wiki/Origin_of_Muse"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "d29d5e6730e8",
@@ -65182,7 +65367,8 @@
    "explainSource": {
     "title": "FTL: Faster Than Light",
     "url": "https://en.wikipedia.org/wiki/FTL%3A_Faster_Than_Light"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "d2b842c097c2",
@@ -66444,7 +66630,8 @@
     "Prince Valiant",
     "Spartacus"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "d6a74af7c2db",
@@ -66472,7 +66659,8 @@
     "1990",
     "1994"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "d6cd397bea98",
@@ -66538,7 +66726,8 @@
     "Donatello",
     "Raphael"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "d726031eeff1",
@@ -67126,7 +67315,8 @@
     "2003",
     "1996"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "d8e0c0fbdb85",
@@ -67687,7 +67877,8 @@
    "explainSource": {
     "title": "With the Beatles",
     "url": "https://en.wikipedia.org/wiki/With_the_Beatles"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "da9b49f0676a",
@@ -68911,7 +69102,8 @@
     "Before Episode 1",
     "Between Episode 4 and 5"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "df0f8e947749",
@@ -69159,7 +69351,8 @@
    "incorrect": [
     "True"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "dfd8206c401e",
@@ -70327,7 +70520,8 @@
     "U2",
     "Culture Club"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "e39114fbc803",
@@ -70552,7 +70746,8 @@
     "March 13, 2018",
     "February 21, 2018"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "e45f56c92c1f",
@@ -70625,7 +70820,8 @@
    "explainSource": {
     "title": "Atmosfear (series)",
     "url": "https://en.wikipedia.org/wiki/Atmosfear_%28series%29"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "e4dbc9542cb0",
@@ -70691,7 +70887,8 @@
     "November 30, 1990",
     "September 1, 1986"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "e4f03f5daee7",
@@ -71118,7 +71315,8 @@
    "explainSource": {
     "title": "Hatsune Miku",
     "url": "https://en.wikipedia.org/wiki/Hatsune_Miku"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "e6f18501ec94",
@@ -71146,7 +71344,8 @@
     "September 29, 2003",
     "January 14, 2005"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "e72b2e3a4033",
@@ -71260,7 +71459,8 @@
    "explainSource": {
     "title": "Ivor Emmanuel",
     "url": "https://en.wikipedia.org/wiki/Ivor_Emmanuel"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "e7984109e160",
@@ -71349,7 +71549,8 @@
     "Santa suit",
     "Police uniform"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "e7fe2cfa580b",
@@ -71823,7 +72024,8 @@
    "explainSource": {
     "title": "Japanese Boy",
     "url": "https://en.wikipedia.org/wiki/Japanese_Boy"
-   }
+   },
+   "retired": "dated pop culture"
   },
   {
    "id": "e95d70dd4dc2",
@@ -71940,7 +72142,8 @@
     "6",
     "1"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "e9eb6e52cbc5",
@@ -72406,7 +72609,8 @@
    "explainSource": {
     "title": "Club Penguin",
     "url": "https://en.wikipedia.org/wiki/Club_Penguin"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "ebb952dafda6",
@@ -72434,7 +72638,8 @@
     "New York",
     "Philadelphia"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "ebdbed7541aa",
@@ -73294,7 +73499,8 @@
     "2008",
     "2013"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "category": "Animals",
@@ -73634,7 +73840,8 @@
     "2005",
     "2011"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f00a1f2d2aa6",
@@ -73740,7 +73947,8 @@
    "explainSource": {
     "title": "Tame Impala discography",
     "url": "https://en.wikipedia.org/wiki/Tame_Impala_discography"
-   }
+   },
+   "retired": "date question"
   },
   {
    "category": "Geography",
@@ -73925,7 +74133,8 @@
     "Wario Land: Super Mario Land 3 (1994)",
     "Mario Party (1998)"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f150689dba01",
@@ -74012,7 +74221,8 @@
     "Sacramento",
     "San Jose"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "f1a87cb46e05",
@@ -74038,7 +74248,8 @@
     "December 31th, 2016",
     "November 30th, 2016"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f1c3c9546626",
@@ -74139,7 +74350,8 @@
     "October 23, 1997",
     "February 16, 2015"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "category": "History",
@@ -74512,7 +74724,8 @@
     "1996",
     "1991"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f344d93ffad3",
@@ -74545,7 +74758,8 @@
     "Labyrinth",
     "Howard the Duck"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "f359c32c43d7",
@@ -74583,7 +74797,8 @@
    "explainSource": {
     "title": "Wayne Gretzky",
     "url": "https://en.wikipedia.org/wiki/Wayne_Gretzky"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "f366b68172b9",
@@ -74696,7 +74911,8 @@
     "Illumination Entertainment",
     "VIZ Media"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "f4286a9b673f",
@@ -75141,7 +75357,8 @@
    "incorrect": [
     "False"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "f594bc51aa58",
@@ -75445,7 +75662,8 @@
     "September 12th, 2013",
     "October 2nd, 2012"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f6a95e439b2d",
@@ -76210,7 +76428,8 @@
     "1999",
     "1993"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "f8e45bb3764d",
@@ -76791,7 +77010,8 @@
     "June 22, 2010",
     "July 28, 2008"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "fa926b7205da",
@@ -77256,7 +77476,8 @@
     "Jim Kane",
     "Frank Stark"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "dated pop culture"
   },
   {
    "id": "fbca6ce4c9a0",
@@ -77355,7 +77576,8 @@
    "explainSource": {
     "title": "Hearthstone in esports",
     "url": "https://en.wikipedia.org/wiki/Hearthstone_in_esports"
-   }
+   },
+   "retired": "date question"
   },
   {
    "id": "fbe7695e20cf",
@@ -78263,7 +78485,8 @@
     "2019",
     "2020"
    ],
-   "source": "opentdb"
+   "source": "opentdb",
+   "retired": "date question"
   },
   {
    "id": "ff278cb11974",
