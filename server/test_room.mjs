@@ -30,7 +30,11 @@ const join = async (name, role, pid) => {
   return sockets[sockets.length - 1];
 };
 const last = (ws, t) => [...ws.sent].reverse().find(m => m.t === t);
-const fire = async () => { await room.alarm(); };
+const fire = async () => {   // wait until the scheduled moment, like the real runtime does
+  const due = room.state.timer?.at;
+  if (due) { const wait = due - Date.now(); if (wait > 0) await new Promise(r => setTimeout(r, wait + 10)); }
+  await room.alarm();
+};
 
 const host = await join('Screen', 'screen', 'H');
 const a = await join('Rishab', 'player', 'A');

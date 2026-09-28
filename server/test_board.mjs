@@ -46,7 +46,7 @@ await room.webSocketMessage(B, JSON.stringify({ t: 'answer', idx: wrongIdx() }))
 console.log('picker wrong:', last(A, 'wrong').name, last(A, 'wrong').delta, '| stealing opens:', !!last(A, 'reopen'), '| picker excluded:', !last(A, 'reopen').tried.includes('B') === false);
 await sleep(20);
 await room.webSocketMessage(C, JSON.stringify({ t: 'buzz', at: Date.now() }));
-await room.lockWinner();
+await new Promise(r => setTimeout(r, 140)); await room.alarm();
 console.log('steal locked to:', last(A, 'locked').name);
 await room.webSocketMessage(C, JSON.stringify({ t: 'answer', idx: correctIdx() }));
 console.log('steal result:', last(A, 'reveal').winner.name, '+' + last(A, 'reveal').winner.delta, '| scores:', last(A, 'reveal').scores.map(s => s.name + ':' + s.score).join(' '));

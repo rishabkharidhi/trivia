@@ -7,6 +7,8 @@ import {
   buildBoard, boardTilesLeft, boardTopValue, publicBoard, nextTurn
 } from './rules.js';
 
+const IDLE_MS = 2 * 60 * 60 * 1000;   // a room with nobody connected is wiped after this
+const EMPTY_GRACE_MS = 10 * 60 * 1000; // ...and we check that soon after the last person leaves
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0/I/1
 const newCode = () => Array.from({ length: 4 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*' } });
@@ -26,6 +28,7 @@ export default {
 };
 
 const BLANK = () => ({
+  lastSeen: 0, cleanupAt: 0,
   phase: 'lobby',            // lobby | question | locked | reveal | over
   players: {},               // pid -> { name, score, connected }
   controllerId: null,        // the player who presses Start/Next; screens never control
@@ -64,6 +67,8 @@ export class Room {
   async fetch(request) {
     const url = new URL(request.url);
     if (request.headers.get('Upgrade') !== 'websocket') return json({ error: 'expected websocket' }, 400);
+    // If a code is recycled long after its last game, don't resurrect the old room.
+    if (this.state.lastSeen && Date.now() - this.state.lastSeen >= IDLE_MS && !this.ctx.getWebSockets().length) await this.wipe();
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     const pid = url.searchParams.get('pid') || crypto.randomUUID().slice(0, 8);
@@ -82,6 +87,7 @@ export class Room {
     }
     await this.save();
 
+    this.touch(); await this.planCleanup();
     this.send(server, { t: 'welcome', pid, role, controller: this.state.controllerId === pid, now: Date.now(), state: this.publicState() });
     this.broadcast({ t: 'players', players: scoreboard(this.state.players), controllerId: this.state.controllerId }, server);
     return new Response(null, { status: 101, webSocket: client });
@@ -107,6 +113,7 @@ export class Room {
 
   async webSocketMessage(ws, raw) {
     let m; try { m = JSON.parse(raw); } catch { return; }
+    this.touch();
     const att = ws.deserializeAttachment() || {};
     const pid = att.pid;
     const isController = pid === this.state.controllerId;
@@ -157,6 +164,7 @@ export class Room {
     const att = ws.deserializeAttachment() || {};
     const p = this.state.players[att.pid];
     if (p) p.connected = false;
+    await this.planCleanup();                          // last one out starts the cleanup clock
     if (att.pid === this.state.controllerId) {          // hand the controls to whoever is still here
       const next = Object.keys(this.state.players).find(id => this.state.players[id].connected);
       this.state.controllerId = next || null;
@@ -168,12 +176,41 @@ export class Room {
   async setTimer(kind, at) {
     this.state.timer = { kind, at };
     await this.save();
-    await this.ctx.storage.setAlarm(at);
+    await this.scheduleAlarm();
+  }
+  // One alarm slot has to serve both game timers and room cleanup, so always book the earlier one.
+  async scheduleAlarm() {
+    const times = [];
+    if (this.state.timer) times.push(this.state.timer.at);
+    if (this.state.cleanupAt) times.push(this.state.cleanupAt);
+    if (!times.length) return;
+    await this.ctx.storage.setAlarm(Math.min(...times));
+  }
+  touch() { this.state.lastSeen = Date.now(); }
+  async planCleanup() {
+    const live = this.ctx.getWebSockets().length;
+    this.state.cleanupAt = live ? Date.now() + IDLE_MS : Date.now() + EMPTY_GRACE_MS;
+    await this.save();
+    await this.scheduleAlarm();
+  }
+  async wipe() {
+    for (const ws of this.ctx.getWebSockets()) { try { ws.close(1000, 'room expired'); } catch {} }
+    await this.ctx.storage.deleteAll();     // storage, alarm and all room state go together
+    this.state = BLANK();
+    this.bank = null;
   }
 
   async alarm() {
+    const now = Date.now();
+    // cleanup first: an expired room shouldn't run another game timer
+    if (this.state.cleanupAt && now >= this.state.cleanupAt) {
+      const live = this.ctx.getWebSockets().length;
+      const idleFor = now - (this.state.lastSeen || 0);
+      if (!live || idleFor >= IDLE_MS) return this.wipe();
+      await this.planCleanup();
+    }
     const t = this.state.timer;
-    if (!t) return;
+    if (!t || now < t.at - 50) { await this.scheduleAlarm(); return; }
     this.state.timer = null;
     if (t.kind === 'grace') return this.lockWinner();
     if (t.kind === 'answer') return this.resolveAnswer(this.state.lockedId, -1);   // ran out of time
