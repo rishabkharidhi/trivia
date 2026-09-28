@@ -2,15 +2,15 @@
 
 Play from separate devices instead of one shared screen. The single-screen game in `index.html` is unchanged.
 
-- `play.html` — where everyone plays. Create or join a room, buzz, answer, see scores. Whoever creates the room gets Start/Next buttons; if they leave, the controls pass to another player automatically.
-- `online.html` — an optional big screen for streaming. The host voice is off by default here (everyone reads the question on their own device); there's a toggle on the lobby screen if you want it. View-only: it never scores and never controls the game. Open it with the "View big screen" button, or directly with `?room=CODE`.
+- `play/index.html` — where everyone plays. Create or join a room, buzz, answer, see scores. Whoever creates the room gets Start/Next buttons; if they leave, the controls pass to another player automatically.
+- `online/index.html` — an optional big screen for streaming. The host voice is off by default here (everyone reads the question on their own device); there's a toggle on the lobby screen if you want it. View-only: it never scores and never controls the game. Open it with the "View big screen" button, or directly with `?room=CODE`.
 - `src/index.js` — Cloudflare Worker with the `Room` Durable Object: authoritative state, WebSockets, timers.
 - `src/rules.js` — pure game rules (scoring, buzz ranking, question picking). Unit-testable, no Cloudflare APIs.
 - `test_room.mjs` — Node test that drives a whole game against a stubbed runtime: `node test_room.mjs`
 
 ## How a game runs
-1. You open `play.html` and press "Create a new room". You get a 4-letter code and the controls.
-2. Everyone else opens `play.html`, types their name and the code (or taps your invite link). Phones reconnect automatically and keep their score.
+1. You open `play/` and press "Create a new room". You get a 4-letter code and the controls.
+2. Everyone else opens `play/`, types their name and the code (or taps your invite link). Phones reconnect automatically and keep their score.
 3. If you're streaming, press "View big screen" to pop the display open in a new tab, and share that tab. It's optional.
 4. You press Start. The Worker picks a question, and sends it with a `shownAt` timestamp ~700 ms ahead so every device reveals it at the same instant.
 5. First buzz wins — ranked by **when the button was pressed on that device**, converted to room time using a measured clock offset, not by who reached the server first. A slower connection doesn't lose you the buzz.
@@ -33,9 +33,9 @@ Needs Node and a Cloudflare account (free plan is fine).
     npx wrangler deploy
 
 Wrangler prints a URL like `https://push-to-think.<your-subdomain>.workers.dev`. Then:
-1. Put that URL in `DEFAULT_SERVER` at the top of the script in **both** `online.html` and `play.html`.
-2. Commit `online.html`, `play.html` into the `trivia` repo (any folder), so they're served from GitHub Pages.
-3. Everyone opens `https://rishabkharidhi.com/trivia/play.html`. No screen needed unless you want one for streaming.
+1. Put that URL in `DEFAULT_SERVER` at the top of the script in **both** `online/index.html` and `play/index.html`.
+2. Commit the `online/` and `play/` directories into the `trivia` repo, so they're served from GitHub Pages.
+3. Everyone opens `https://rishabkharidhi.com/trivia/play/`. No screen needed unless you want one for streaming.
 
 You can test against a different Worker without editing files by adding `?server=https://...` to either page's URL; it's remembered in that browser.
 

@@ -122,6 +122,12 @@ export class Room {
       if (this.state.settings.mode === 'board') await this.startBoard(); else await this.nextQuestion();
       return;
     }
+    if (m.t === 'config' && isController) {      // lobby choices, so joiners see them before the start
+      this.state.settings = { ...this.state.settings, ...(m.settings || {}) };
+      await this.save();
+      this.broadcast({ t: 'config', settings: this.state.settings });
+      return;
+    }
     if (m.t === 'pick' && this.state.settings.mode === 'board') { await this.pickTile(pid, m.r, m.c); return; }
     if (m.t === 'wager' && pid === this.state.picker && this.state.wagering) { await this.setWager(Number(m.amount)); return; }
     if (m.t === 'next' && isController) { this.state.settings.mode === 'board' ? await this.backToBoard() : await this.nextQuestion(); return; }

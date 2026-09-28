@@ -3305,7 +3305,7 @@ $('#diffSel').onchange = e => { settings.difficulty = e.target.value; saveSettin
 $('#roundSel').onchange = e => { settings.rounds = +e.target.value; saveSettings(); $('#classicDesc').textContent = `${settings.rounds} questions, a timer on each`; };
 $('#startBtn').onclick = () => startGame();
 // Online rooms live on their own page; everything above this is the single-screen game.
-$('#onlineBtn').onclick = () => { location.href = 'play.html'; };
+$('#onlineBtn').onclick = () => { location.href = 'play/'; };
 $('#testVoiceBtn').onclick = async () => {
   ac();
   if (settings.muted) { toast('The host is muted. Press M to unmute.'); return; }
