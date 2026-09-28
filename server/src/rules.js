@@ -74,3 +74,53 @@ export function scoreboard(players) {
     .map(([id, p]) => ({ id, name: p.name, score: p.score, connected: p.connected }))
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 }
+
+/* ---------- Board mode ---------- */
+export const TIERS = {
+  full:  [[200, 'easy'], [400, 'easy'], [800, 'medium'], [1600, 'hard'], [2000, 'hard']],
+  quick: [[200, 'easy'], [800, 'medium'], [2000, 'hard']]
+};
+const DIFF_FALLBACK = { easy: ['easy', 'medium', 'hard'], medium: ['medium', 'easy', 'hard'], hard: ['hard', 'medium', 'easy'] };
+
+// 5 categories x N values. Each cell holds a question id; the text is only sent when the tile is picked.
+export function buildBoard(bank, size = 'full', rand = Math.random) {
+  const tiers = TIERS[size] || TIERS.full;
+  const byCat = {};
+  for (const q of bank) if (!q.retired) (byCat[q.category] ||= []).push(q);
+  const need = { easy: 0, medium: 0, hard: 0 };
+  tiers.forEach(([, d]) => need[d]++);
+  const cats = Object.keys(byCat).filter(c => byCat[c].length >= tiers.length);
+  const exact = cats.filter(c => Object.keys(need).every(d => byCat[c].filter(q => q.difficulty === d).length >= need[d]));
+  const pick = arr => arr[Math.floor(rand() * arr.length)];
+  const shuffled = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  let chosen = shuffled(exact).slice(0, 5), approx = false;
+  if (chosen.length < 5) { approx = true; chosen = chosen.concat(shuffled(cats.filter(c => !chosen.includes(c))).slice(0, 5 - chosen.length)); }
+  if (chosen.length < 5) return null;
+  const used = new Set(), grid = tiers.map(() => []);
+  chosen.forEach((cat, ci) => tiers.forEach(([value, diff], ri) => {
+    let q = null;
+    for (const d of DIFF_FALLBACK[diff]) {
+      const pool = byCat[cat].filter(x => x.difficulty === d && !used.has(x.id));
+      if (pool.length) { q = pick(pool); break; }
+    }
+    used.add(q.id);
+    grid[ri][ci] = { value, qid: q.id, done: false, dd: false, r: ri, c: ci };
+  }));
+  const bottom = grid.slice(Math.floor(tiers.length / 2)).flat();
+  shuffled(bottom).slice(0, size === 'quick' ? 1 : 2).forEach(t => t.dd = true);
+  return { cats: chosen, grid, size, approx };
+}
+
+export function boardTilesLeft(board) { return board.grid.flat().filter(t => !t.done).length; }
+export function boardTopValue(board) { return Math.max(...board.grid.flat().map(t => t.value)); }
+
+// What players see: values and which tiles are gone, never the questions behind them.
+export function publicBoard(board) {
+  return { cats: board.cats, size: board.size, grid: board.grid.map(row => row.map(t => ({ value: t.value, done: t.done, dd: t.dd && t.done }))) };
+}
+
+export function nextTurn(order, current) {
+  if (!order.length) return null;
+  const i = order.indexOf(current);
+  return order[(i + 1) % order.length];
+}

@@ -16,6 +16,15 @@ Play from separate devices instead of one shared screen. The single-screen game 
 5. First buzz wins — ranked by **when the button was pressed on that device**, converted to room time using a measured clock offset, not by who reached the server first. A slower connection doesn't lose you the buzz.
 6. A wrong answer costs the question's value and reopens it to everyone who hasn't tried. When nobody's left, the answer is revealed with its explanation.
 
+## Modes and settings
+The controller's device has the settings, all applied when a round starts:
+- **Mode**: Buzz-In or Board.
+- **Buzz-In**: question count, difficulty, buzz window (how long a question stays open), answer time, auto-advance or manual next.
+- **Board**: 5 categories x 5 values (200-2,000) or a quick 15-tile board. The player whose turn it is picks a tile and answers it alone; a wrong answer or a timeout costs the tile's value and opens it to everyone else as a buzz-in steal. Double Down tiles let the picker wager up to their score (minimum cap: the board's top value) and allow no steals. Turns rotate after every tile, and the game ends when the board is cleared.
+- **End game** stops a round early so you can switch modes.
+
+Options are shown to everyone as soon as a question appears, so players read A-D first and then buzz to lock in.
+
 ## Deploy the Worker
 Needs Node and a Cloudflare account (free plan is fine).
 

@@ -42,6 +42,18 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .srow{display:flex;justify-content:space-between;padding:6px 10px;border-radius:10px;background:rgba(246,243,255,.06)}
 .srow.me{background:rgba(255,197,61,.18);font-weight:700}
 .hide{display:none!important}
+.setgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.setgrid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);margin:0}
+.setgrid select{font:600 15px inherit;color:var(--paper);background:var(--ink);border:2px solid var(--edge);border-radius:10px;padding:8px}
+/* board */
+.bgrid{display:grid;gap:6px}
+.bcat{font-size:11px;font-weight:700;text-align:center;line-height:1.1;padding:4px 2px;border-radius:8px;background:#2a0f4f;box-shadow:inset 0 0 0 2px var(--hot);min-height:34px;display:grid;place-items:center}
+.btile{border:2px solid var(--edge);border-radius:10px;background:var(--studio-2);color:var(--marquee);font-weight:800;font-size:15px;padding:12px 2px}
+.btile:disabled{opacity:.25}
+.btile.mine:not(:disabled){box-shadow:0 0 0 2px var(--marquee)}
+.wagerbox{display:flex;gap:8px;margin-top:10px}
+.wagerbox input{flex:1;margin:0;font-size:20px;text-align:center}
+.owner{font-size:15px;color:var(--marquee);font-weight:700;text-align:center;margin-top:6px}
 .err{color:var(--bust);font-weight:700;font-size:14px;min-height:20px}
 </style>
 </head>
@@ -72,15 +84,33 @@ button{font-family:inherit;color:inherit;cursor:pointer}
     </span>
   </div>
   <div class="card hide" id="ctrlBar">
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="rounds" style="flex:1;font:600 15px inherit;color:var(--paper);background:var(--ink);border:2px solid var(--edge);border-radius:10px;padding:8px"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="20">20 questions</option></select>
-      <select id="difficulty" style="flex:1;font:600 15px inherit;color:var(--paper);background:var(--ink);border:2px solid var(--edge);border-radius:10px;padding:8px"><option value="any">Mixed</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select>
+    <div class="setgrid">
+      <label>Mode<select id="mode"><option value="buzz" selected>Buzz-In</option><option value="board">Board</option></select></label>
+      <label class="buzz-only">Questions<select id="rounds"><option value="5">5</option><option value="10" selected>10</option><option value="15">15</option><option value="20">20</option></select></label>
+      <label class="board-only hide">Board size<select id="boardSize"><option value="full">Full, 25 tiles</option><option value="quick">Quick, 15 tiles</option></select></label>
+      <label class="buzz-only">Difficulty<select id="difficulty"><option value="any">Mixed</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>
+      <label>Buzz window<select id="timer"><option value="10000">10 sec</option><option value="15000">15 sec</option><option value="20000" selected>20 sec</option><option value="30000">30 sec</option></select></label>
+      <label>Answer time<select id="answerMs"><option value="5000">5 sec</option><option value="7000" selected>7 sec</option><option value="10000">10 sec</option><option value="15000">15 sec</option></select></label>
+      <label>Between questions<select id="autoNext"><option value="1" selected>Auto-advance</option><option value="0">I press next</option></select></label>
     </div>
-    <button class="btn" id="startBtn">Start the round</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="startBtn" style="flex:2">Start the round</button>
+      <button class="btn ghost hide" id="endBtn" style="flex:1">End game</button>
+    </div>
+  </div>
+  <div class="card hide" id="boardCard">
+    <p class="question" id="boardTitle" style="font-size:17px">Board</p>
+    <div class="bgrid" id="bgrid"></div>
+    <div class="owner" id="boardTurn"></div>
+    <div class="wagerbox hide" id="wagerBox">
+      <input id="wagerIn" type="number" inputmode="numeric" placeholder="0">
+      <button class="btn" id="wagerBtn" style="width:auto;padding:10px 16px">Wager</button>
+    </div>
   </div>
   <div class="card" id="qCard">
     <div class="meta" id="meta"></div>
     <p class="question" id="qText">Waiting to start…</p>
+    <div class="owner hide" id="qOwner"></div>
   </div>
   <button id="buzz" disabled>BUZZ<small id="buzzSub">waiting…</small></button>
   <div class="opts hide" id="opts"></div>
@@ -90,7 +120,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 
 <script type="module">
 // Point this at your deployed Worker, or pass ?server=... in the URL.
-const DEFAULT_SERVER = 'https://push-to-think.rishab-kharidhi.workers.dev/';
+const DEFAULT_SERVER = 'https://push-to-think.rishab-kharidhi.workers.dev';
 const qs = new URLSearchParams(location.search);
 const server = (qs.get('server') || localStorage.getItem('ptt.server') || DEFAULT_SERVER).replace(/\/$/, '');
 if (qs.get('server')) localStorage.setItem('ptt.server', qs.get('server'));
@@ -98,6 +128,7 @@ const $ = s => document.querySelector(s);
 const LETTERS = ['A', 'B', 'C', 'D'];
 
 let ws = null, pid = localStorage.getItem('ptt.pid') || '', me = null, roomCode = '', amController = false, started = false;
+let mode = 'buzz', myTile = false, boardData = null;
 let offset = 0, bestRtt = Infinity;          // clock offset to room time
 let state = { phase: 'lobby' }, shownAt = 0, deadline = 0, myTurn = false, answered = false;
 
@@ -157,6 +188,9 @@ function handle(m) {
   if (m.t === 'pong') return onPong(m);
   if (m.t === 'welcome') { me = m.pid; state = m.state; setController(m.controller); renderScores(state.players); return applyState(state); }
   if (m.t === 'players') { setController(m.controllerId === me); return renderScores(m.players); }
+  if (m.t === 'board') return onBoard(m);
+  if (m.t === 'wager') return onWagerPrompt(m);
+  if (m.t === 'wagered') { $('#status').textContent = `${m.name} wagers ${m.amount}.`; return; }
   if (m.t === 'question') return onQuestion(m);
   if (m.t === 'buzzing') return $('#status').textContent = `${m.name} is buzzing…`;
   if (m.t === 'locked') return onLocked(m);
@@ -171,12 +205,28 @@ function handle(m) {
 function setController(yes) {
   amController = !!yes;
   $('#ctrlBar').classList.toggle('hide', !amController);
-  $('#startBtn').textContent = started ? 'Next question' : 'Start the round';
+  $('#startBtn').textContent = started ? (mode === 'board' ? 'Next tile' : 'Next question') : 'Start the round';
+  $('#endBtn').classList.toggle('hide', !started);
 }
+$('#mode').onchange = () => {
+  const board = $('#mode').value === 'board';
+  document.querySelectorAll('.buzz-only').forEach(e => e.classList.toggle('hide', board));
+  document.querySelectorAll('.board-only').forEach(e => e.classList.toggle('hide', !board));
+};
 $('#startBtn').onclick = () => {
   if (!amController) return;
-  if (!started) send({ t: 'start', settings: { rounds: +$('#rounds').value, difficulty: $('#difficulty').value, timer: 20000, autoNext: true } });
+  if (!started) send({ t: 'start', settings: {
+    mode: $('#mode').value, rounds: +$('#rounds').value, difficulty: $('#difficulty').value,
+    boardSize: $('#boardSize').value, timer: +$('#timer').value, answerMs: +$('#answerMs').value,
+    autoNext: $('#autoNext').value === '1'
+  } });
   else send({ t: 'next' });
+};
+$('#endBtn').onclick = () => { if (amController) send({ t: 'end' }); };
+$('#wagerBtn').onclick = () => {
+  const v = Math.max(0, Math.round(Number($('#wagerIn').value) || 0));
+  send({ t: 'wager', amount: v });
+  $('#wagerBox').classList.add('hide');
 };
 const inviteUrl = () => location.href.split('?')[0] + `?room=${roomCode}` + (qs.get('server') ? `&server=${encodeURIComponent(qs.get('server'))}` : '');
 $('#copyBtn').onclick = async () => {
@@ -194,9 +244,50 @@ function applyState(s) {
   else if (s.phase === 'reveal' && s.lastReveal) onReveal({ ...s.lastReveal, scores: s.players });
 }
 
+// ---------- board ----------
+function onBoard(m) {
+  started = true; mode = 'board'; $('#endBtn').classList.toggle('hide', !amController); boardData = m.board;
+  $('#startBtn').textContent = 'Next tile';
+  $('#boardCard').classList.remove('hide'); $('#qCard').classList.add('hide');
+  $('#buzz').classList.add('hide'); $('#opts').classList.add('hide'); $('#wagerBox').classList.add('hide');
+  myTile = m.turn === me;
+  $('#boardTurn').textContent = myTile ? 'Your pick — tap a tile' : `${m.turnName} is picking…`;
+  const grid = $('#bgrid'); grid.textContent = '';
+  grid.style.gridTemplateColumns = `repeat(${m.board.cats.length}, 1fr)`;
+  m.board.cats.forEach(c => { const d = document.createElement('div'); d.className = 'bcat'; d.textContent = c.replace(/^(Entertainment|Science): /, ''); grid.appendChild(d); });
+  m.board.grid.forEach(row => row.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'btile' + (myTile && !t.done ? ' mine' : '');
+    b.textContent = t.done ? '' : t.value;
+    b.disabled = t.done || !myTile;
+    b.onclick = () => { if (myTile) { send({ t: 'pick', r: row.indexOf(t), c: m.board.grid[row.indexOf(t)] ? 0 : 0 }); } };
+    grid.appendChild(b);
+  }));
+  // wire picks with real coordinates
+  [...grid.querySelectorAll('.btile')].forEach((b, i) => {
+    const cols = m.board.cats.length, r = Math.floor(i / cols), c = i % cols;
+    b.onclick = () => { if (myTile && !m.board.grid[r][c].done) { send({ t: 'pick', r, c }); myTile = false; $('#boardTurn').textContent = 'Loading…'; } };
+  });
+  if (m.scores) renderScores(m.scores);
+  $('#status').textContent = '';
+}
+function onWagerPrompt(m) {
+  $('#status').textContent = `${m.name} found a Double Down!`;
+  if (m.id !== me) return;
+  $('#wagerBox').classList.remove('hide');
+  $('#wagerIn').value = ''; $('#wagerIn').max = m.max;
+  $('#wagerIn').placeholder = `0 to ${m.max}`;
+  $('#wagerIn').focus();
+}
+
 function onQuestion(m) {
   answered = false; myTurn = false; started = true;
-  $('#startBtn').textContent = 'Next question';
+  mode = m.mode === 'board' ? 'board' : 'buzz';
+  $('#endBtn').classList.toggle('hide', !amController);
+  $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
+  $('#startBtn').textContent = mode === 'board' ? 'Next tile' : 'Next question';
+  $('#qOwner').classList.toggle('hide', mode !== 'board');
+  if (mode === 'board') $('#qOwner').textContent = `${m.ownerName}'s tile${m.dd ? ' — Double Down' : ''} for ${m.value}`;
   shownAt = m.shownAt; deadline = m.deadline;
   const q = m.question;
   $('#meta').innerHTML = '';
@@ -205,10 +296,10 @@ function onQuestion(m) {
   if (m.round) { const s = document.createElement('span'); s.className = 'chip'; s.textContent = `Q${m.round}${m.rounds ? ' of ' + m.rounds : ''}`; $('#meta').appendChild(s); }
   $('#qText').textContent = q.text;
   buildOptions(q.options);
-  $('#opts').classList.add('hide');
-  $('#buzz').classList.remove('hide');
-  $('#status').textContent = '';
-  armBuzz();
+  $('#opts').classList.remove('hide');                  // everyone reads the options first
+  $('#buzz').classList.toggle('hide', mode === 'board');
+  $('#status').textContent = mode === 'board' ? '' : 'Read the options, then buzz to lock in.';
+  if (mode !== 'board') armBuzz();
 }
 function buildOptions(options) {
   const box = $('#opts'); box.textContent = '';
@@ -236,10 +327,11 @@ $('#buzz').onclick = () => {
 };
 function onLocked(m) {
   myTurn = m.id === me;
+  $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
   $('#buzz').classList.add('hide');
   $('#opts').classList.remove('hide');
   [...document.querySelectorAll('.opt')].forEach(o => o.disabled = !myTurn);
-  $('#status').textContent = myTurn ? 'You buzzed in! Answer now.' : `${m.name} buzzed in.`;
+  $('#status').textContent = myTurn ? 'Your answer — pick one.' : `${m.name} is answering.`;
   if (myTurn) navigator.vibrate?.([30, 60, 30]);
 }
 function answer(i) {
@@ -257,13 +349,15 @@ function onReopen(m) {
   deadline = m.deadline;
   myTurn = false; answered = false;
   const iTried = (m.tried || []).includes(me);
-  $('#opts').classList.add('hide');
+  [...document.querySelectorAll('.opt')].forEach(o => o.disabled = true);
+  $('#opts').classList.remove('hide');
   $('#buzz').classList.remove('hide');
   $('#buzz').disabled = iTried;
   $('#buzzSub').textContent = iTried ? 'you already tried' : 'open again!';
   $('#status').textContent = iTried ? 'Someone else can steal this one.' : 'Back open — buzz!';
 }
 function onReveal(m) {
+  $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
   $('#buzz').classList.add('hide');
   $('#opts').classList.remove('hide');
   [...document.querySelectorAll('.opt')].forEach((o, i) => {
@@ -275,7 +369,8 @@ function onReveal(m) {
   renderScores(m.scores);
 }
 function onOver(m) {
-  started = false; $('#startBtn').textContent = 'Start the round';
+  started = false; $('#startBtn').textContent = 'Start the round'; $('#endBtn').classList.add('hide');
+  $('#boardCard').classList.add('hide'); $('#qCard').classList.remove('hide');
   $('#buzz').classList.add('hide'); $('#opts').classList.add('hide');
   const top = m.scores[0];
   $('#qText').textContent = top ? `${top.name} wins with ${top.score} points!` : 'Game over.';

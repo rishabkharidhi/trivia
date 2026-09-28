@@ -1,9 +1,10 @@
 // Snow's Push to Think Trivia: online rooms.
 // One Durable Object per room holds the authoritative state and talks WebSockets to every device.
 import {
-  BUZZ_GRACE_MS, ANSWER_MS, REVEAL_LEAD_MS,
+  BUZZ_GRACE_MS, REVEAL_LEAD_MS,
   normalizeBuzz, rankBuzzes, awardPoints, penalty, remainingContenders,
-  pickQuestion, shuffleOptions, scoreboard
+  pickQuestion, shuffleOptions, scoreboard,
+  buildBoard, boardTilesLeft, boardTopValue, publicBoard, nextTurn
 } from './rules.js';
 
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0/I/1
@@ -29,7 +30,8 @@ const BLANK = () => ({
   players: {},               // pid -> { name, score, connected }
   controllerId: null,        // the player who presses Start/Next; screens never control
   round: 0,
-  settings: { rounds: 10, category: 'all', difficulty: 'any', timer: 20000, autoNext: true },
+  settings: { mode: 'buzz', rounds: 10, category: 'all', difficulty: 'any', timer: 20000, answerMs: 7000, boardSize: 'full', autoNext: true },
+  board: null, turn: null, picker: null, tileValue: 0, wagering: false,
   question: null,            // { id, text, options, correctIdx, category, difficulty, explain, source }
   shownAt: 0, deadline: 0,
   buzzes: [], tried: [], lockedId: null, buzzSeq: 0,
@@ -90,6 +92,8 @@ export class Room {
     return {
       phase: s.phase, round: s.round, settings: s.settings,
       players: scoreboard(s.players), controllerId: s.controllerId,
+      mode: s.settings.mode,
+      board: s.board ? publicBoard(s.board) : null, turn: s.turn, tileValue: s.tileValue,
       question: s.question ? { text: s.question.text, options: s.question.options, category: s.question.category, difficulty: s.question.difficulty, id: s.question.id } : null,
       shownAt: s.shownAt, deadline: s.deadline, lockedId: s.lockedId, tried: s.tried,
       lastReveal: s.lastReveal
@@ -114,10 +118,13 @@ export class Room {
       this.state.settings = { ...this.state.settings, ...(m.settings || {}) };
       Object.values(this.state.players).forEach(p => { p.score = 0; });
       this.state.round = 0; this.state.usedIds = []; this.state.catCounts = {}; this.state.lastCategory = null;
-      await this.nextQuestion();
+      this.state.board = null; this.state.turn = null; this.state.picker = null;
+      if (this.state.settings.mode === 'board') await this.startBoard(); else await this.nextQuestion();
       return;
     }
-    if (m.t === 'next' && isController) { await this.nextQuestion(); return; }
+    if (m.t === 'pick' && this.state.settings.mode === 'board') { await this.pickTile(pid, m.r, m.c); return; }
+    if (m.t === 'wager' && pid === this.state.picker && this.state.wagering) { await this.setWager(Number(m.amount)); return; }
+    if (m.t === 'next' && isController) { this.state.settings.mode === 'board' ? await this.backToBoard() : await this.nextQuestion(); return; }
     if (m.t === 'end' && isController) { this.state.phase = 'over'; await this.save(); this.broadcast({ t: 'over', scores: scoreboard(this.state.players) }); return; }
 
     if (m.t === 'buzz') {
@@ -164,8 +171,10 @@ export class Room {
     this.state.timer = null;
     if (t.kind === 'grace') return this.lockWinner();
     if (t.kind === 'answer') return this.resolveAnswer(this.state.lockedId, -1);   // ran out of time
+    if (t.kind === 'pick') return this.autoPick();                                  // picker went quiet
     if (t.kind === 'question') return this.reveal(null);                            // nobody buzzed
-    if (t.kind === 'autonext') return this.nextQuestion();
+    if (t.kind === 'autonext') return this.state.settings.mode === 'board' ? this.backToBoard() : this.nextQuestion();
+    if (t.kind === 'wager') return this.setWager(0);            // picker never entered one
   }
 
   async nextQuestion() {
@@ -204,6 +213,103 @@ export class Room {
     });
   }
 
+  /* ---------- board mode ---------- */
+  async startBoard() {
+    let bank;
+    try { bank = await this.bankOrFetch(); }
+    catch (e) { this.broadcast({ t: 'error', msg: `Could not load questions: ${e.message}` }); return; }
+    const board = buildBoard(bank, this.state.settings.boardSize);
+    if (!board) { this.broadcast({ t: 'error', msg: 'Not enough categories to build a board.' }); return; }
+    this.state.board = board;
+    this.state.bankIndex = null;
+    const order = this.playerOrder();
+    this.state.turn = order[0] || null;
+    await this.backToBoard(true);
+  }
+  playerOrder() { return Object.keys(this.state.players).filter(id => this.state.players[id].connected); }
+
+  async backToBoard(first = false) {
+    const s = this.state;
+    if (!s.board) return;
+    if (!boardTilesLeft(s.board)) {
+      s.phase = 'over'; await this.save();
+      this.broadcast({ t: 'over', scores: scoreboard(s.players) });
+      return;
+    }
+    const order = this.playerOrder();
+    if (!order.length) { await this.save(); return; }
+    s.turn = first ? (order.includes(s.turn) ? s.turn : order[0]) : nextTurn(order, s.turn);
+    if (!order.includes(s.turn)) s.turn = order[0];
+    s.phase = 'board'; s.question = null; s.buzzes = []; s.tried = []; s.lockedId = null; s.lastReveal = null;
+    await this.setTimer('pick', Date.now() + 60000);
+    this.broadcast({ t: 'board', board: publicBoard(s.board), turn: s.turn, turnName: s.players[s.turn]?.name || '', scores: scoreboard(s.players) });
+  }
+
+  async autoPick() {   // nobody picked in time: choose for them so the game keeps moving
+    const s = this.state;
+    if (s.phase !== 'board' || !s.board) return;
+    const open = s.board.grid.flat().filter(t => !t.done);
+    if (!open.length) return this.backToBoard();
+    const t = open[Math.floor(Math.random() * open.length)];
+    await this.pickTile(s.turn, t.r, t.c, true);
+  }
+
+  async pickTile(pid, r, c, auto = false) {
+    const s = this.state;
+    if (s.phase !== 'board' || !s.board || (!auto && pid !== s.turn)) return;
+    const tile = s.board.grid?.[r]?.[c];
+    if (!tile || tile.done) return;
+    tile.done = true;
+    s.picker = s.turn; s.tileValue = tile.value; s.tileDD = tile.dd;
+    s.pendingTile = { r, c };
+    if (tile.dd) {                                  // the picker wagers before seeing the question
+      s.phase = 'wager'; s.wagering = true;
+      const max = Math.max(s.players[s.picker]?.score || 0, boardTopValue(s.board));
+      await this.setTimer('wager', Date.now() + 25000);
+      this.broadcast({ t: 'wager', id: s.picker, name: s.players[s.picker]?.name || '', max });
+      return;
+    }
+    await this.serveTileQuestion();
+  }
+
+  async setWager(amount) {
+    const s = this.state;
+    if (!s.wagering) return;
+    const max = Math.max(s.players[s.picker]?.score || 0, boardTopValue(s.board));
+    s.tileValue = Math.max(0, Math.min(Math.round(amount) || 0, max));
+    s.wagering = false;
+    this.broadcast({ t: 'wagered', id: s.picker, name: s.players[s.picker]?.name || '', amount: s.tileValue });
+    await this.serveTileQuestion();
+  }
+
+  async serveTileQuestion() {
+    const s = this.state;
+    let bank; try { bank = await this.bankOrFetch(); } catch { return; }
+    const { r, c } = s.pendingTile;
+    const q = bank.find(x => x.id === s.board.grid[r][c].qid);
+    if (!q) return this.backToBoard();
+    const options = shuffleOptions(q);
+    s.round++;
+    s.question = {
+      id: q.id, text: q.type === 'boolean' ? `True or false: ${q.question}` : q.question,
+      options, correctIdx: options.indexOf(q.correct), category: q.category, difficulty: q.difficulty,
+      explain: q.explain || '', source: q.explainSource || null
+    };
+    s.phase = 'locked';                      // the picker owns the first attempt, no buzzing needed
+    s.lockedId = s.picker; s.tried = []; s.buzzes = [];
+    s.shownAt = Date.now() + REVEAL_LEAD_MS;
+    const deadline = s.shownAt + (s.settings.answerMs || 7000) + 3000;
+    s.deadline = deadline;
+    s.lockedAt = s.shownAt;
+    await this.setTimer('answer', deadline);
+    this.broadcast({
+      t: 'question', round: s.round, now: Date.now(), mode: 'board',
+      question: { text: s.question.text, options, category: q.category, difficulty: q.difficulty },
+      shownAt: s.shownAt, deadline, value: s.tileValue, owner: s.picker, ownerName: s.players[s.picker]?.name || '', dd: !!s.tileDD
+    });
+    this.broadcast({ t: 'locked', id: s.picker, name: s.players[s.picker]?.name || '', deadline, now: Date.now() });
+  }
+
   async lockWinner() {
     const s = this.state;
     if (s.phase !== 'question' || !s.buzzes.length) return;
@@ -212,7 +318,7 @@ export class Room {
     s.lockedAt = winner.at;
     s.phase = 'locked';
     s.buzzes = [];
-    const deadline = Date.now() + ANSWER_MS;
+    const deadline = Date.now() + (s.settings.answerMs || 7000);
     await this.setTimer('answer', deadline);
     this.broadcast({ t: 'locked', id: winner.id, name: s.players[winner.id]?.name || '?', deadline, now: Date.now() });
   }
@@ -222,18 +328,19 @@ export class Room {
     const p = s.players[pid];
     if (!p) return;
     const right = idx === s.question.correctIdx;
+    const board = s.settings.mode === 'board';
     s.tried.push(pid);
     let delta;
     if (right) {
-      delta = awardPoints(s.question.difficulty, Math.max(0, (s.lockedAt || Date.now()) - s.shownAt), s.settings.timer);
+      delta = board ? s.tileValue : awardPoints(s.question.difficulty, Math.max(0, (s.lockedAt || Date.now()) - s.shownAt), s.settings.timer);
       p.score += delta;
       return this.reveal({ id: pid, name: p.name, delta, correct: true });
     }
-    delta = -penalty(s.question.difficulty);
+    delta = board ? -s.tileValue : -penalty(s.question.difficulty);
     p.score += delta;
-    const left = remainingContenders(s.players, s.tried);
+    const left = remainingContenders(s.players, s.tried).filter(id => !board || id !== s.picker);
     this.broadcast({ t: 'wrong', id: pid, name: p.name, delta, scores: scoreboard(s.players), timedOut: idx < 0 });
-    if (left.length) {                              // reopen to everyone who hasn't tried
+    if (left.length && !(board && s.tileDD)) {      // reopen; Double Down tiles are the picker's alone
       s.phase = 'question'; s.lockedId = null; s.buzzes = [];
       s.deadline = Date.now() + Math.min(s.settings.timer, 10000);
       await this.setTimer('question', s.deadline);
@@ -250,7 +357,8 @@ export class Room {
       correctIdx: s.question.correctIdx, correct: s.question.options[s.question.correctIdx],
       explain: s.question.explain, source: s.question.source, winner
     };
-    if (s.settings.autoNext) await this.setTimer('autonext', Date.now() + 7000); else await this.save();
-    this.broadcast({ t: 'reveal', ...s.lastReveal, scores: scoreboard(s.players), round: s.round, rounds: s.settings.rounds });
+    if (s.settings.autoNext) await this.setTimer('autonext', Date.now() + (s.settings.mode === 'board' ? 6000 : 7000)); else await this.save();
+    this.broadcast({ t: 'reveal', ...s.lastReveal, scores: scoreboard(s.players), round: s.round, rounds: s.settings.rounds,
+      board: s.board ? publicBoard(s.board) : null, tilesLeft: s.board ? boardTilesLeft(s.board) : 0 });
   }
 }

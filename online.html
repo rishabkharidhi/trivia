@@ -22,7 +22,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .pill{background:var(--studio-2);border:2px solid var(--edge);border-radius:999px;padding:6px 16px;font-size:17px;font-weight:700}
 .spacer{flex:1}
 .code{font-family:var(--display);font-size:34px;color:var(--marquee);letter-spacing:6px}
-.board{position:absolute;left:340px;top:80px;width:912px;min-height:300px;border-radius:26px;padding:26px 32px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 18px 40px rgba(5,7,40,.5)}
+.board{position:absolute;left:28px;top:80px;width:912px;min-height:300px;border-radius:26px;padding:26px 32px;background:linear-gradient(180deg,var(--studio-2),#1a1f6e);box-shadow:inset 0 0 0 3px var(--edge),0 18px 40px rgba(5,7,40,.5)}
 .chips{display:flex;gap:10px;margin-bottom:14px}
 .chip{font-size:15px;font-weight:700;padding:5px 14px;border-radius:999px;background:rgba(246,243,255,.1)}
 .chip.easy{background:var(--go);color:var(--ink)}.chip.medium{background:var(--marquee);color:var(--ink)}.chip.hard{background:var(--hot)}
@@ -32,32 +32,37 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .opt{display:flex;align-items:center;gap:14px;border:3px solid var(--edge);border-radius:16px;background:rgba(35,42,134,.6);padding:12px 16px;font-size:21px;font-weight:700}
 .opt .k{flex:none;width:40px;height:40px;border-radius:50%;background:var(--marquee);color:var(--ink);display:grid;place-items:center;font-family:var(--display)}
 .opt.right{background:var(--go);color:var(--ink);border-color:#aff5e3}
-.fuse{position:absolute;left:340px;top:auto;width:912px;height:12px;border-radius:6px;background:rgba(246,243,255,.12);overflow:hidden}
+.fuse{position:absolute;left:28px;top:auto;width:912px;height:12px;border-radius:6px;background:rgba(246,243,255,.12);overflow:hidden}
 .fuse i{display:block;height:100%;background:linear-gradient(90deg,var(--marquee),#ffdf7e);width:100%}
 .fuse.warn i{background:linear-gradient(90deg,#ff9f1c,var(--marquee))}
 .fuse.danger i{background:linear-gradient(90deg,var(--bust),#ff8a5b)}
-.side{position:absolute;left:28px;top:80px;width:290px}
+.side{position:absolute;right:28px;top:80px;width:300px}
 .side h2{font-size:16px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 10px}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--studio-2);box-shadow:inset 0 0 0 2px var(--edge);margin-bottom:8px;font-size:18px}
 .prow.buzzed{background:#3a2f80;box-shadow:inset 0 0 0 2px var(--marquee)}
 .prow.out{opacity:.5}
 .prow .s{font-family:var(--display);font-size:20px}
 .prow .s.neg{color:var(--bust)}
-.join{position:absolute;left:340px;bottom:26px;width:912px;display:flex;align-items:center;gap:18px;font-size:17px;color:var(--muted)}
+.join{position:absolute;left:28px;bottom:26px;width:912px;display:flex;align-items:center;gap:18px;font-size:17px;color:var(--muted)}
 .join b{color:var(--paper)}
-.controls{position:absolute;right:28px;bottom:26px;display:flex;gap:12px}
-.banner{position:absolute;left:340px;top:80px;width:912px;border-radius:26px;padding:22px 32px;background:linear-gradient(180deg,#2a0f4f,#1b1060);box-shadow:inset 0 0 0 4px var(--hot)}
+.controls{position:absolute;left:28px;bottom:70px;display:flex;gap:12px}
+.banner{position:absolute;left:28px;top:80px;width:912px;border-radius:26px;padding:22px 32px;background:linear-gradient(180deg,#2a0f4f,#1b1060);box-shadow:inset 0 0 0 4px var(--hot)}
 .banner h1{font-family:var(--display);font-size:46px;margin:0 0 6px;color:var(--marquee)}
 .banner p{margin:0;font-size:19px;color:var(--muted)}
 .buzzline{font-size:24px;font-weight:800;color:var(--marquee);min-height:32px;margin-top:8px}
 .fact{margin-top:14px;background:rgba(246,243,255,.08);border-left:6px solid var(--go);border-radius:12px;padding:12px 16px;font-size:18px;line-height:1.4}
 .fact b{display:block;color:var(--go);font-size:16px;margin-bottom:4px}
 .fact a{color:#b9befa;font-size:13px}
-.setup{position:absolute;left:340px;top:300px;width:912px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.setup{position:absolute;left:28px;top:290px;width:912px;display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 .field{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
 .field select,.field input{font:500 17px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:12px;padding:9px 12px;min-width:150px;max-width:230px}
 .hide{display:none!important}
-.err{position:absolute;left:340px;top:640px;color:var(--bust);font-weight:700}
+.bgrid{position:absolute;left:28px;top:80px;width:912px;display:grid;gap:8px}
+.bcat{height:56px;display:grid;place-items:center;text-align:center;padding:4px 6px;border-radius:12px;background:#2a0f4f;box-shadow:inset 0 0 0 3px var(--hot);font-weight:800;font-size:14px;line-height:1.15}
+.btile{height:74px;display:grid;place-items:center;border:3px solid var(--edge);border-radius:14px;background:var(--studio-2);font-family:var(--display);font-size:26px;color:var(--marquee)}
+.btile.done{opacity:.12}
+.turnline{position:absolute;left:28px;top:auto;bottom:120px;width:912px;font-size:26px;font-weight:800;color:var(--marquee)}
+.err{position:absolute;left:28px;top:640px;color:var(--bust);font-weight:700}
 </style>
 </head>
 <body>
@@ -87,6 +92,10 @@ button{font-family:inherit;color:inherit;cursor:pointer}
   </div>
 
   <!-- play -->
+  <div id="boardView" class="hide">
+    <div class="bgrid" id="bgrid"></div>
+    <div class="turnline" id="turnline"></div>
+  </div>
   <div id="play" class="hide">
     <div class="board">
       <div class="chips" id="chips"></div>
@@ -105,7 +114,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 
 <script type="module">
 // Point this at your deployed Worker, or pass ?server=... in the URL.
-const DEFAULT_SERVER = 'https://push-to-think.rishab-kharidhi.workers.dev/';
+const DEFAULT_SERVER = 'https://push-to-think.rishab-kharidhi.workers.dev';
 const qs = new URLSearchParams(location.search);
 const server = (qs.get('server') || localStorage.getItem('ptt.server') || DEFAULT_SERVER).replace(/\/$/, '');
 if (qs.get('server')) localStorage.setItem('ptt.server', qs.get('server'));
@@ -148,6 +157,9 @@ function handle(m) {
   if (m.t === 'pong') { const now = Date.now(), rtt = now - m.c; if (rtt < bestRtt) { bestRtt = rtt; offset = m.s + rtt / 2 - now; } return; }
   if (m.t === 'welcome' || m.t === 'state') { players = m.state.players; renderPlayers(); return; }
   if (m.t === 'players') { players = m.players; renderPlayers(); return; }
+  if (m.t === 'board') return onBoard(m);
+  if (m.t === 'wager') { $('#turnline').textContent = `${m.name} found a Double Down — wagering up to ${m.max}…`; return; }
+  if (m.t === 'wagered') { $('#turnline').textContent = `${m.name} wagers ${m.amount}.`; return; }
   if (m.t === 'question') return onQuestion(m);
   if (m.t === 'buzzing') { $('#buzzline').textContent = `${m.name} buzzed in…`; buzzedId = m.id; renderPlayers(); return; }
   if (m.t === 'locked') { $('#buzzline').textContent = `${m.name} is answering…`; buzzedId = m.id; renderPlayers(); stopTimer(); return; }
@@ -158,9 +170,24 @@ function handle(m) {
   if (m.t === 'error') { $('#err').textContent = m.msg; return; }
 }
 
+function onBoard(m) {
+  $('#lobby').classList.add('hide'); $('#play').classList.add('hide'); $('#boardView').classList.remove('hide');
+  $('#phasePill').textContent = 'Board';
+  const grid = $('#bgrid'); grid.textContent = '';
+  grid.style.gridTemplateColumns = `repeat(${m.board.cats.length}, 1fr)`;
+  m.board.cats.forEach(c => { const d = document.createElement('div'); d.className = 'bcat'; d.textContent = c.replace(/^(Entertainment|Science): /, ''); grid.appendChild(d); });
+  m.board.grid.forEach(row => row.forEach(t => {
+    const d = document.createElement('div'); d.className = 'btile' + (t.done ? ' done' : '');
+    d.textContent = t.done ? '' : t.value; grid.appendChild(d);
+  }));
+  $('#turnline').textContent = `${m.turnName} is picking…`;
+  if (m.scores) { players = m.scores; renderPlayers(); }
+}
+
 function onQuestion(m) {
-  $('#lobby').classList.add('hide'); $('#play').classList.remove('hide');
-  $('#phasePill').textContent = `Question ${m.round}${m.rounds ? ' of ' + m.rounds : ''}`;
+  $('#lobby').classList.add('hide'); $('#boardView').classList.add('hide'); $('#play').classList.remove('hide');
+  if (m.mode === 'board') $('#phasePill').textContent = `${m.ownerName}'s tile for ${m.value}${m.dd ? ' (Double Down)' : ''}`;
+  else $('#phasePill').textContent = `Question ${m.round}${m.rounds ? ' of ' + m.rounds : ''}`;
   $('#err').textContent = ''; $('#fact').classList.add('hide');
   $('#buzzline').textContent = '';
   buzzedId = null; renderPlayers();
@@ -208,7 +235,7 @@ function onReveal(m) {
 }
 function onOver(m) {
   stopTimer(); $('#fuse').classList.add('hide');
-  $('#play').classList.add('hide'); $('#lobby').classList.remove('hide');
+  $('#play').classList.add('hide'); $('#boardView').classList.add('hide'); $('#lobby').classList.remove('hide');
   $('#phasePill').textContent = 'Final scores';
   players = m.scores; renderPlayers();
   const top = m.scores[0];
