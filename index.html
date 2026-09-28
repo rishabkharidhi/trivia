@@ -83,24 +83,28 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 .marquee h1{margin:0;font-family:var(--display);font-weight:400;font-size:66px;line-height:.98;color:var(--marquee);text-shadow:0 0 18px rgba(255,197,61,.55),0 4px 0 #a3321f}
 .marquee h1 small{display:block;font-size:28px;color:var(--paper);text-shadow:none;margin-bottom:4px}
 .marquee h1 span{display:block;font-size:46px;color:var(--paper);text-shadow:0 0 16px rgba(255,61,139,.7),0 4px 0 var(--hot)}
-.tagline{margin:18px 4px 16px;font-size:21px;line-height:1.4;color:var(--muted);max-width:720px}
+.tagline{margin:14px 4px 10px;font-size:21px;line-height:1.4;color:var(--muted);max-width:720px}
+.modes-label{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .modes{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
-.mode{text-align:left;background:var(--studio-2);border:3px solid var(--edge);border-radius:16px;padding:12px 12px;min-height:118px}
+.mode{text-align:left;background:var(--studio-2);border:3px solid var(--edge);border-radius:16px;padding:11px 11px;min-height:110px}
 .mode b{display:block;font-size:17px;line-height:1.1;font-weight:800;margin-bottom:6px}
 .mode small{display:block;font-size:12.5px;line-height:1.3;color:var(--muted)}
 .mode[aria-pressed="true"]{border-color:var(--marquee);background:#3a2f80;box-shadow:0 0 0 3px rgba(255,197,61,.25)}
 .mode[aria-pressed="true"] small{color:var(--paper)}
-.options{display:flex;gap:16px;margin:18px 0 20px}
+.options{display:flex;gap:16px;margin:14px 0 16px}
 .field{display:flex;flex-direction:column;gap:6px;font-size:15px;color:var(--muted)}
 .field select{font:500 17px var(--body);color:var(--paper);background:var(--studio-2);border:2px solid var(--edge);border-radius:12px;padding:9px 12px;min-width:170px;max-width:255px}
 .field select option{background:var(--studio)}
 .actions{display:flex;gap:14px;align-items:center}
-.btn{border:0;border-radius:999px;padding:14px 26px;font-size:18px;font-weight:700;background:var(--studio-3);box-shadow:inset 0 0 0 2px var(--edge)}
+.btn{border:0;border-radius:999px;padding:13px 22px;font-size:17px;font-weight:700;white-space:nowrap;background:var(--studio-3);box-shadow:inset 0 0 0 2px var(--edge)}
 .btn:hover{background:#3a44c0}
-.btn.primary{background:var(--marquee);color:var(--ink);font-size:22px;padding:16px 34px;box-shadow:0 6px 0 #b8860b}
+.btn.primary{background:var(--marquee);color:var(--ink);font-size:21px;padding:15px 28px;box-shadow:0 6px 0 #b8860b}
 .btn.primary:hover{background:#ffd36b}
 .btn.primary:active{transform:translateY(3px);box-shadow:0 3px 0 #b8860b}
-.status{margin-top:16px;font-size:15px;color:var(--muted);min-height:20px}
+.btn.online{background:var(--hot);box-shadow:0 5px 0 #a31459}
+.btn.online:hover{background:#ff5f9f}
+.btn.online:active{transform:translateY(2px);box-shadow:0 3px 0 #a31459}
+.status{margin-top:12px;font-size:15px;color:var(--muted);min-height:20px}
 .credit{position:absolute;right:28px;bottom:14px;font-size:13px;color:#7c83c9}
 .credit a{color:#9aa1e6}
 
@@ -333,6 +337,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
     <div class="panel">
       <div class="marquee" id="marquee"><h1><small>Snow's</small>Push to Think<span>Trivia</span></h1><div class="bulbs"></div></div>
       <p class="tagline">Hosted by Fae N'Lancer. Share your screen, shout your answers, argue about the results.</p>
+      <p class="modes-label">One screen, everyone in the room</p>
       <div class="modes" role="group" aria-label="Game mode">
         <button class="mode" data-mode="classic" aria-pressed="true"><b>Classic</b><small id="classicDesc">10 questions, a timer on each</small></button>
         <button class="mode" data-mode="lightning" aria-pressed="false"><b>Lightning</b><small>60 seconds, answer as many as you can</small></button>
@@ -348,6 +353,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
       </div>
       <div class="actions">
         <button class="btn primary" id="startBtn">Start the show <kbd>Enter</kbd></button>
+        <button class="btn online" id="onlineBtn">Multiplayer</button>
         <button class="btn" id="settingsBtn">Settings</button>
         <button class="btn" id="testVoiceBtn">Test host voice</button>
       </div>
@@ -3298,6 +3304,8 @@ $('#catSel').onchange = e => { settings.category = e.target.value; saveSettings(
 $('#diffSel').onchange = e => { settings.difficulty = e.target.value; saveSettings(); };
 $('#roundSel').onchange = e => { settings.rounds = +e.target.value; saveSettings(); $('#classicDesc').textContent = `${settings.rounds} questions, a timer on each`; };
 $('#startBtn').onclick = () => startGame();
+// Online rooms live on their own page; everything above this is the single-screen game.
+$('#onlineBtn').onclick = () => { location.href = 'play.html'; };
 $('#testVoiceBtn').onclick = async () => {
   ac();
   if (settings.muted) { toast('The host is muted. Press M to unmute.'); return; }
